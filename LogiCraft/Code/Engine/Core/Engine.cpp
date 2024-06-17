@@ -31,7 +31,7 @@ SOFTWARE.
 
 #include "Engine.h"
 
-#include <cassert>
+#include <assert.h>
 
 Engine* s_pEngine = nullptr;
 
@@ -54,4 +54,5 @@ Engine::~Engine()
 
 void Engine::Init() {}
 
-void Engine::Update() {}
+void Engine::Update() {
+}

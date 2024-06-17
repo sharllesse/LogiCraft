@@ -15,7 +15,7 @@
 #include <SFML/Window/Touch.hpp>
 #include <SFML/Window/Window.hpp>
 
-#include <cassert>
+#include <assert.h>
 #include <cmath> // abs
 #include <cstddef> // offsetof, nullptr, size_t
 #include <cstdint> // uint8_t

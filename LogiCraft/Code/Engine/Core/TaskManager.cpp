@@ -31,7 +31,7 @@ SOFTWARE.
 
 #include "TaskManager.h"
 
-#include <cassert>
+#include <assert.h>
 
 TaskManager* s_pTaskManager = nullptr;
 

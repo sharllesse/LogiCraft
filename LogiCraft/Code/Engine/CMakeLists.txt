@@ -13,7 +13,7 @@ add_library(Logi_Engine SHARED ${engine_sources})
 
 target_compile_definitions(Logi_Engine PRIVATE LOGI_ENGINE_EXPORTS)
 
-target_include_directories(Logi_Engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(Logi_Engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
 install(TARGETS Logi_Engine
         RUNTIME DESTINATION bin
@@ -22,3 +22,6 @@ install(TARGETS Logi_Engine
 
 # Link SFML statically
 target_link_libraries(Logi_Engine PUBLIC sfml-system sfml-window sfml-graphics)
+
+# Link ImGui statically
+target_link_libraries(Logi_Engine PUBLIC ImGui)

@@ -2,6 +2,7 @@
 
 project(LogiCraft)
 
+add_subdirectory(Code/imgui/)
 add_subdirectory(Code/Engine/)
 add_subdirectory(Code/Editor/)
 

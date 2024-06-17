@@ -9,7 +9,11 @@ target_include_directories(Logi_Editor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../ ${
 
 install(TARGETS Logi_Editor DESTINATION bin)
 
+# Lnk engine dynamically
 target_link_libraries(Logi_Editor PRIVATE Logi_Engine)
+
+# Link ImGui statically
+target_link_libraries(Logi_Editor PUBLIC ImGui)
 
 if(MSVC)
   target_compile_options(Logi_Editor PUBLIC "/ZI")
