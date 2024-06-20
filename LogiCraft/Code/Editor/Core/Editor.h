@@ -1,7 +1,10 @@
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
-Copyright (c) [2024] [CIRON Robin]
+Copyright (c) 2024 CIRON Robin
+Copyright (c) 2024 GRALLAN Yann
+Copyright (c) 2024 LESAGE Charles
+Copyright (c) 2024 MENA-BOUR Samy
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -30,9 +33,10 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
+#include "Core/Panel.h"
 #include <Engine/Core/Engine.h>
-
 #include <memory>
+#include <vector>
 
 class Editor
 {
@@ -43,6 +47,9 @@ public:
 	~Editor();
 	void Run();
 
+	void CreatePanels();
+
 private:
 	std::unique_ptr<Engine> m_pEngine;
+	std::vector<PanelPtr>   m_panels;
 };

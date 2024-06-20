@@ -1,7 +1,10 @@
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
-Copyright (c) [2024] [CIRON Robin]
+Copyright (c) 2024 CIRON Robin
+Copyright (c) 2024 GRALLAN Yann
+Copyright (c) 2024 LESAGE Charles
+Copyright (c) 2024 MENA-BOUR Samy
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -67,7 +70,7 @@ TaskManager::TaskManager()
 				// Execute the task
 				task();
 			}
-			});
+		});
 	}
 
 	assert(!s_pTaskManager);
@@ -77,6 +80,7 @@ TaskManager::TaskManager()
 TaskManager::~TaskManager()
 {
 	s_pTaskManager = nullptr;
+	EndAllTasks();
 }
 
 void TaskManager::EndAllTasks()

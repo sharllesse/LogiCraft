@@ -1,7 +1,10 @@
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
-Copyright (c) [2024] [CIRON Robin]
+Copyright (c) 2024 CIRON Robin
+Copyright (c) 2024 GRALLAN Yann
+Copyright (c) 2024 LESAGE Charles
+Copyright (c) 2024 MENA-BOUR Samy
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -30,3 +33,22 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ContentBrowser.h"
+
+#include <imgui/imgui.h>
+
+ContentBrowser::ContentBrowser(const char* name)
+  : Panel(name)
+{
+}
+
+void ContentBrowser::Unload() {}
+
+void ContentBrowser::Load() {}
+
+void ContentBrowser::Draw()
+{
+	ImGui::Begin(m_name.c_str());
+	ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
+	ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);
+	ImGui::End();
+}

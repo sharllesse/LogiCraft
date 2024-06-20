@@ -1,7 +1,10 @@
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
-Copyright (c) [2024] [CIRON Robin]
+Copyright (c) 2024 CIRON Robin
+Copyright (c) 2024 GRALLAN Yann
+Copyright (c) 2024 LESAGE Charles
+Copyright (c) 2024 MENA-BOUR Samy
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -32,7 +35,9 @@ SOFTWARE.
 #include "Editor.h"
 
 #include <SFML/Graphics.hpp>
-#include <cassert>
+#include <assert.h>
+#include <imgui/imgui-SFML.h>
+#include <imgui/imgui.h>
 
 Editor* s_pEditor = nullptr;
 
@@ -57,20 +62,49 @@ void Editor::Run()
 {
 	m_pEngine = std::make_unique<Engine>();
 	m_pEngine->Init();
+	CreatePanels();
 
-	sf::RenderWindow window(sf::VideoMode(800, 600), "LogiCraft");
+	sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "LogiCraft");
+	ImGui::CreateContext();
+	ImGui::SFML::Init(window);
 	while (window.isOpen())
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
+			ImGui::SFML::ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
 
 		m_pEngine->Update();
+		for (auto& pPanel : m_panels)
+		{
+			pPanel->Update();
+		}
 
 		window.clear();
+		sf::Time currentTime = sf::milliseconds(16);
+		ImGui::SFML::Update(window, currentTime);
+
+		ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+
+		for (auto& pPanel : m_panels)
+		{
+			pPanel->Draw();
+		}
+
+		ImGui::SFML::Render(window);
 		window.display();
+	}
+	ImGui::SFML::Shutdown();
+}
+
+void Editor::CreatePanels()
+{
+	for (PanelRegisterer* pRegisterer : PanelRegisterer::s_registerers)
+	{
+		m_panels.push_back(pRegisterer->Create());
+		m_panels.back()->StartLoading();
 	}
 }

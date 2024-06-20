@@ -1,7 +1,10 @@
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
-Copyright (c) [2024] [CIRON Robin]
+Copyright (c) 2024 CIRON Robin
+Copyright (c) 2024 GRALLAN Yann
+Copyright (c) 2024 LESAGE Charles
+Copyright (c) 2024 MENA-BOUR Samy
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -32,11 +35,44 @@ SOFTWARE.
 #pragma once
 #include <Engine/Core/AsyncLoadedObject.h>
 
+#include <memory>
+#include <string>
+#include <vector>
+
+#define LOGI_DECLARE_PANEL(type) inline static TypedRegisterer<type> s_registerer{};
+// How to declare a panel class :
+//	class MyPanelClass : public Panel
+//	{
+//		LOGI_DECLARE_PANEL(MyPanelClass)
+// 	public:
+// 		...
+//	};
+
 class Panel : public AsyncLoadedObject
 {
 public:
-	Panel();
+	Panel(const char* name);
 
 	virtual void Update() {}
-	virtual void Draw()=0;
+	virtual void Draw() = 0;
+
+protected:
+	std::string m_name;
+};
+using PanelPtr = std::shared_ptr<Panel>;
+
+class PanelRegisterer
+{
+public:
+	inline static std::vector<PanelRegisterer*> s_registerers;
+
+	PanelRegisterer() { s_registerers.emplace_back(this); }
+	virtual std::shared_ptr<Panel> Create() = 0;
+};
+
+template<typename C>
+class TypedRegisterer : public PanelRegisterer
+{
+public:
+	std::shared_ptr<Panel> Create() override { return std::make_shared<C>(&typeid(C).name()[6 /*length of "class "*/]); }
 };
