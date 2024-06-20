@@ -32,6 +32,7 @@ SOFTWARE.
 #pragma once
 #include <define.h>
 
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -39,10 +40,13 @@ SOFTWARE.
 #include <thread>
 #include <utility>
 
+#pragma warning(push)
+#pragma warning(disable : 4251) // 4251 can't be avoided with STL types
+
 class LOGI_ENGINE_API TaskManager
 {
 public:
-	static const int NumThreads = 32;
+	static const int NumThreads = 16;
 
 	static TaskManager& Get();
 
@@ -68,8 +72,10 @@ public:
 private:
 	std::vector<std::thread>          m_workers;
 	std::queue<std::function<void()>> m_taskQueue;
-	std::mutex                        m_queueMutex;
 	std::condition_variable           m_condition;
 
-	bool m_stop;
+	std::mutex        m_queueMutex;
+	std::atomic<bool> m_stop{false};
 };
+
+#pragma warning(pop)

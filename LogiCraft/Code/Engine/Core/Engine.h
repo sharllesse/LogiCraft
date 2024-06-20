@@ -30,9 +30,14 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "define.h"
 #include "TaskManager.h"
 
+#include "define.h"
+
+#include <memory>
+
+#pragma warning(push)
+#pragma warning(disable : 4251) // 4251 can't be avoided with STL types
 
 class LOGI_ENGINE_API Engine
 {
@@ -45,7 +50,8 @@ public:
 	void Init();
 	void Update();
 
-	private:
+private:
 	std::unique_ptr<TaskManager> m_pTaskManager;
 };
 
+#pragma warning(pop)

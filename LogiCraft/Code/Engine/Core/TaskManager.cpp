@@ -42,7 +42,6 @@ TaskManager& TaskManager::Get()
 }
 
 TaskManager::TaskManager()
-	: m_stop(false)
 {
 	for (int i = 0; i < NumThreads; ++i)
 	{

@@ -32,8 +32,11 @@ SOFTWARE.
 #pragma once
 #include <define.h>
 
-// Circumvent warning c4251
-struct AsyncLoadedOject_Private;
+#include <atomic>
+#include <mutex>
+
+#pragma warning(push)
+#pragma warning(disable : 4251) // 4251 can't be avoided with STL types
 
 class LOGI_ENGINE_API AsyncLoadedObject
 {
@@ -50,6 +53,8 @@ protected:
 	virtual void Load() = 0;
 
 private:
-	AsyncLoadedOject_Private* m_pPrivateMembers{nullptr};
-	bool                      m_loaded{false};
+	std::mutex        m_loadingMutex;
+	std::atomic<bool> m_loaded{false};
 };
+
+#pragma warning(pop)

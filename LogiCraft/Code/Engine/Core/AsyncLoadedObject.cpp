@@ -32,25 +32,18 @@ SOFTWARE.
 #include "AsyncLoadedObject.h"
 #include "TaskManager.h"
 
-#include <mutex>
-
 struct AsyncLoadedOject_Private
 {
-	std::mutex loadingMutex;
 };
 
-AsyncLoadedObject::AsyncLoadedObject()
-{
-	m_pPrivateMembers = new AsyncLoadedOject_Private;
-}
-AsyncLoadedObject::~AsyncLoadedObject()
-{
-	delete m_pPrivateMembers;
-}
+AsyncLoadedObject::AsyncLoadedObject() {}
+
+AsyncLoadedObject::~AsyncLoadedObject() {}
+
 void AsyncLoadedObject::StartLoading()
 {
 	TaskManager::Get().AddTask([this] {
-		const std::lock_guard<std::mutex> lock(m_pPrivateMembers->loadingMutex);
+		const std::lock_guard<std::mutex> lock(m_loadingMutex);
 		m_loaded = false;
 		Load();
 		m_loaded = true;
@@ -59,7 +52,7 @@ void AsyncLoadedObject::StartLoading()
 
 void AsyncLoadedObject::Reload()
 {
-	const std::lock_guard<std::mutex> lock(m_pPrivateMembers->loadingMutex);
+	const std::lock_guard<std::mutex> lock(m_loadingMutex);
 	m_loaded = false;
 	Unload();
 	StartLoading();
