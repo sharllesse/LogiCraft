@@ -8,7 +8,7 @@ set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2.6.1 COMPONENTS system window graphics network audio REQUIRED)
 
 # Logi_Engine
-file(GLOB_RECURSE engine_sources *.cpp)
+file(GLOB_RECURSE engine_sources *.h *.cpp)
 add_library(Logi_Engine SHARED ${engine_sources})
 
 target_compile_definitions(Logi_Engine PRIVATE LOGI_ENGINE_EXPORTS)

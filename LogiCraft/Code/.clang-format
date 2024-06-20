@@ -22,8 +22,6 @@ AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: 'false'
 BinPackParameters: 'false'
 BitFieldColonSpacing: Both
-BreakBeforeBinaryOperators: NonAssignment
-BreakBeforeBraces: Custom
 BraceWrapping:
 	AfterCaseLabel: 'true'
 	AfterClass: 'true'
