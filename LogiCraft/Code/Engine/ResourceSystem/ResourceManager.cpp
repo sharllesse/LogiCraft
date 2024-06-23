@@ -32,40 +32,52 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "ResourceManager.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <assert.h>
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+ResourceManager* s_pResourceManager = nullptr;
+
+ResourceManager& ResourceManager::Get()
 {
-class Editor
+	assert(s_pResourceManager);
+	return *s_pResourceManager;
+}
+
+ResourceManager::ResourceManager()
 {
-public:
-	static Editor& Get();
+	assert(!s_pResourceManager);
+	s_pResourceManager = this;
+}
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+ResourceManager::~ResourceManager()
+{
+	s_pResourceManager = nullptr;
+}
 
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+void ResourceManager::Serialize(bool load)
+{
+	if (load)
+	{
+		for (GUID& resourceGUID : m_resourcesToLoad)
+		{
+			if (auto it = m_resourcesToFiles.find(resourceGUID); it != m_resourcesToFiles.end())
+			{
+				std::string file = it->second;
+			}
+			else
+			{
+				// Error
+			}
+		}
+	}
+	else // Save
+	{
+		for (ResourcePtr& pResource : m_loadedResources)
+		{
+			pResource->Serialize(load);
+		}
+	}
+}

@@ -39,7 +39,9 @@ SOFTWARE.
 #include <string>
 #include <vector>
 
-#define LOGI_DECLARE_PANEL(type) inline static TypedRegisterer<type> s_registerer{};
+namespace Logicraft
+{
+#define LOGI_DECLARE_PANEL(type) inline static TypedRegisterer<type> s_registerer{#type};
 // How to declare a panel class :
 //	class MyPanelClass : public Panel
 //	{
@@ -56,8 +58,17 @@ public:
 	virtual void Update() {}
 	virtual void Draw() = 0;
 
+	const std::string& GetName() const { return m_name; }
+
+	void SetVisible(bool visible) { m_visible = visible; }
+	bool IsVisible() const { return m_visible; }
+
+protected:
+	void Load() override;
+
 protected:
 	std::string m_name;
+	bool        m_visible{true};
 };
 using PanelPtr = std::shared_ptr<Panel>;
 
@@ -66,13 +77,23 @@ class PanelRegisterer
 public:
 	inline static std::vector<PanelRegisterer*> s_registerers;
 
-	PanelRegisterer() { s_registerers.emplace_back(this); }
+	PanelRegisterer(const char* panelName)
+	  : m_panelName(panelName)
+	{
+		s_registerers.emplace_back(this);
+	}
 	virtual std::shared_ptr<Panel> Create() = 0;
+	std::string                    m_panelName;
 };
 
 template<typename C>
 class TypedRegisterer : public PanelRegisterer
 {
 public:
-	std::shared_ptr<Panel> Create() override { return std::make_shared<C>(&typeid(C).name()[6 /*length of "class "*/]); }
+	TypedRegisterer(const char* panelName)
+	  : PanelRegisterer(panelName)
+	{
+	}
+	std::shared_ptr<Panel> Create() override { return std::make_shared<C>(m_panelName.c_str()); }
 };
+} // namespace Logicraft

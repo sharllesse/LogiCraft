@@ -31,41 +31,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
+#ifdef _WIN32
+#ifdef LOGI_ENGINE_EXPORTS
+#define LOGI_ENGINE_API __declspec(dllexport)
+#else
+#define LOGI_ENGINE_API __declspec(dllimport)
+#endif
+#else
+#define LOGI_ENGINE_API
+#endif
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
-
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-
-#include <memory>
-#include <vector>
-
-namespace Logicraft
-{
-class Editor
-{
-public:
-	static Editor& Get();
-
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
-
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+#pragma warning(disable : 4251) // 4251 can't be avoided with STL types

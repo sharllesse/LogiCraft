@@ -32,40 +32,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "MenuItem.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <imgui/imgui.h>
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+MenuItem::MenuItem(const char* name)
+  : m_name(name)
 {
-class Editor
+}
+
+void MenuItem::AddChild(MenuItemPtr pChild)
 {
-public:
-	static Editor& Get();
+	m_children.push_back(pChild);
+}
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+void MenuItem::SetAction(ActionPtr pAction)
+{
+	m_pAction = pAction;
+}
 
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+void MenuItem::Draw()
+{
+	const char* shortcut = m_pAction ? m_pAction->GetShortcutString().c_str() : "";
+	if (ImGui::MenuItem(m_name.c_str(), shortcut, m_checkEnabled ? &m_checked : nullptr))
+	{
+		if (m_pAction)
+			m_pAction->Execute();
+	}
+	for (MenuItemPtr& child : m_children)
+	{
+		child->Draw();
+	}
+}

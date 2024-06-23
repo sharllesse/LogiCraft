@@ -32,40 +32,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "SfmlUtils.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+using namespace Logicraft;
 
-#include <memory>
-#include <vector>
-
-namespace Logicraft
+void Logicraft::SfmlUtils::ClearKeyEvent(sf::Event::KeyEvent& event)
 {
-class Editor
+	event.control  = false;
+	event.alt      = false;
+	event.shift    = false;
+	event.code     = sf::Keyboard::Unknown;
+	event.scancode = sf::Keyboard::Scan::Unknown;
+}
+
+std::string Logicraft::SfmlUtils::KeyEventToString(sf::Event::KeyEvent& event)
 {
-public:
-	static Editor& Get();
+	std::string eventString;
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	if (event.control)
+	{
+		eventString += "Ctrl+";
+	}
+	if (event.alt)
+	{
+		eventString += "Alt+";
+	}
+	if (event.shift)
+	{
+		eventString += "Shift+";
+	}
+	eventString += event.code;
+	return eventString;
+}
 
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+void Logicraft::SfmlUtils::StringToKeyEvent(const std::string& str, sf::Event::KeyEvent& event)
+{
+	if (size_t plusPos = str.find_last_of('+'); plusPos != std::string::npos)
+	{
+		if (str.find("Ctrl") != std::string::npos)
+		{
+			event.control = true;
+		}
+		if (str.find("Alt") != std::string::npos)
+		{
+			event.alt = true;
+		}
+		if (str.find("Shift") != std::string::npos)
+		{
+			event.shift = true;
+		}
+		event.code = static_cast<sf::Keyboard::Key>(str[plusPos + 1]);
+	}
+	else
+	{
+		event.code = static_cast<sf::Keyboard::Key>(str[0]);
+	}
+}

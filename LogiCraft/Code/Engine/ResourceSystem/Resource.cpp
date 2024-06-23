@@ -33,3 +33,14 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Resource.h"
+
+#include <combaseapi.h>
+
+using namespace Logicraft;
+
+Resource::Resource()
+{
+	CoCreateGuid(&m_GUID);
+}
+
+void Resource::Serialize(bool load) {}

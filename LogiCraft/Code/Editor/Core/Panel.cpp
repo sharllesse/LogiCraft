@@ -34,7 +34,14 @@ SOFTWARE.
 
 #include "Panel.h"
 
+using namespace Logicraft;
+
 Panel::Panel(const char* name)
   : m_name(name)
 {
+}
+
+void Logicraft::Panel::Load()
+{
+	// TODO load m_visible
 }

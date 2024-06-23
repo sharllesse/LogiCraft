@@ -34,10 +34,13 @@ SOFTWARE.
 
 #include "Editor.h"
 
+#include <Engine/Core/Action.h>
 #include <SFML/Graphics.hpp>
 #include <assert.h>
 #include <imgui/imgui-SFML.h>
 #include <imgui/imgui.h>
+
+using namespace Logicraft;
 
 Editor* s_pEditor = nullptr;
 
@@ -51,6 +54,11 @@ Editor::Editor()
 {
 	assert(!s_pEditor);
 	s_pEditor = this;
+
+	// alphabetical order, no dependencies
+	m_pEditorObjectManager = std::make_unique<EditorObjectManager>();
+	m_pEngine              = std::make_unique<Engine>();
+	m_pMainMenu            = std::make_unique<MainMenu>();
 }
 
 Editor::~Editor()
@@ -60,51 +68,103 @@ Editor::~Editor()
 
 void Editor::Run()
 {
-	m_pEngine = std::make_unique<Engine>();
+	// Always initialize Engine first
 	m_pEngine->Init();
+
+	// Put other initializations here
+
+	// Initialize panels late as nothing depends on them and they depend on the other systems
 	CreatePanels();
 
-	sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "LogiCraft");
-	ImGui::CreateContext();
-	ImGui::SFML::Init(window);
-	while (window.isOpen())
+	// Load actions shortcuts after other systems have been initialized and added their actions
+	ActionManager::Get().StartLoading();
+
+	m_window.create(sf::VideoMode::getDesktopMode(), "LogiCraft");
+	InitImGui();
+	while (m_window.isOpen())
 	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			ImGui::SFML::ProcessEvent(event);
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-
-		m_pEngine->Update();
-		for (auto& pPanel : m_panels)
-		{
-			pPanel->Update();
-		}
-
-		window.clear();
-		sf::Time currentTime = sf::milliseconds(16);
-		ImGui::SFML::Update(window, currentTime);
-
-		ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
-
-		for (auto& pPanel : m_panels)
-		{
-			pPanel->Draw();
-		}
-
-		ImGui::SFML::Render(window);
-		window.display();
+		ProcessWindowEvents();
+		Update();
+		Render();
 	}
 	ImGui::SFML::Shutdown();
 }
 
+void Editor::ProcessWindowEvents()
+{
+	sf::Event event;
+	while (m_window.pollEvent(event))
+	{
+		ImGui::SFML::ProcessEvent(event);
+		if (event.type == sf::Event::Closed)
+		{
+			m_window.close();
+		}
+		else if (event.type == sf::Event::KeyPressed)
+		{
+			if (event.key.code == sf::Keyboard::Escape)
+			{
+				m_window.close();
+			}
+		}
+	}
+}
+
+void Editor::Update()
+{
+	m_pEngine->Update();
+	for (PanelPtr& pPanel : m_panels)
+	{
+		pPanel->Update();
+	}
+}
+
+void Editor::Render()
+{
+	// TODO replace by real time
+	sf::Time currentTime = sf::milliseconds(16);
+	ImGui::SFML::Update(m_window, currentTime);
+	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+
+	m_pMainMenu->Draw();
+
+	for (PanelPtr& pPanel : m_panels)
+	{
+		pPanel->Draw();
+	}
+
+	m_pEngine->Render();
+
+	m_window.clear();
+	ImGui::SFML::Render(m_window);
+	m_window.display();
+}
+
+void Editor::InitImGui()
+{
+	ImGui::CreateContext();
+	ImGui::SFML::Init(m_window);
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+}
+
 void Editor::CreatePanels()
 {
+	MenuPtr pPanelsMenu = m_pMainMenu->AddMenu("Panels");
 	for (PanelRegisterer* pRegisterer : PanelRegisterer::s_registerers)
 	{
+		// Create panel and start loading it
 		m_panels.push_back(pRegisterer->Create());
-		m_panels.back()->StartLoading();
+		PanelPtr pPanel = m_panels.back();
+		pPanel->StartLoading();
+
+		// Add panel to the menu with action to toggle its visibility
+		MenuItemPtr pItem = std::make_shared<MenuItem>(pPanel->GetName().c_str());
+		pItem->SetCheckEnabled(true);
+		pPanelsMenu->AddChild(pItem);
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("toggle_") + pPanel->GetName()).c_str());
+		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
+		pItem->SetAction(pAction);
+
+		// TODO subscribe to event visibility changed to update the menu item checked state
 	}
 }

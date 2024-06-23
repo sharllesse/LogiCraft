@@ -31,12 +31,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
-#ifdef _WIN32
-#ifdef LOGI_ENGINE_EXPORTS
-#define LOGI_ENGINE_API __declspec(dllexport)
-#else
-#define LOGI_ENGINE_API __declspec(dllimport)
-#endif
-#else
-#define LOGI_ENGINE_API
-#endif
+
+#include "Action.h"
+
+#include <Core/Logger.h>
+#include <Utils/SfmlUtils.h>
+
+using namespace Logicraft;
+
+Action::Action(const char* name)
+  : m_name(name)
+{
+	SfmlUtils::ClearKeyEvent(m_shortcut);
+}
+
+void Action::Execute()
+{
+	std::string message = "Action executed: " + m_name;
+	Logger::Get().Log(Logger::eInfo, message);
+	m_callback();
+}
+
+void Action::SetCallback(std::function<void()>&& callback)
+{
+	m_callback = std::move(callback);
+}
+
+void Action::SetShortcut(const std::string& shortcut)
+{
+	m_shortcutStr = shortcut;
+	SfmlUtils::ClearKeyEvent(m_shortcut);
+	SfmlUtils::StringToKeyEvent(shortcut, m_shortcut);
+}
+
+std::string Action::GetShortcutString() const
+{
+	return m_shortcutStr;
+}
+
+void Action::Serialize(bool load) {}

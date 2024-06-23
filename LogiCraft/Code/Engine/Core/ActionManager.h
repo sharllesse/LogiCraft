@@ -33,39 +33,29 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "Action.h"
+#include "AsyncLoadedObject.h"
+#include "DLLExport.h"
+#include "Serializable.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-
+#include <functional>
 #include <memory>
 #include <vector>
 
 namespace Logicraft
 {
-class Editor
+class LOGI_ENGINE_API ActionManager : public Serializable
 {
 public:
-	static Editor& Get();
+	static ActionManager& Get();
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	ActionManager();
+	~ActionManager();
+
+	ActionPtr AddAction(const char* name);
+	void      Serialize(bool load) override;
 
 private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+	std::vector<ActionPtr> m_actions;
 };
 } // namespace Logicraft

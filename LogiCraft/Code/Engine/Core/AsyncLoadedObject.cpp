@@ -35,9 +35,7 @@ SOFTWARE.
 #include "AsyncLoadedObject.h"
 #include "TaskManager.h"
 
-struct AsyncLoadedOject_Private
-{
-};
+using namespace Logicraft;
 
 AsyncLoadedObject::AsyncLoadedObject() {}
 

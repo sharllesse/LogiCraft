@@ -33,9 +33,26 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "define.h"
+#include "Core/AsyncLoadedObject.h"
+#include "Core/Serializable.h"
+#include "DLLExport.h"
 
-class LOGI_ENGINE_API Resource
+#include <guiddef.h>
+#include <memory>
+
+namespace Logicraft
+{
+class LOGI_ENGINE_API Resource : public Serializable
 {
 public:
+	Resource();
+
+	void Serialize(bool load) override;
+
+	GUID GetGUID() const { return m_GUID; }
+
+protected:
+	GUID m_GUID{0};
 };
+using ResourcePtr = std::shared_ptr<Resource>;
+} // namespace Logicraft

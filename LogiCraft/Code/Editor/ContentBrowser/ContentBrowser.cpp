@@ -33,22 +33,43 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ContentBrowser.h"
+#include "Widgets/Menu.h"
+#include "Widgets/MenuItem.h"
 
+#include <Engine/Core/Action.h>
+#include <Engine/Core/ActionManager.h>
+#include <Engine/Core/TaskManager.h>
+#include <Engine/Objects/GameObject.h>
+#include <Engine/ResourceSystem/ResourceManager.h>
 #include <imgui/imgui.h>
+
+using namespace Logicraft;
 
 ContentBrowser::ContentBrowser(const char* name)
   : Panel(name)
 {
+	MenuPtr pMenuNew = std::make_shared<Menu>("New");
+	m_menuBar.AddChild(pMenuNew);
+
+	// TODO for all resource types
+	MenuItemPtr pNewGameObject = std::make_shared<MenuItem>("GameObject");
+	pMenuNew->AddChild(pNewGameObject);
+	ActionPtr pAction = ActionManager::Get().AddAction("new_gameobject");
+	pAction->SetCallback([] { ResourceManager::Get().CreateResource<GameObject>(); });
+	pNewGameObject->SetAction(pAction);
 }
-
-void ContentBrowser::Unload() {}
-
-void ContentBrowser::Load() {}
 
 void ContentBrowser::Draw()
 {
-	ImGui::Begin(m_name.c_str());
-	ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
-	ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);
-	ImGui::End();
+	if (m_visible)
+	{
+		if (ImGui::Begin(m_name.c_str(), &m_visible, ImGuiWindowFlags_MenuBar))
+		{
+			ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
+			ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);
+
+			m_menuBar.Draw();
+		}
+		ImGui::End();
+	}
 }

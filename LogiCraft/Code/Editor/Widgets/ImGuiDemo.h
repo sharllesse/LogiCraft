@@ -34,38 +34,17 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
-
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-
-#include <memory>
-#include <vector>
 
 namespace Logicraft
 {
-class Editor
+
+class ImGuiDemo : public Panel
 {
+	LOGI_DECLARE_PANEL(ImGuiDemo)
+
 public:
-	static Editor& Get();
+	ImGuiDemo(const char* name);
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
-
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+	void Draw() override;
 };
 } // namespace Logicraft

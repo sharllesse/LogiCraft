@@ -31,7 +31,6 @@
 #include <SFML/Graphics/Export.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
-
 namespace sf
 {
 ////////////////////////////////////////////////////////////
@@ -41,28 +40,28 @@ namespace sf
 class SFML_GRAPHICS_API Glyph
 {
 public:
+	////////////////////////////////////////////////////////////
+	/// \brief Default constructor
+	///
+	////////////////////////////////////////////////////////////
+	Glyph()
+	  : advance(0)
+	{
+	}
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    ////////////////////////////////////////////////////////////
-    Glyph() : advance(0) {}
-
-    ////////////////////////////////////////////////////////////
-    // Member data
-    ////////////////////////////////////////////////////////////
-    float     advance;     //!< Offset to move horizontally to the next character
-    int       lsbDelta;    //!< Left offset after forced autohint. Internally used by getKerning()
-    int       rsbDelta;    //!< Right offset after forced autohint. Internally used by getKerning()
-    FloatRect bounds;      //!< Bounding rectangle of the glyph, in coordinates relative to the baseline
-    IntRect   textureRect; //!< Texture coordinates of the glyph inside the font's texture
+	////////////////////////////////////////////////////////////
+	// Member data
+	////////////////////////////////////////////////////////////
+	float     advance;     //!< Offset to move horizontally to the next character
+	int       lsbDelta{0}; //!< Left offset after forced autohint. Internally used by getKerning()
+	int       rsbDelta{0}; //!< Right offset after forced autohint. Internally used by getKerning()
+	FloatRect bounds;      //!< Bounding rectangle of the glyph, in coordinates relative to the baseline
+	IntRect   textureRect; //!< Texture coordinates of the glyph inside the font's texture
 };
 
 } // namespace sf
 
-
 #endif // SFML_GLYPH_HPP
-
 
 ////////////////////////////////////////////////////////////
 /// \class sf::Glyph

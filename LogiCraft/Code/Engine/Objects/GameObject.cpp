@@ -32,40 +32,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "GameObject.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+using namespace Logicraft;
 
-#include <memory>
-#include <vector>
-
-namespace Logicraft
+void GameObject::Update()
 {
-class Editor
+	for (GameComponentPtr component : m_components)
+	{
+		component->Update();
+	}
+}
+
+void GameObject::Serialize(bool load)
 {
-public:
-	static Editor& Get();
-
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
-
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+	for (GameComponentPtr component : m_components)
+	{
+		// TODO
+	}
+}

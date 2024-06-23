@@ -33,15 +33,17 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
+#include "ActionManager.h"
+#include "DLLExport.h"
+#include "Logger.h"
+#include "Objects/GameObjectManager.h"
+#include "ResourceSystem/ResourceManager.h"
 #include "TaskManager.h"
-
-#include "define.h"
 
 #include <memory>
 
-#pragma warning(push)
-#pragma warning(disable : 4251) // 4251 can't be avoided with STL types
-
+namespace Logicraft
+{
 class LOGI_ENGINE_API Engine
 {
 public:
@@ -52,9 +54,13 @@ public:
 
 	void Init();
 	void Update();
+	void Render();
 
 private:
-	std::unique_ptr<TaskManager> m_pTaskManager;
+	std::unique_ptr<ActionManager>     m_pActionManager;
+	std::unique_ptr<GameObjectManager> m_pGameObjectManager;
+	std::unique_ptr<Logger>            m_pLogger;
+	std::unique_ptr<ResourceManager>   m_pResourceManager;
+	std::unique_ptr<TaskManager>       m_pTaskManager;
 };
-
-#pragma warning(pop)
+} // namespace Logicraft

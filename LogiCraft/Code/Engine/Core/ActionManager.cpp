@@ -32,40 +32,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "ActionManager.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <assert.h>
+#include <utility>
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+ActionManager* s_pActionsManager = nullptr;
+
+ActionManager& ActionManager::Get()
 {
-class Editor
+	assert(s_pActionsManager);
+	return *s_pActionsManager;
+}
+
+ActionManager::ActionManager()
 {
-public:
-	static Editor& Get();
+	assert(!s_pActionsManager);
+	s_pActionsManager = this;
+}
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+ActionManager::~ActionManager()
+{
+	s_pActionsManager = nullptr;
+}
 
-private:
-	sf::RenderWindow m_window;
+ActionPtr ActionManager::AddAction(const char* name)
+{
+	m_actions.push_back(std::make_shared<Action>(name));
+	if (IsLoaded())
+	{
+		// If the manager is already loaded and a new action is added, load it alone
+		// But it should be avoided in general
+		// TODO Log warning here
+		m_actions.back()->Serialize(true);
+	}
+	return m_actions.back();
+}
 
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+void ActionManager::Serialize(bool load)
+{
+	for (ActionPtr& action : m_actions)
+	{
+		action->Serialize(load);
+	}
+}
