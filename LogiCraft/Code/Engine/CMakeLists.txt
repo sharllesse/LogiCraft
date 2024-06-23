@@ -25,3 +25,6 @@ target_link_libraries(Logi_Engine PUBLIC sfml-system sfml-window sfml-graphics)
 
 # Link ImGui statically
 target_link_libraries(Logi_Engine PUBLIC ImGui)
+
+# Link Json statically
+target_link_libraries(Logi_Engine PUBLIC Json)
