@@ -34,6 +34,10 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Panel.h"
+#include "Widgets/MenuBar.h"
+
+namespace Logicraft
+{
 
 class ContentBrowser : public Panel
 {
@@ -42,9 +46,9 @@ class ContentBrowser : public Panel
 public:
 	ContentBrowser(const char* name);
 
-	void Unload() override;
 	void Draw() override;
 
 protected:
-	void Load() override;
+	MenuBar m_menuBar;
 };
+} // namespace Logicraft

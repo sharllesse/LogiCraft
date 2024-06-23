@@ -32,40 +32,68 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "EditorObjectManager.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <assert.h>
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+struct ObjectGUIDCompare
 {
-class Editor
-{
-public:
-	static Editor& Get();
+	ObjectGUIDCompare(REFGUID guid)
+	  : m_guid(guid)
+	{
+	}
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	bool operator()(const EditorObjectPtr& object) const
+	{
+		if (GameObjectPtr pGameObject = object->GetGameObject())
+			return pGameObject->GetGUID() == m_guid;
 
-private:
-	sf::RenderWindow m_window;
+		return false;
+	}
 
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+	REFGUID m_guid;
 };
-} // namespace Logicraft
+
+EditorObjectManager* s_pEditorObjectManager = nullptr;
+
+EditorObjectManager& EditorObjectManager::Get()
+{
+	assert(s_pEditorObjectManager);
+	return *s_pEditorObjectManager;
+}
+
+EditorObjectManager::EditorObjectManager()
+{
+	assert(!s_pEditorObjectManager);
+	s_pEditorObjectManager = this;
+}
+
+EditorObjectManager::~EditorObjectManager()
+{
+	s_pEditorObjectManager = nullptr;
+}
+
+EditorObjectPtr EditorObjectManager::AddObject()
+{
+	m_objects.push_back(std::make_shared<EditorObject>());
+	return m_objects.back();
+}
+
+void EditorObjectManager::RemoveObject(REFGUID objectGUID)
+{
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	{
+		m_objects.erase(it);
+	}
+}
+
+EditorObjectPtr EditorObjectManager::GetObject(REFGUID objectGUID)
+{
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	{
+		return *it;
+	}
+	return EditorObjectPtr();
+}

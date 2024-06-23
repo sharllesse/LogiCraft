@@ -33,39 +33,24 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
-
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <Engine/Objects/GameObject.h>
 
 #include <memory>
-#include <vector>
+#include <string>
 
 namespace Logicraft
 {
-class Editor
+class EditorObject
 {
 public:
-	static Editor& Get();
+	GameObjectPtr GetGameObject() const { return m_pGameObject; }
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	const std::string& GetName() const { return m_name; }
 
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+protected:
+	GameObjectPtr m_pGameObject;
+	std::string   m_name;
 };
+using EditorObjectPtr = std::shared_ptr<EditorObject>;
+
 } // namespace Logicraft

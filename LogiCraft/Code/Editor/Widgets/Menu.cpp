@@ -31,41 +31,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
+#include "Menu.h"
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include <imgui/imgui.h>
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+using namespace Logicraft;
 
-#include <memory>
-#include <vector>
-
-namespace Logicraft
+Menu::Menu(const char* name)
+  : MenuItem(name)
 {
-class Editor
+}
+
+void Menu::Draw()
 {
-public:
-	static Editor& Get();
-
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
-
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+	if (ImGui::BeginMenu(m_name.c_str()))
+	{
+		for (MenuItemPtr& child : m_children)
+		{
+			child->Draw();
+		}
+		ImGui::EndMenu();
+	}
+}

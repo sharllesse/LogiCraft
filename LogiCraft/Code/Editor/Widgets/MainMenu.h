@@ -33,39 +33,22 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
-
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include "Menu.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace Logicraft
 {
-class Editor
+class MainMenu
 {
 public:
-	static Editor& Get();
-
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	MainMenu();
+	MenuPtr AddMenu(const char* name);
+	void    Draw();
 
 private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+	std::vector<MenuPtr> m_menus;
 };
 } // namespace Logicraft

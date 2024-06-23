@@ -36,6 +36,8 @@ SOFTWARE.
 
 #include <assert.h>
 
+using namespace Logicraft;
+
 TaskManager* s_pTaskManager = nullptr;
 
 TaskManager& TaskManager::Get()

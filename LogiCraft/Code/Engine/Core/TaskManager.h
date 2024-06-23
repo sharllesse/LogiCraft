@@ -33,7 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include <define.h>
+#include "DLLExport.h"
 
 #include <atomic>
 #include <condition_variable>
@@ -42,10 +42,10 @@ SOFTWARE.
 #include <queue>
 #include <thread>
 #include <utility>
+#include <vector>
 
-#pragma warning(push)
-#pragma warning(disable : 4251) // 4251 can't be avoided with STL types
-
+namespace Logicraft
+{
 class LOGI_ENGINE_API TaskManager
 {
 public:
@@ -80,5 +80,4 @@ private:
 	std::mutex        m_queueMutex;
 	std::atomic<bool> m_stop{false};
 };
-
-#pragma warning(pop)
+} // namespace Logicraft

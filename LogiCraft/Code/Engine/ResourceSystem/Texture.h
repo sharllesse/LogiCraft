@@ -33,39 +33,20 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "DLLExport.h"
+#include "Resource.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-
-#include <memory>
-#include <vector>
+#include <SFML/Graphics/Texture.hpp>
 
 namespace Logicraft
 {
-class Editor
+class LOGI_ENGINE_API Texture : public Resource
 {
 public:
-	static Editor& Get();
+	void         Serialize(bool load) override;
+	sf::Texture& GetTexture() { return m_texture; }
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
-
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+protected:
+	sf::Texture m_texture;
 };
 } // namespace Logicraft

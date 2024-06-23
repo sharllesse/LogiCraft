@@ -33,39 +33,35 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "DLLExport.h"
+#include "Serializable.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-
+#include <SFML/Window/Event.hpp>
+#include <functional>
 #include <memory>
-#include <vector>
+#include <string>
 
 namespace Logicraft
 {
-class Editor
+class LOGI_ENGINE_API Action : public Serializable
 {
 public:
-	static Editor& Get();
+	Action(const char* name);
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	void Execute();
+
+	void               SetCallback(std::function<void()>&& callback);
+	void               SetShortcut(const std::string& shortcut);
+	std::string        GetShortcutString() const;
+	const std::string& GetName() const { return m_name; }
+
+	void Serialize(bool load) override;
 
 private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+	std::string           m_name;
+	std::function<void()> m_callback;
+	sf::Event::KeyEvent   m_shortcut;
+	std::string           m_shortcutStr;
 };
+using ActionPtr = std::shared_ptr<Action>;
 } // namespace Logicraft

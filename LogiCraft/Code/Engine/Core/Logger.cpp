@@ -32,40 +32,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "Logger.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <assert.h>
+#include <iostream>
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+Logger* s_pLogger = nullptr;
+
+Logger& Logger::Get()
 {
-class Editor
+	assert(s_pLogger);
+	return *s_pLogger;
+}
+Logger::Logger()
 {
-public:
-	static Editor& Get();
+	assert(!s_pLogger);
+	s_pLogger = this;
+}
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+Logger::~Logger()
+{
+	s_pLogger = nullptr;
+}
 
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-};
-} // namespace Logicraft
+void Logger::Log(ELogLevel level, const std::string& message)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	switch (level)
+	{
+	case ELogLevel::eInfo:
+		{
+			std::cout << "INFO: " << message << std::endl;
+		}
+		break;
+	case ELogLevel::eWarning:
+		{
+			std::cout << "WARNING: " << message << std::endl;
+		}
+		break;
+	case ELogLevel::eError:
+		{
+			std::cout << "ERROR: " << message << std::endl;
+		}
+		break;
+	}
+}

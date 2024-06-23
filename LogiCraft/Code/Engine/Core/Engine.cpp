@@ -33,8 +33,11 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Engine.h"
+#include "Objects/GameObject.h"
 
 #include <assert.h>
+
+using namespace Logicraft;
 
 Engine* s_pEngine = nullptr;
 
@@ -47,7 +50,12 @@ Engine& Engine::Get()
 Engine::Engine()
 {
 	assert(!s_pEngine);
-	s_pEngine = this;
+	s_pEngine            = this;
+	m_pActionManager     = std::make_unique<ActionManager>();
+	m_pGameObjectManager = std::make_unique<GameObjectManager>();
+	m_pLogger            = std::make_unique<Logger>();
+	m_pResourceManager   = std::make_unique<ResourceManager>();
+	m_pTaskManager       = std::make_unique<TaskManager>();
 }
 
 Engine::~Engine()
@@ -57,7 +65,16 @@ Engine::~Engine()
 
 void Engine::Init()
 {
-	m_pTaskManager = std::make_unique<TaskManager>();
+	m_pActionManager->StartLoading();
+	m_pResourceManager->StartLoading();
 }
 
-void Engine::Update() {}
+void Engine::Update()
+{
+	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
+	{
+		pObject->Update();
+	}
+}
+
+void Engine::Render() {}

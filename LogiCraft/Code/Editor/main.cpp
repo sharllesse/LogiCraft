@@ -38,10 +38,8 @@ SOFTWARE.
 
 int main()
 {
-	Editor editor;
+	Logicraft::Editor editor;
 	editor.Run();
 
 	return 0;
 }
-
-

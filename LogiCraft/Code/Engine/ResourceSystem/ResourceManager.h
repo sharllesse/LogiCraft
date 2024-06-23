@@ -33,39 +33,42 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "Core/Serializable.h"
+#include "DLLExport.h"
+#include "Resource.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-
-#include <memory>
+#include <map>
+#include <string>
 #include <vector>
 
 namespace Logicraft
 {
-class Editor
+class LOGI_ENGINE_API ResourceManager : public Serializable
 {
 public:
-	static Editor& Get();
+	static ResourceManager& Get();
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	ResourceManager();
+	~ResourceManager();
+
+	template<typename T>
+	ResourcePtr CreateResource()
+	{
+		ResourcePtr pResource = std::make_shared<T>();
+		m_loadedResources.push_back(pResource);
+		return pResource;
+	}
+
+	void Serialize(bool load) override;
 
 private:
-	sf::RenderWindow m_window;
+	std::vector<ResourcePtr> m_loadedResources;
+	std::vector<GUID>        m_resourcesToLoad;
 
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+	struct GUIDComparer
+	{
+		bool operator()(REFGUID left, REFGUID right) const { return memcmp(&left, &right, sizeof(GUID)) < 0; }
+	};
+	std::map<GUID, std::string, GUIDComparer> m_resourcesToFiles;
 };
 } // namespace Logicraft

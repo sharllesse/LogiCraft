@@ -33,14 +33,13 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include <define.h>
+#include "DLLExport.h"
 
 #include <atomic>
 #include <mutex>
 
-#pragma warning(push)
-#pragma warning(disable : 4251) // 4251 can't be avoided with STL types
-
+namespace Logicraft
+{
 class LOGI_ENGINE_API AsyncLoadedObject
 {
 public:
@@ -50,7 +49,9 @@ public:
 	void StartLoading();
 	void Reload();
 
-	virtual void Unload() = 0;
+	virtual void Unload() {}
+
+	bool IsLoaded() const { return m_loaded; }
 
 protected:
 	virtual void Load() = 0;
@@ -59,5 +60,4 @@ private:
 	std::mutex        m_loadingMutex;
 	std::atomic<bool> m_loaded{false};
 };
-
-#pragma warning(pop)
+} // namespace Logicraft

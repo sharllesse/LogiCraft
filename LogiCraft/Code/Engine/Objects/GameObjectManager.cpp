@@ -32,40 +32,62 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
+#include "GameObjectManager.h"
 
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <assert.h>
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+struct ObjectGUIDCompare
 {
-class Editor
-{
-public:
-	static Editor& Get();
+	ObjectGUIDCompare(REFGUID guid)
+	  : m_guid(guid)
+	{
+	}
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	bool operator()(const GameObjectPtr& object) const { return object->GetGUID() == m_guid; }
 
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+	REFGUID m_guid;
 };
-} // namespace Logicraft
+
+GameObjectManager* s_pGameObjectManager = nullptr;
+
+GameObjectManager& GameObjectManager::Get()
+{
+	assert(s_pGameObjectManager);
+	return *s_pGameObjectManager;
+}
+
+GameObjectManager::GameObjectManager()
+{
+	assert(!s_pGameObjectManager);
+	s_pGameObjectManager = this;
+}
+
+GameObjectManager::~GameObjectManager()
+{
+	s_pGameObjectManager = nullptr;
+}
+
+GameObjectPtr GameObjectManager::AddObject()
+{
+	m_objects.push_back(std::make_shared<GameObject>());
+	return m_objects.back();
+}
+
+void GameObjectManager::RemoveObject(REFGUID objectGUID)
+{
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	{
+		m_objects.erase(it);
+	}
+}
+
+GameObjectPtr GameObjectManager::GetObject(REFGUID objectGUID)
+{
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	{
+		return *it;
+	}
+	return GameObjectPtr();
+}

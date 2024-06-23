@@ -33,39 +33,33 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
-
-#include <Engine/Core/Engine.h>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <Engine/Core/Action.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace Logicraft
 {
-class Editor
+class MenuItem;
+using MenuItemPtr = std::shared_ptr<MenuItem>;
+
+class MenuItem
 {
 public:
-	static Editor& Get();
+	MenuItem(const char* name);
+	void         AddChild(MenuItemPtr pChild);
+	void         SetAction(ActionPtr pAction);
+	virtual void Draw();
 
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
+	void SetCheckEnabled(bool enabled) { m_checkEnabled = enabled; }
+	void SetChecked(bool checked) { m_checked = checked; }
 
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
+protected:
+	std::string              m_name;
+	bool                     m_checkEnabled{false};
+	bool                     m_checked{false};
+	std::vector<MenuItemPtr> m_children;
+	ActionPtr                m_pAction;
 };
 } // namespace Logicraft
