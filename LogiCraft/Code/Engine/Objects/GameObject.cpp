@@ -51,3 +51,5 @@ void GameObject::Serialize(bool load, Serializer& serializer)
 		// TODO
 	}
 }
+
+void GameObject::Load() {}

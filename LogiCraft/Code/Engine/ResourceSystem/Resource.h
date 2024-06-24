@@ -52,6 +52,9 @@ public:
 	GUID GetGUID() const { return m_GUID; }
 
 protected:
+	void Load() override;
+
+private:
 	GUID m_GUID{0};
 };
 using ResourcePtr = std::shared_ptr<Resource>;

@@ -3,22 +3,17 @@
 
 using namespace nlohmann;
 
-Serializer::Serializer(Serializer&& other)
-{
-	m_json = std::move(other.m_json);
-}
-
 bool Serializer::Parse(const std::string& path)
 {
 	std::ifstream file(path);
 	if (file.is_open())
 	{
 		m_json = json::parse(file);
-		
+
 		return true;
 	}
 
-	return false; //Could not open file
+	return false; // Could not open file
 }
 
 void Serializer::Save(const std::string& path)
@@ -38,16 +33,4 @@ std::vector<std::string> Serializer::GetKeys() const
 		keys.emplace_back(it.key());
 
 	return keys;
-}
-
-Serializer& Serializer::operator=(const Serializer& other)
-{
-	m_json = other.m_json;
-	return *this;
-}
-
-Serializer& Serializer::operator=(Serializer&& other)
-{
-	m_json = std::move(other.m_json);
-	return *this;
 }

@@ -48,6 +48,9 @@ public:
 	void Serialize(bool load, Serializer& serializer) override;
 
 protected:
+	void Load() override;
+
+private:
 	std::vector<GameComponentPtr> m_components;
 };
 using GameObjectPtr = std::shared_ptr<GameObject>;

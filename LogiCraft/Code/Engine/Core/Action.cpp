@@ -73,14 +73,23 @@ void Action::Serialize(bool load, Serializer& serializer)
 {
 	if (load)
 	{
-		json action = serializer[m_name];
-		std::string shortcut(action["shortcut"]);
+		json        action   = serializer[m_name];
+		std::string shortcut = action["shortcut"];
 		SetShortcut(shortcut);
 		m_description = action["description"];
 	}
 	else
 	{
-		serializer[m_name]["shortcut"] = m_shortcutStr;
+		serializer[m_name]["shortcut"]    = m_shortcutStr;
 		serializer[m_name]["description"] = m_description;
+	}
+}
+
+void Action::Load()
+{
+	Serializer serializer;
+	if (serializer.Parse("action.json"))
+	{
+		Serialize(true, serializer);
 	}
 }

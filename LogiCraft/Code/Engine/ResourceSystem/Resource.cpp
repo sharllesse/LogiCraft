@@ -40,7 +40,10 @@ using namespace Logicraft;
 
 Resource::Resource()
 {
-	CoCreateGuid(&m_GUID);
+	HRESULT res = CoCreateGuid(&m_GUID);
+	assert(res == S_OK);
 }
 
 void Resource::Serialize(bool load, Serializer& serializer) {}
+
+void Resource::Load() {}

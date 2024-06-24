@@ -57,6 +57,9 @@ public:
 
 	void Serialize(bool load, Serializer& serializer) override;
 
+protected:
+	void Load() override;
+
 private:
 	std::string           m_name;
 	std::function<void()> m_callback;

@@ -10,18 +10,19 @@ using namespace nlohmann;
 class Serializer
 {
 public:
-	Serializer() = default;
-	Serializer(Serializer&& other);
+	Serializer()  = default;
 	~Serializer() = default;
 
-	Serializer& operator=(const Serializer& other);
-	Serializer& operator=(Serializer&& other);
+	Serializer(const Serializer& other)            = delete;
+	Serializer(Serializer&& other)                 = delete;
+	Serializer& operator=(const Serializer& other) = delete;
+	Serializer& operator=(Serializer&& other)      = delete;
 
 	json& operator[](const std::string& key) { return m_json[key]; }
 
 	bool operator!=(const Serializer& other) const { return m_json != other.m_json; }
 	bool operator==(const Serializer& other) const { return m_json == other.m_json; }
-	
+
 	bool Parse(const std::string& path);
 	void Save(const std::string& path);
 
@@ -63,8 +64,8 @@ public:
 	json::iterator Insert(const json::const_iterator& it, json&& value) { return m_json.insert(it, std::move(value)); }
 	json::iterator Insert(const json::const_iterator& it, size_t count, const json& value) { return m_json.insert(it, count, value); }
 
-	//void Emplace(const std::string& key, const json& value) { m_json.emplace(key, value); }
-	//void EmplaceBack(const std::string& key, const json& value) { m_json.emplace_back(key, value); }
+	// void Emplace(const std::string& key, const json& value) { m_json.emplace(key, value); }
+	// void EmplaceBack(const std::string& key, const json& value) { m_json.emplace_back(key, value); }
 
 	json::iterator       Find(const std::string& key) { return m_json.find(key); }
 	json::const_iterator Find(const std::string& key) const { return m_json.find(key); }
@@ -83,8 +84,8 @@ public:
 
 	bool Contains(const std::string& key) const { return m_json.contains(key); }
 
-	size_t Size() const { return m_json.size(); }   // no Discard ?
-	bool   Empty() const { return m_json.empty(); } // Same here
+	size_t Size() const { return m_json.size(); }
+	bool   Empty() const { return m_json.empty(); }
 
 	json& GetJson() { return m_json; }
 

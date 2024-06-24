@@ -42,13 +42,15 @@ namespace Logicraft
 class LOGI_ENGINE_API Serializable : public AsyncLoadedObject
 {
 public:
-	virtual void Save();
+	void StartSaving();
+	bool IsSaving() const { return m_isSaving; }
 
 protected:
 	virtual void Serialize(bool load, Serializer& serializer) = 0;
-
-	void Load() override;
+	virtual void Save() {}
 
 private:
+	std::mutex        m_savingMutex;
+	std::atomic<bool> m_isSaving{false};
 };
 } // namespace Logicraft

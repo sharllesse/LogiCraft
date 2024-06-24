@@ -77,7 +77,9 @@ void ResourceManager::Serialize(bool load, Serializer& serializer)
 	{
 		for (ResourcePtr& pResource : m_loadedResources)
 		{
-			//pResource->Serialize(load, TODO);
+			pResource->Serialize(load, serializer);
 		}
 	}
 }
+
+void ResourceManager::Load() {}
