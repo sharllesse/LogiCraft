@@ -39,14 +39,8 @@ SOFTWARE.
 
 int main()
 {
-	{
-		Logicraft::SharedPtr<int> a = 5;
-		Logicraft::SharedPtr<int> b = a;
-	}
-
-	std::cout << std::endl << Logicraft::SharedPtr<int>::GetInstanceCount() << std::endl;
-	Logicraft::SharedPtr<int> a = 5;
-
+	auto t = MAKE_TRACKED_SHARED(int, 5);
+	Logicraft::Memory::reportLeaks();
 
 	Logicraft::Editor editor;
 	editor.Run();
