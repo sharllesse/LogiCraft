@@ -39,10 +39,6 @@ SOFTWARE.
 
 int main()
 {
-	auto t = MAKE_TRACKED_SHARED(int, 5);
-
-	Logicraft::Memory::reportLeaks();
-
 	Logicraft::Editor editor;
 	editor.Run();
 	return 0;
