@@ -38,10 +38,11 @@ using namespace Logicraft;
 
 void Serializable::Save()
 {
-	Serialize(false);
+	//Serialize serialize;
+	//Serialize(false, TODO);
 }
 
 void Serializable::Load()
 {
-	Serialize(true);
+	//Serialize(true, TODO);
 }

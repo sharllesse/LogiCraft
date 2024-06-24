@@ -35,18 +35,20 @@ SOFTWARE.
 #pragma once
 #include "AsyncLoadedObject.h"
 #include "DLLExport.h"
+#include "Serializer.h"
 
 namespace Logicraft
 {
 class LOGI_ENGINE_API Serializable : public AsyncLoadedObject
 {
 public:
-	void Save();
+	virtual void Save();
 
 protected:
-	virtual void Serialize(bool load) = 0;
+	virtual void Serialize(bool load, Serializer& serializer) = 0;
+
+	void Load() override;
 
 private:
-	void Load() override;
 };
 } // namespace Logicraft

@@ -55,26 +55,45 @@ ActionManager::ActionManager()
 
 ActionManager::~ActionManager()
 {
+	Save();
 	s_pActionsManager = nullptr;
 }
 
 ActionPtr ActionManager::AddAction(const char* name)
 {
 	m_actions.push_back(std::make_shared<Action>(name));
+
 	if (IsLoaded())
 	{
 		// If the manager is already loaded and a new action is added, load it alone
 		// But it should be avoided in general
 		// TODO Log warning here
-		m_actions.back()->Serialize(true);
+
+		Serializer serializer;
+		if (serializer.Parse("action.json"))
+			m_actions.back()->Serialize(true, serializer);
 	}
 	return m_actions.back();
 }
 
-void ActionManager::Serialize(bool load)
+void ActionManager::Serialize(bool load, Serializer& serializer)
 {
 	for (ActionPtr& action : m_actions)
 	{
-		action->Serialize(load);
+		action->Serialize(load, serializer);
 	}
+}
+
+void ActionManager::Save()
+{
+	Serializer serializer;
+	Serialize(false, serializer);
+	serializer.Save("action.json");
+}
+
+void ActionManager::Load()
+{
+	Serializer serializer;
+	if (serializer.Parse("action.json"))
+		Serialize(true, serializer);
 }
