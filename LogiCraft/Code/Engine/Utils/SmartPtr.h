@@ -41,7 +41,11 @@ SOFTWARE.
 
 
 // Macro to create a tracked shared_ptr
+#ifdef _DEBUG
 #define MAKE_TRACKED_SHARED(type, ...) Logicraft::Memory::make_tracked_shared<type>(__FILE__, __LINE__, ##__VA_ARGS__)
+#else
+#define MAKE_TRACKED_SHARED(type, ...) std::make_shared<type>(##__VA_ARGS__)
+#endif
 
 namespace Logicraft
 {
@@ -123,5 +127,4 @@ std::shared_ptr<T> make_tracked_shared(const char* file, int line, Args&&... arg
 
 } // namespace Logicraft
 
-// Report memory leaks
 
