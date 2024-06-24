@@ -1,4 +1,3 @@
-
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
@@ -31,25 +30,62 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 ---------------------------------------------------------------------------------*/
+#pragma once
+#include "DLLExport.h"
 
-#include "Core/Editor.h"
-#include "Engine/Utils/SmartPtr.h"
+#include <iostream>
+#include <memory>
 
-int main()
+#ifdef _DEBUG
+#define DEBUG_ONLY(func) func
+#else
+#define DEBUG_ONLY(func) \
+	do                     \
+	{                      \
+	} while (0)
+#endif
+
+namespace Logicraft
 {
+template<typename T>
+class SharedPtr
+{
+public:
+	SharedPtr()
 	{
-		Logicraft::SharedPtr<int> a = 5;
-		Logicraft::SharedPtr<int> b = a;
+		m_ptr = std::make_shared<T>();
+		DEBUG_ONLY(s_instanceCount++; std::cout << "Instance of type " << typeid(*m_ptr.get()).name() << " created.\n";)
 	}
+	SharedPtr(T&& args)
+	{
+		m_ptr = std::make_shared<T>(std::move(args));
+		DEBUG_ONLY(s_instanceCount++; std::cout << "Instance of type " << typeid(*m_ptr.get()).name() << " created.\n";)
+	}
+	SharedPtr(const SharedPtr<T>& other)
+	{
+		m_ptr = other.m_ptr;
+		DEBUG_ONLY(s_instanceCount++; std::cout << "Instance of type " << typeid(*m_ptr.get()).name() << " copied.\n";)
+	}
+	SharedPtr(SharedPtr<T>&& other) = delete;
+	SharedPtr<T>& operator=(const SharedPtr<T>& other)
+	{
+		m_ptr = other.m_ptr;
+		DEBUG_ONLY(s_instanceCount++; std::cout << "Instance of type " << typeid(*m_ptr.get()).name() << " copied.\n";)
+		return *this;
+	}
+	SharedPtr<T>& operator=(SharedPtr<T>&& other) = delete;
 
-	std::cout << std::endl << Logicraft::SharedPtr<int>::GetInstanceCount() << std::endl;
-	Logicraft::SharedPtr<int> a = 5;
+	~SharedPtr() { DEBUG_ONLY(s_instanceCount--;) }
 
+	const T* operator->() { return m_ptr.get(); }
 
-	Logicraft::Editor editor;
-	editor.Run();
+	const std::shared_ptr<T>& Get() { return m_ptr; }
 
-	return 0;
-}
+	static const unsigned int& GetInstanceCount() { return s_instanceCount; }
+
+private:
+	inline static unsigned int s_instanceCount = 0;
+	std::shared_ptr<T>         m_ptr;
+};
+} // namespace Logicraft

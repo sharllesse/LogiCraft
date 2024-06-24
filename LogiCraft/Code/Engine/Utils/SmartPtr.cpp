@@ -1,4 +1,3 @@
-
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
@@ -31,25 +30,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 ---------------------------------------------------------------------------------*/
 
-#include "Core/Editor.h"
-#include "Engine/Utils/SmartPtr.h"
-
-int main()
-{
-	{
-		Logicraft::SharedPtr<int> a = 5;
-		Logicraft::SharedPtr<int> b = a;
-	}
-
-	std::cout << std::endl << Logicraft::SharedPtr<int>::GetInstanceCount() << std::endl;
-	Logicraft::SharedPtr<int> a = 5;
-
-
-	Logicraft::Editor editor;
-	editor.Run();
-
-	return 0;
-}
+#include "SmartPtr.h"
