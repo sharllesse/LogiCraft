@@ -44,7 +44,7 @@ void GameObject::Update()
 	}
 }
 
-void GameObject::Serialize(bool load)
+void GameObject::Serialize(bool load, Serializer& serializer)
 {
 	for (GameComponentPtr component : m_components)
 	{

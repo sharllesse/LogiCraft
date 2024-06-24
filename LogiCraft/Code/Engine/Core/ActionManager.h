@@ -53,7 +53,11 @@ public:
 	~ActionManager();
 
 	ActionPtr AddAction(const char* name);
-	void      Serialize(bool load) override;
+	void      Serialize(bool load, Serializer& serializer) override;
+
+protected:
+	void Save() override;
+	void Load() override;
 
 private:
 	std::vector<ActionPtr> m_actions;

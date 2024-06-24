@@ -57,7 +57,7 @@ ResourceManager::~ResourceManager()
 	s_pResourceManager = nullptr;
 }
 
-void ResourceManager::Serialize(bool load)
+void ResourceManager::Serialize(bool load, Serializer& serializer)
 {
 	if (load)
 	{
@@ -77,7 +77,7 @@ void ResourceManager::Serialize(bool load)
 	{
 		for (ResourcePtr& pResource : m_loadedResources)
 		{
-			pResource->Serialize(load);
+			//pResource->Serialize(load, TODO);
 		}
 	}
 }

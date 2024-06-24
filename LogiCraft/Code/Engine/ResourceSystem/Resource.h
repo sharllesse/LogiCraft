@@ -47,7 +47,7 @@ class LOGI_ENGINE_API Resource : public Serializable
 public:
 	Resource();
 
-	void Serialize(bool load) override;
+	void Serialize(bool load, Serializer& serializer) override;
 
 	GUID GetGUID() const { return m_GUID; }
 

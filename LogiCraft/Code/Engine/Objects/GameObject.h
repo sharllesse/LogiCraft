@@ -45,7 +45,7 @@ class LOGI_ENGINE_API GameObject : public Resource
 {
 public:
 	void Update();
-	void Serialize(bool load) override;
+	void Serialize(bool load, Serializer& serializer) override;
 
 protected:
 	std::vector<GameComponentPtr> m_components;

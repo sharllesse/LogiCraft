@@ -21,8 +21,9 @@ public:
 
 	bool operator!=(const Serializer& other) const { return m_json != other.m_json; }
 	bool operator==(const Serializer& other) const { return m_json == other.m_json; }
-
-	bool Parse(const std::string& filename);
+	
+	bool Parse(const std::string& path);
+	void Save(const std::string& path);
 
 	/*
 	 * @brief Return the iterator to the beginning of the json objects

@@ -59,7 +59,7 @@ public:
 		return pResource;
 	}
 
-	void Serialize(bool load) override;
+	void Serialize(bool load, Serializer& serializer) override;
 
 private:
 	std::vector<ResourcePtr> m_loadedResources;

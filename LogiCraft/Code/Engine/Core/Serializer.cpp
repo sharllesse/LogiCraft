@@ -1,21 +1,33 @@
 #include "Serializer.h"
+#include <json.hpp>
+
+using namespace nlohmann;
 
 Serializer::Serializer(Serializer&& other)
 {
 	m_json = std::move(other.m_json);
 }
 
-bool Serializer::Parse(const std::string& filename)
+bool Serializer::Parse(const std::string& path)
 {
-	std::ifstream file(filename);
+	std::ifstream file(path);
 	if (file.is_open())
 	{
 		m_json = json::parse(file);
-
+		
 		return true;
 	}
 
 	return false; //Could not open file
+}
+
+void Serializer::Save(const std::string& path)
+{
+	std::ofstream file(path);
+	if (file.is_open())
+	{
+		file << m_json.dump(4);
+	}
 }
 
 std::vector<std::string> Serializer::GetKeys() const

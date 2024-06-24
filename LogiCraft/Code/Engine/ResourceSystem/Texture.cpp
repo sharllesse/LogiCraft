@@ -36,4 +36,4 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-void Texture::Serialize(bool load) {}
+void Texture::Serialize(bool load, Serializer& serializer) {}

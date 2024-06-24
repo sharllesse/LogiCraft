@@ -43,4 +43,4 @@ Resource::Resource()
 	CoCreateGuid(&m_GUID);
 }
 
-void Resource::Serialize(bool load) {}
+void Resource::Serialize(bool load, Serializer& serializer) {}
