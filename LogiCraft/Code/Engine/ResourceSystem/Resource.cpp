@@ -33,7 +33,9 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Resource.h"
+#include "Core/Serializer.h"
 
+#include <assert.h>
 #include <combaseapi.h>
 
 using namespace Logicraft;

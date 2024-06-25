@@ -34,14 +34,19 @@ SOFTWARE.
 
 #include "Action.h"
 
-#include <Core/Logger.h>
-#include <Utils/SfmlUtils.h>
+#include "Core/Logger.h"
+#include "Serializer.h"
+#include "Utils/SfmlUtils.h"
+
+#include <algorithm>
+#include <cctype>
 
 using namespace Logicraft;
 
 Action::Action(const char* name)
   : m_name(name)
 {
+	std::for_each(m_name.begin(), m_name.end(), ::tolower);
 	SfmlUtils::ClearKeyEvent(m_shortcut);
 }
 

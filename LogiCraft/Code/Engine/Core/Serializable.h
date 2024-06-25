@@ -35,7 +35,8 @@ SOFTWARE.
 #pragma once
 #include "AsyncLoadedObject.h"
 #include "DLLExport.h"
-#include "Serializer.h"
+
+class Serializer;
 
 namespace Logicraft
 {

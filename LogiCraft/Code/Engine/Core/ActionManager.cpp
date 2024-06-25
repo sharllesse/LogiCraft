@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "ActionManager.h"
 #include "Logger.h"
+#include "Serializer.h"
 
 #include <assert.h>
 #include <utility>

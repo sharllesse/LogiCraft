@@ -77,7 +77,7 @@ void Editor::Run()
 	CreatePanels();
 
 	// Load actions shortcuts after other systems have been initialized and added their actions
-	ActionManager::Get().StartLoading(); //Its already init in the init of engine ?
+	ActionManager::Get().StartLoading();
 
 	m_window.create(sf::VideoMode::getDesktopMode(), "LogiCraft");
 	InitImGui();
