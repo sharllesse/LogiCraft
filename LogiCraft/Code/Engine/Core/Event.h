@@ -34,50 +34,30 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "define.h"
+#include "DLLExport.h"
 #include <functional>
 #include <iostream>
+#include <mutex>
+#include <unordered_map>
 #include <vector>
 
-template<typename T>
-class Event;
-
-template<typename R, typename... Args>
-class Event<R(Args...)>
+namespace Logicraft
+{
+class LOGI_ENGINE_API Event
 {
 public:
-	using FunctionType = R (*)(Args...);
+	Event();
+	~Event();
 
-	Event() = default;
+	int  AddEvent(std::function<void()> _func);
+	bool RemoveEvent(int _id);
 
-	void AddEvent(FunctionType event) { m_events.push_back(event); }
-
-	auto Invoke(Args... args)
-	{
-		if constexpr (std::is_void_v<R>)
-		{
-			for (auto& func : m_events)
-			{
-				func(args...);
-			}
-		}
-		else
-		{
-			std::vector<R> results;
-			for (auto& func : m_events)
-			{
-				results.push_back(func(args...));
-			}
-			return results;
-		}
-	}
-
-	void RemoveEvent(FunctionType event)
-	{
-		auto it = std::remove(m_events.begin(), m_events.end(), event);
-		m_events.erase(it, m_events.end());
-	}
+	void Invoke();
 
 private:
-	std::vector<FunctionType> m_events;
+	std::unordered_map<int, std::function<void()>> m_events;
+
+	std::mutex m_mutex;
+	int        m_eventID;
 };
+} // namespace Logicraft

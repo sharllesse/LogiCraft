@@ -32,30 +32,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "EditorObject.h"
+#include "EventSystem.h"
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+EventSystem::EventSystem() {}
+
+EventSystem::~EventSystem() {}
+
+int EventSystem::AddEvent(const std::string& _name, std::function<void()> _func)
 {
-class EditorObjectManager
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_events[_name].AddEvent(_func);
+}
+
+bool EventSystem::RemoveEvent(const std::string& _name, int _id)
 {
-public:
-	static EditorObjectManager& Get();
+	std::lock_guard<std::mutex> lock(m_mutex);
 
-	EditorObjectManager();
-	~EditorObjectManager();
+	auto it = m_events.find(_name);
+	if (it != m_events.end())
+	{
+		return it->second.RemoveEvent(_id);
+	}
 
-	void            Init();
-	EditorObjectPtr AddObject();
-	void            RemoveObject(REFGUID objectGUID);
-	EditorObjectPtr GetObject(REFGUID objectGUID);
+	return false;
+}
 
-	const std::vector<EditorObjectPtr>& GetObjects() const { return m_objects; }
+void EventSystem::Invoke(const std::string& _name)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
 
-protected:
-	std::vector<EditorObjectPtr> m_objects;
-};
-} // namespace Logicraft
+	auto it = m_events.find(_name);
+	if (it != m_events.end())
+	{
+		it->second.Invoke();
+	}
+}

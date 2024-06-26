@@ -5,6 +5,7 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
+Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -32,30 +33,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "EditorObject.h"
+#include "Event.h"
 
-#include <memory>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+Event::Event()
 {
-class EditorObjectManager
+	m_eventID = 0;
+}
+
+Event::~Event() {}
+
+int Event::AddEvent(std::function<void()> _func)
 {
-public:
-	static EditorObjectManager& Get();
+	std::lock_guard<std::mutex> lock(m_mutex);
+	m_events[m_eventID] = _func;
+	return m_eventID++;
+}
 
-	EditorObjectManager();
-	~EditorObjectManager();
+bool Event::RemoveEvent(int _id)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_events.erase(_id);
+}
 
-	void            Init();
-	EditorObjectPtr AddObject();
-	void            RemoveObject(REFGUID objectGUID);
-	EditorObjectPtr GetObject(REFGUID objectGUID);
-
-	const std::vector<EditorObjectPtr>& GetObjects() const { return m_objects; }
-
-protected:
-	std::vector<EditorObjectPtr> m_objects;
-};
-} // namespace Logicraft
+void Event::Invoke()
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	for (auto& func : m_events)
+	{
+		func.second();
+	}
+}

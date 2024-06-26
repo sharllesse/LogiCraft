@@ -70,6 +70,7 @@ void Editor::Run()
 {
 	// Always initialize Engine first
 	m_pEngine->Init();
+	m_pEditorObjectManager->Init();
 
 	// Put other initializations here
 
