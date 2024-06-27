@@ -36,17 +36,22 @@ SOFTWARE.
 #include "AsyncLoadedObject.h"
 #include "DLLExport.h"
 
+class Serializer;
+
 namespace Logicraft
 {
 class LOGI_ENGINE_API Serializable : public AsyncLoadedObject
 {
 public:
-	void Save();
+	void StartSaving();
+	bool IsSaving() const { return m_isSaving; }
 
 protected:
-	virtual void Serialize(bool load) = 0;
+	virtual void Serialize(bool load, Serializer& serializer) = 0;
+	virtual void Save() {}
 
 private:
-	void Load() override;
+	std::mutex        m_savingMutex;
+	std::atomic<bool> m_isSaving{false};
 };
 } // namespace Logicraft

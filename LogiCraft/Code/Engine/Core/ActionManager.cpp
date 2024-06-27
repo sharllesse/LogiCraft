@@ -33,6 +33,8 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ActionManager.h"
+#include "Logger.h"
+#include "Serializer.h"
 
 #include <assert.h>
 #include <utility>
@@ -55,26 +57,45 @@ ActionManager::ActionManager()
 
 ActionManager::~ActionManager()
 {
+	Save();
 	s_pActionsManager = nullptr;
 }
 
 ActionPtr ActionManager::AddAction(const char* name)
 {
-	m_actions.push_back(std::make_shared<Action>(name));
+	ActionPtr pAction = std::make_shared<Action>(name);
+	m_actions.push_back(pAction);
+
 	if (IsLoaded())
 	{
 		// If the manager is already loaded and a new action is added, load it alone
 		// But it should be avoided in general
-		// TODO Log warning here
-		m_actions.back()->Serialize(true);
+		std::string message = "Action added after loading: " + pAction->GetName();
+		Logger::Get().Log(Logger::eWarning, message);
+		pAction->StartLoading();
 	}
-	return m_actions.back();
+
+	return pAction;
 }
 
-void ActionManager::Serialize(bool load)
+void ActionManager::Serialize(bool load, Serializer& serializer)
 {
 	for (ActionPtr& action : m_actions)
 	{
-		action->Serialize(load);
+		action->Serialize(load, serializer);
 	}
+}
+
+void ActionManager::Save()
+{
+	Serializer serializer;
+	Serialize(false, serializer);
+	serializer.Save("action.json");
+}
+
+void ActionManager::Load()
+{
+	Serializer serializer;
+	if (serializer.Parse("action.json"))
+		Serialize(true, serializer);
 }

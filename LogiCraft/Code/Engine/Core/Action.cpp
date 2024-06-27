@@ -34,14 +34,19 @@ SOFTWARE.
 
 #include "Action.h"
 
-#include <Core/Logger.h>
-#include <Utils/SfmlUtils.h>
+#include "Core/Logger.h"
+#include "Serializer.h"
+#include "Utils/SfmlUtils.h"
+
+#include <algorithm>
+#include <cctype>
 
 using namespace Logicraft;
 
 Action::Action(const char* name)
   : m_name(name)
 {
+	std::for_each(m_name.begin(), m_name.end(), ::tolower);
 	SfmlUtils::ClearKeyEvent(m_shortcut);
 }
 
@@ -69,4 +74,27 @@ std::string Action::GetShortcutString() const
 	return m_shortcutStr;
 }
 
-void Action::Serialize(bool load) {}
+void Action::Serialize(bool load, Serializer& serializer)
+{
+	if (load)
+	{
+		json        action   = serializer[m_name];
+		std::string shortcut = action["shortcut"];
+		SetShortcut(shortcut);
+		m_description = action["description"];
+	}
+	else
+	{
+		serializer[m_name]["shortcut"]    = m_shortcutStr;
+		serializer[m_name]["description"] = m_description;
+	}
+}
+
+void Action::Load()
+{
+	Serializer serializer;
+	if (serializer.Parse("action.json"))
+	{
+		Serialize(true, serializer);
+	}
+}

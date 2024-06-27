@@ -65,7 +65,6 @@ Engine::~Engine()
 
 void Engine::Init()
 {
-	m_pActionManager->StartLoading();
 	m_pResourceManager->StartLoading();
 }
 
