@@ -40,20 +40,20 @@ EventSystem::EventSystem() {}
 
 EventSystem::~EventSystem() {}
 
-int EventSystem::AddEvent(const std::string& _name, std::function<void()> _func)
+int EventSystem::AddListener(const std::string& _name, std::function<void()> _func)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_events[_name].AddEvent(_func);
+	return m_events[_name].AddListener(_func);
 }
 
-bool EventSystem::RemoveEvent(const std::string& _name, int _id)
+bool EventSystem::RemoveListener(const std::string& _name, int _id)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
 	auto it = m_events.find(_name);
 	if (it != m_events.end())
 	{
-		return it->second.RemoveEvent(_id);
+		return it->second.RemoveListener(_id);
 	}
 
 	return false;

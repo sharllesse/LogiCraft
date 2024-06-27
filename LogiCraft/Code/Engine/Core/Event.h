@@ -49,15 +49,15 @@ public:
 	Event();
 	~Event();
 
-	int  AddEvent(std::function<void()> _func);
-	bool RemoveEvent(int _id);
+	int  AddListener(std::function<void()> _func);
+	bool RemoveListener(int _id);
 
 	void Invoke();
 
 private:
-	std::unordered_map<int, std::function<void()>> m_events;
+	std::unordered_map<int, std::function<void()>> m_listeners;
 
 	std::mutex m_mutex;
-	int        m_eventID;
+	int        m_listenerID;
 };
 } // namespace Logicraft

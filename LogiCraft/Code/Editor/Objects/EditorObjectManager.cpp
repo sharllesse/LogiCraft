@@ -78,7 +78,7 @@ EditorObjectManager::~EditorObjectManager()
 
 void Logicraft::EditorObjectManager::Init()
 {
-	GameObjectManager::Get().GetEventSystem().AddEvent("AddObject", [this]() { AddObject(); });
+	GameObjectManager::Get().GetEventSystem().AddListener("AddObject", [this]() { AddObject(); });
 }
 
 EditorObjectPtr EditorObjectManager::AddObject()

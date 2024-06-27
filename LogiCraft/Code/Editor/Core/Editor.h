@@ -67,5 +67,6 @@ private:
 	std::unique_ptr<MainMenu>            m_pMainMenu;
 
 	std::vector<PanelPtr> m_panels;
+	EventSystem           m_eventSystem;
 };
 } // namespace Logicraft

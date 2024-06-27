@@ -43,8 +43,14 @@ public:
 	EventSystem();
 	~EventSystem();
 
-	int  AddEvent(const std::string& _name, std::function<void()> _func);
-	bool RemoveEvent(const std::string& _name, int _id);
+	EventSystem(EventSystem&&)      = delete;
+	EventSystem(const EventSystem&) = delete;
+
+	EventSystem& operator=(EventSystem&&)      = delete;
+	EventSystem& operator=(const EventSystem&) = delete;
+
+	int  AddListener(const std::string& _name, std::function<void()> _func);
+	bool RemoveListener(const std::string& _name, int _id);
 
 	void Invoke(const std::string& _name);
 

@@ -161,11 +161,15 @@ void Editor::CreatePanels()
 		// Add panel to the menu with action to toggle its visibility
 		MenuItemPtr pItem = std::make_shared<MenuItem>(pPanel->GetName().c_str());
 		pItem->SetCheckEnabled(true);
+		pItem->SetChecked(pPanel->IsVisible());
 		pPanelsMenu->AddChild(pItem);
-		ActionPtr pAction = ActionManager::Get().AddAction((std::string("toggle_") + pPanel->GetName()).c_str());
-		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
-		pItem->SetAction(pAction);
 
+		const std::string actionName = std::string("toggle_") + pPanel->GetName().c_str();
+		ActionPtr pAction = ActionManager::Get().AddAction(actionName.c_str());
+		//pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
+		pAction->SetCallback([this, actionName] { m_eventSystem.Invoke(actionName); });
+		pItem->SetAction(pAction);
 		// TODO subscribe to event visibility changed to update the menu item checked state
+		m_eventSystem.AddListener(actionName, [pPanel]() { pPanel->SetVisible(!pPanel->IsVisible()); });
 	}
 }

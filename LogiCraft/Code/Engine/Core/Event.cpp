@@ -39,28 +39,28 @@ using namespace Logicraft;
 
 Event::Event()
 {
-	m_eventID = 0;
+	m_listenerID = 0;
 }
 
 Event::~Event() {}
 
-int Event::AddEvent(std::function<void()> _func)
+int Event::AddListener(std::function<void()> _func)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	m_events[m_eventID] = _func;
-	return m_eventID++;
+	m_listeners[m_listenerID] = _func;
+	return m_listenerID++;
 }
 
-bool Event::RemoveEvent(int _id)
+bool Event::RemoveListener(int _id)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_events.erase(_id);
+	return m_listeners.erase(_id);
 }
 
 void Event::Invoke()
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	for (auto& func : m_events)
+	for (auto& func : m_listeners)
 	{
 		func.second();
 	}
