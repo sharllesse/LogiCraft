@@ -48,6 +48,7 @@ void AsyncLoadedObject::StartLoading()
 		m_loaded = false;
 		Load();
 		m_loaded = true;
+		m_eventSystem.Invoke("Loaded");
 	});
 }
 

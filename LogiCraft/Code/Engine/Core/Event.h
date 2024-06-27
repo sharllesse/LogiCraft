@@ -5,6 +5,7 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
+Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -33,29 +34,30 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "EditorObject.h"
-
-#include <memory>
+#include "DLLExport.h"
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <unordered_map>
 #include <vector>
 
 namespace Logicraft
 {
-class EditorObjectManager
+class LOGI_ENGINE_API Event
 {
 public:
-	static EditorObjectManager& Get();
+	Event();
+	~Event();
 
-	EditorObjectManager();
-	~EditorObjectManager();
+	int  AddListener(std::function<void()> _func);
+	bool RemoveListener(int _id);
 
-	void            Init();
-	EditorObjectPtr AddObject();
-	void            RemoveObject(REFGUID objectGUID);
-	EditorObjectPtr GetObject(REFGUID objectGUID);
+	void Invoke();
 
-	const std::vector<EditorObjectPtr>& GetObjects() const { return m_objects; }
+private:
+	std::unordered_map<int, std::function<void()>> m_listeners;
 
-protected:
-	std::vector<EditorObjectPtr> m_objects;
+	std::mutex m_mutex;
+	int        m_listenerID;
 };
 } // namespace Logicraft

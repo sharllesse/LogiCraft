@@ -33,10 +33,9 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "DLLExport.h"
+#include "EventSystem.h"
 
 #include <atomic>
-#include <mutex>
 
 namespace Logicraft
 {
@@ -59,5 +58,6 @@ protected:
 private:
 	std::mutex        m_loadingMutex;
 	std::atomic<bool> m_loaded{false};
+	EventSystem       m_eventSystem;
 };
 } // namespace Logicraft

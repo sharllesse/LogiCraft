@@ -5,6 +5,7 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
+Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -32,30 +33,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "EditorObject.h"
-
-#include <memory>
-#include <vector>
+#include "Core/Event.h"
 
 namespace Logicraft
 {
-class EditorObjectManager
+class LOGI_ENGINE_API EventSystem
 {
 public:
-	static EditorObjectManager& Get();
+	EventSystem();
+	~EventSystem();
 
-	EditorObjectManager();
-	~EditorObjectManager();
+	EventSystem(EventSystem&&)      = delete;
+	EventSystem(const EventSystem&) = delete;
 
-	void            Init();
-	EditorObjectPtr AddObject();
-	void            RemoveObject(REFGUID objectGUID);
-	EditorObjectPtr GetObject(REFGUID objectGUID);
+	EventSystem& operator=(EventSystem&&)      = delete;
+	EventSystem& operator=(const EventSystem&) = delete;
 
-	const std::vector<EditorObjectPtr>& GetObjects() const { return m_objects; }
+	int  AddListener(const std::string& _name, std::function<void()> _func);
+	bool RemoveListener(const std::string& _name, int _id);
 
-protected:
-	std::vector<EditorObjectPtr> m_objects;
+	void Invoke(const std::string& _name);
+
+private:
+	std::unordered_map<std::string, Event> m_events;
+	std::mutex                             m_mutex;
 };
 } // namespace Logicraft
