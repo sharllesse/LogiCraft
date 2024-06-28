@@ -74,19 +74,34 @@ std::string Action::GetShortcutString() const
 	return m_shortcutStr;
 }
 
-void Action::Serialize(bool load, Serializer& serializer)
+void Action::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
 {
 	if (load)
 	{
-		json        action   = serializer[m_name];
-		std::string shortcut = action["shortcut"];
-		SetShortcut(shortcut);
-		m_description = action["description"];
+		if (JsonObjectPtr pNameObject = pJsonObjectPtr->GetObject(m_name))
+		{
+			if (std::string* pShortcut = pNameObject->GetString("shortcut"))
+			{
+				SetShortcut(*pShortcut);
+			}
+
+			pNameObject->GetString("description", m_description);
+			//if (std::string* pDescriptionObject = pNameObject->GetString("description"))
+			//{
+			//	m_description = *pDescriptionObject;	
+			//}
+
+			//json        action   = pJsonObjectPtr[m_name];
+			//std::string shortcut = action["shortcut"];
+			//SetShortcut(shortcut);
+			//m_description = action["description"];	
+		}
 	}
 	else
 	{
-		serializer[m_name]["shortcut"]    = m_shortcutStr;
-		serializer[m_name]["description"] = m_description;
+		JsonObjectPtr pNameObject = pJsonObjectPtr->AddObject(m_name);
+		pNameObject->AddString("shortcut", m_shortcutStr); 
+		pNameObject->AddString("description", m_description);
 	}
 }
 
@@ -95,6 +110,8 @@ void Action::Load()
 	Serializer serializer;
 	if (serializer.Parse("action.json"))
 	{
-		Serialize(true, serializer);
+		JsonObjectPtr pRoot = serializer.GetRoot();
+
+		Serialize(true, pRoot);
 	}
 }

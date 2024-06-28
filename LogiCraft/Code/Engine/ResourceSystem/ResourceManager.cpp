@@ -57,7 +57,7 @@ ResourceManager::~ResourceManager()
 	s_pResourceManager = nullptr;
 }
 
-void ResourceManager::Serialize(bool load, Serializer& serializer)
+void ResourceManager::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
 	if (load)
 	{
@@ -77,7 +77,7 @@ void ResourceManager::Serialize(bool load, Serializer& serializer)
 	{
 		for (ResourcePtr& pResource : m_loadedResources)
 		{
-			pResource->Serialize(load, serializer);
+			pResource->Serialize(load, pJsonObject);
 		}
 	}
 }

@@ -35,8 +35,7 @@ SOFTWARE.
 #pragma once
 #include "AsyncLoadedObject.h"
 #include "DLLExport.h"
-
-class Serializer;
+#include "Serializer.h"
 
 namespace Logicraft
 {
@@ -47,7 +46,7 @@ public:
 	bool IsSaving() const { return m_isSaving; }
 
 protected:
-	virtual void Serialize(bool load, Serializer& serializer) = 0;
+	virtual void Serialize(bool load, JsonObjectPtr pJsonObject) = 0;
 	virtual void Save() {}
 
 private:

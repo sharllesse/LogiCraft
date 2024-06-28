@@ -34,7 +34,6 @@ SOFTWARE.
 
 #include "ActionManager.h"
 #include "Logger.h"
-#include "Serializer.h"
 
 #include <assert.h>
 #include <utility>
@@ -78,24 +77,32 @@ ActionPtr ActionManager::AddAction(const char* name)
 	return pAction;
 }
 
-void ActionManager::Serialize(bool load, Serializer& serializer)
+
+void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
 {
 	for (ActionPtr& action : m_actions)
 	{
-		action->Serialize(load, serializer);
+		action->Serialize(load, pJsonObjectPtr);
 	}
 }
 
 void ActionManager::Save()
 {
 	Serializer serializer;
-	Serialize(false, serializer);
-	serializer.Save("action.json");
+	JsonObjectPtr pRoot = serializer.CreateRoot();
+	Serialize(false, pRoot);
+	if (serializer.Write("action.json"))
+	{
+		Logger::Get().Log(Logger::eError, "Could not write the file");
+	}
 }
 
 void ActionManager::Load()
 {
 	Serializer serializer;
 	if (serializer.Parse("action.json"))
-		Serialize(true, serializer);
+	{
+		JsonObjectPtr pRoot = serializer.GetRoot();
+		Serialize(true, pRoot);	
+	}
 }

@@ -59,7 +59,7 @@ public:
 		return pResource;
 	}
 
-	void Serialize(bool load, Serializer& serializer) override;
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	void Load() override;
