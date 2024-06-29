@@ -48,6 +48,11 @@ namespace Logicraft
 class Editor
 {
 public:
+	enum EEvent
+	{
+		ePanelVisible = Engine::EEvent::eEventCount,
+		eEventCount
+	};
 	static Editor& Get();
 
 	Editor();

@@ -70,9 +70,9 @@ void Editor::Run()
 {
 	// Always initialize Engine first
 	m_pEngine->Init();
-	m_pEditorObjectManager->Init();
 
 	// Put other initializations here
+	m_pEditorObjectManager->Init();
 
 	// Initialize panels late as nothing depends on them and they depend on the other systems
 	CreatePanels();
@@ -166,10 +166,9 @@ void Editor::CreatePanels()
 
 		const std::string actionName = std::string("toggle_") + pPanel->GetName().c_str();
 		ActionPtr pAction = ActionManager::Get().AddAction(actionName.c_str());
-		//pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
-		pAction->SetCallback([this, actionName] { m_eventSystem.Invoke(actionName); });
+		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
 		pItem->SetAction(pAction);
+
 		// TODO subscribe to event visibility changed to update the menu item checked state
-		m_eventSystem.AddListener(actionName, [pPanel]() { pPanel->SetVisible(!pPanel->IsVisible()); });
 	}
 }

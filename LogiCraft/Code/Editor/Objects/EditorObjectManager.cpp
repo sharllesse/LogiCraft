@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "EditorObjectManager.h"
 
+#include <Engine/Core/Engine.h>
 #include <Engine/Objects/GameObjectManager.h>
 #include <assert.h>
 
@@ -76,9 +77,9 @@ EditorObjectManager::~EditorObjectManager()
 	s_pEditorObjectManager = nullptr;
 }
 
-void Logicraft::EditorObjectManager::Init()
+void EditorObjectManager::Init()
 {
-	GameObjectManager::Get().GetEventSystem().AddListener("AddObject", [this]() { AddObject(); });
+	GameObjectManager::Get().GetEventSystem().AddListener(Engine::EEvent::eObjectCreated, [this]() { AddObject(); });
 }
 
 EditorObjectPtr EditorObjectManager::AddObject()
