@@ -55,7 +55,7 @@ public:
 	std::string        GetShortcutString() const;
 	const std::string& GetName() const { return m_name; }
 
-	void Serialize(bool load, Serializer& serializer) override;
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	void Load() override;

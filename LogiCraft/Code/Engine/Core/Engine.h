@@ -61,6 +61,7 @@ public:
 	~Engine();
 
 	void Init();
+	void Release();
 	void Update();
 	void Render();
 

@@ -66,7 +66,7 @@ public:
 
 protected:
 	// Serialize is the internal function called by Load() and Save(), it uses the already created Serializer
-	virtual void Serialize(bool load, Serializer& serializer) = 0;
+	virtual void Serialize(bool load, JsonObjectPtr pJsonObject) = 0;
 
 	// Load and Save are the functions called from the top level, they create the Serializer and call Serialize
 	// If a Serializable object has children to Load/Save,
