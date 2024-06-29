@@ -33,7 +33,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
+#pragma once
 #include "Core/Event.h"
+
+//#define REGISTER_EVENT_TYPE static int m_eventID = EventSystem::m_eventID++;
 
 namespace Logicraft
 {
@@ -49,13 +52,12 @@ public:
 	EventSystem& operator=(EventSystem&&)      = delete;
 	EventSystem& operator=(const EventSystem&) = delete;
 
-	int  AddListener(const std::string& _name, std::function<void()> _func);
-	bool RemoveListener(const std::string& _name, int _id);
-
-	void Invoke(const std::string& _name);
+	int AddListener(int eventID, std::function<void()> _func);
+	bool RemoveListener(int eventID, int _listenerID);
+	void Invoke(int eventID);
 
 private:
-	std::unordered_map<std::string, Event> m_events;
-	std::mutex                             m_mutex;
+	std::unordered_map<int, Event> m_events;
+	std::mutex         m_mutex;
 };
 } // namespace Logicraft

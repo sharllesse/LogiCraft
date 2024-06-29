@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "AsyncLoadedObject.h"
 #include "TaskManager.h"
+#include "Engine.h"
 
 using namespace Logicraft;
 
@@ -48,7 +49,7 @@ void AsyncLoadedObject::StartLoading()
 		m_loaded = false;
 		Load();
 		m_loaded = true;
-		m_eventSystem.Invoke("Loaded");
+		m_eventSystem.Invoke(Engine::EEvent::eObjectLoaded);
 	});
 }
 

@@ -33,6 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "GameObjectManager.h"
+#include "Engine/Core/Engine.h"
 
 #include <assert.h>
 
@@ -72,7 +73,7 @@ GameObjectManager::~GameObjectManager()
 GameObjectPtr GameObjectManager::AddObject()
 {
 	m_objects.push_back(std::make_shared<GameObject>());
-	m_eventSystem.Invoke("AddObject");
+	m_eventSystem.Invoke(Engine::EEvent::eObjectCreated);
 	return m_objects.back();
 }
 

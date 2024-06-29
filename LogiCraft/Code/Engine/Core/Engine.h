@@ -47,6 +47,13 @@ namespace Logicraft
 class LOGI_ENGINE_API Engine
 {
 public:
+	enum EEvent
+	{
+		eObjectCreated = 0,
+		eObjectLoaded,
+		eEventCount
+	};
+
 	static Engine& Get();
 
 	Engine();
