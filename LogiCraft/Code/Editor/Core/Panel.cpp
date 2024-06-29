@@ -70,7 +70,7 @@ void Logicraft::Panel::SetVisible(bool visible)
 	Editor::Get().GetEventSystem().Invoke(Editor::ePanelVisible);
 }
 
-void Logicraft::Panel::Serialize(bool load, Serializer& serializer) {}
+void Logicraft::Panel::Serialize(bool load, JsonObjectPtr pJsonObject) {}
 
 void Logicraft::Panel::Load()
 {

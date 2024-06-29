@@ -33,7 +33,9 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ActionManager.h"
+
 #include "Logger.h"
+#include "Serializer.h"
 
 #include <assert.h>
 #include <utility>
@@ -89,10 +91,7 @@ void ActionManager::Save()
 	Serializer    serializer;
 	JsonObjectPtr pRoot = serializer.CreateRoot();
 	Serialize(false, pRoot);
-	if (serializer.Write("action.json"))
-	{
-		Logger::Get().Log(Logger::eError, "Could not write the file");
-	}
+	serializer.Write("action.json");
 }
 
 void ActionManager::Load()
