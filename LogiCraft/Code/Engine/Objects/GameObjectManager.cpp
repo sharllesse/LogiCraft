@@ -70,11 +70,11 @@ GameObjectManager::~GameObjectManager()
 	s_pGameObjectManager = nullptr;
 }
 
-GameObjectPtr GameObjectManager::AddObject()
+GameObjectPtr GameObjectManager::CreateObject()
 {
-	m_objects.push_back(std::make_shared<GameObject>());
-	m_eventSystem.Invoke(Engine::EEvent::eObjectCreated);
-	return m_objects.back();
+	GameObjectPtr pNewObject = std::make_shared<GameObject>();
+	m_objects.push_back(pNewObject);
+	return pNewObject;
 }
 
 void GameObjectManager::RemoveObject(REFGUID objectGUID)

@@ -36,6 +36,7 @@ SOFTWARE.
 
 #include <Engine/Core/Action.h>
 #include <SFML/Graphics.hpp>
+#include <algorithm>
 #include <assert.h>
 #include <imgui/imgui-SFML.h>
 #include <imgui/imgui.h>
@@ -57,6 +58,7 @@ Editor::Editor()
 
 	// alphabetical order, no dependencies
 	m_pEditorObjectManager = std::make_unique<EditorObjectManager>();
+	m_pEventSystem         = std::make_unique<EventSystem>();
 	m_pEngine              = std::make_unique<Engine>();
 	m_pMainMenu            = std::make_unique<MainMenu>();
 }
@@ -72,6 +74,7 @@ void Editor::Run()
 	m_pEngine->Init();
 
 	// Put other initializations here
+
 	m_pEditorObjectManager->Init();
 
 	// Initialize panels late as nothing depends on them and they depend on the other systems
@@ -131,7 +134,7 @@ void Editor::Render()
 
 	for (PanelPtr& pPanel : m_panels)
 	{
-		pPanel->Draw();
+		pPanel->BaseDraw();
 	}
 
 	m_pEngine->Render();
@@ -165,10 +168,12 @@ void Editor::CreatePanels()
 		pPanelsMenu->AddChild(pItem);
 
 		const std::string actionName = std::string("toggle_") + pPanel->GetName().c_str();
-		ActionPtr pAction = ActionManager::Get().AddAction(actionName.c_str());
+		ActionPtr         pAction    = ActionManager::Get().AddAction(actionName.c_str());
 		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
 		pItem->SetAction(pAction);
 
-		// TODO subscribe to event visibility changed to update the menu item checked state
+		GetEventSystem().AddListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
+
+	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return a->GetName() < b->GetName(); });
 }

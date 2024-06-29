@@ -47,6 +47,9 @@ public:
 	void Update();
 	void Serialize(bool load, Serializer& serializer) override;
 
+	void AddComponent(GameComponentPtr component);
+	void RemoveComponent(GameComponentPtr component);
+
 protected:
 	void Load() override;
 

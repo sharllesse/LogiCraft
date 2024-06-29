@@ -32,56 +32,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "DLLExport.h"
-#include "EventSystem.h"
+#include "GuidUtils.h"
 
-#include <atomic>
-#include <mutex>
+using namespace Logicraft;
 
-class Serializer;
-
-namespace Logicraft
+std::string Logicraft::GuidUtils::GuidToString(const GUID& guid)
 {
-class LOGI_ENGINE_API Serializable
+	return std::string();
+}
+
+GUID Logicraft::GuidUtils::StringToGuid(const std::string& str)
 {
-public:
-	Serializable()  = default;
-	~Serializable() = default;
-
-	Serializable(Serializable&&)      = delete;
-	Serializable(const Serializable&) = delete;
-
-	Serializable& operator=(Serializable&&)      = delete;
-	Serializable& operator=(const Serializable&) = delete;
-
-	void StartLoading();
-	bool IsLoaded() const { return m_loaded; }
-
-	void StartSaving();
-	bool IsSaving() const { return m_isSaving; }
-
-	void Unload() {}
-	void Reload();
-
-protected:
-	// Serialize is the internal function called by Load() and Save(), it uses the already created Serializer
-	virtual void Serialize(bool load, Serializer& serializer) = 0;
-
-	// Load and Save are the functions called from the top level, they create the Serializer and call Serialize
-	// If a Serializable object has children to Load/Save,
-	// it should call Serialize() if they are in the same file
-	// and Load/Save if they have their own file
-	virtual void Load() {}
-	virtual void Save() {}
-
-private:
-	EventSystem m_eventSystem;
-
-	std::mutex        m_loadingMutex;
-	std::atomic<bool> m_loaded{false};
-
-	std::mutex        m_savingMutex;
-	std::atomic<bool> m_isSaving{false};
-};
-} // namespace Logicraft
+	return GUID();
+}

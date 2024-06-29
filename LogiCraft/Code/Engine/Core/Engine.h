@@ -35,6 +35,7 @@ SOFTWARE.
 #pragma once
 #include "ActionManager.h"
 #include "DLLExport.h"
+#include "EventSystem.h"
 #include "Logger.h"
 #include "Objects/GameObjectManager.h"
 #include "ResourceSystem/ResourceManager.h"
@@ -63,8 +64,11 @@ public:
 	void Update();
 	void Render();
 
+	EventSystem& GetEventSystem() { return *m_pEventSystem; }
+
 private:
 	std::unique_ptr<ActionManager>     m_pActionManager;
+	std::unique_ptr<EventSystem>       m_pEventSystem;
 	std::unique_ptr<GameObjectManager> m_pGameObjectManager;
 	std::unique_ptr<Logger>            m_pLogger;
 	std::unique_ptr<ResourceManager>   m_pResourceManager;

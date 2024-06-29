@@ -52,9 +52,15 @@ Action::Action(const char* name)
 
 void Action::Execute()
 {
-	std::string message = "Action executed: " + m_name;
-	Logger::Get().Log(Logger::eInfo, message);
-	m_callback();
+	if (m_callback)
+	{
+		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
+		m_callback();
+	}
+	else
+	{
+		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
+	}
 }
 
 void Action::SetCallback(std::function<void()>&& callback)

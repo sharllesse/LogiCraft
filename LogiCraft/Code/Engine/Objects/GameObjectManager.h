@@ -49,15 +49,13 @@ public:
 	GameObjectManager();
 	~GameObjectManager();
 
-	GameObjectPtr AddObject();
+	GameObjectPtr CreateObject();
 	void          RemoveObject(REFGUID objectGUID);
 	GameObjectPtr GetObject(REFGUID objectGUID);
-	EventSystem&  GetEventSystem() { return m_eventSystem; }
 
 	const std::vector<GameObjectPtr>& GetObjects() const { return m_objects; }
 
 protected:
 	std::vector<GameObjectPtr> m_objects;
-	EventSystem                m_eventSystem;
 };
 } // namespace Logicraft

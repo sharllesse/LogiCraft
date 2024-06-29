@@ -32,31 +32,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "AsyncLoadedObject.h"
-#include "TaskManager.h"
-#include "Engine.h"
+#pragma once
+#include "Core/Panel.h"
 
-using namespace Logicraft;
-
-AsyncLoadedObject::AsyncLoadedObject() {}
-
-AsyncLoadedObject::~AsyncLoadedObject() {}
-
-void AsyncLoadedObject::StartLoading()
+namespace Logicraft
 {
-	TaskManager::Get().AddTask([this] {
-		const std::lock_guard<std::mutex> lock(m_loadingMutex);
-		m_loaded = false;
-		Load();
-		m_loaded = true;
-		m_eventSystem.Invoke(Engine::EEvent::eObjectLoaded);
-	});
-}
-
-void AsyncLoadedObject::Reload()
+class PanelImGuiDemo : public Panel
 {
-	const std::lock_guard<std::mutex> lock(m_loadingMutex);
-	m_loaded = false;
-	Unload();
-	StartLoading();
-}
+	LOGI_DECLARE_PANEL(PanelImGuiDemo, "ImGui Demo")
+
+public:
+	PanelImGuiDemo(const char* name);
+
+protected:
+	void Draw() override;
+};
+} // namespace Logicraft

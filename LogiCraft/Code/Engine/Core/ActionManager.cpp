@@ -57,7 +57,6 @@ ActionManager::ActionManager()
 
 ActionManager::~ActionManager()
 {
-	Save();
 	s_pActionsManager = nullptr;
 }
 

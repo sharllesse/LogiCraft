@@ -32,32 +32,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "EventSystem.h"
+#include "PanelImGuiDemo.h"
 
-#include <atomic>
+#include <imgui/imgui.h>
 
-namespace Logicraft
+using namespace Logicraft;
+
+PanelImGuiDemo::PanelImGuiDemo(const char* name)
+  : Panel(name)
 {
-class LOGI_ENGINE_API AsyncLoadedObject
+}
+
+void PanelImGuiDemo::Draw()
 {
-public:
-	AsyncLoadedObject();
-	virtual ~AsyncLoadedObject();
-
-	void StartLoading();
-	void Reload();
-
-	virtual void Unload() {}
-
-	bool IsLoaded() const { return m_loaded; }
-
-protected:
-	virtual void Load() = 0;
-
-private:
-	std::mutex        m_loadingMutex;
-	std::atomic<bool> m_loaded{false};
-	EventSystem       m_eventSystem;
-};
-} // namespace Logicraft
+	ImGui::ShowDemoWindow();
+}
