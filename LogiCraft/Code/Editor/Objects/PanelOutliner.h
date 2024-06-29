@@ -34,21 +34,17 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Panel.h"
-#include "Widgets/MenuBar.h"
 
 namespace Logicraft
 {
-
-class ContentBrowser : public Panel
+class PanelOutliner : public Panel
 {
-	LOGI_DECLARE_PANEL(ContentBrowser)
+	LOGI_DECLARE_PANEL(PanelOutliner, "Outliner")
 
 public:
-	ContentBrowser(const char* name);
-
-	void Draw() override;
+	PanelOutliner(const char* name);
 
 protected:
-	MenuBar m_menuBar;
+	void Draw() override;
 };
 } // namespace Logicraft

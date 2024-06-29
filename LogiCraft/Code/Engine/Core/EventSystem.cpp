@@ -5,6 +5,7 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
+Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -32,81 +33,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Action.h"
-
-#include "Core/Logger.h"
-#include "Serializer.h"
-#include "Utils/SfmlUtils.h"
-
-#include <algorithm>
-#include <cctype>
+#include "EventSystem.h"
 
 using namespace Logicraft;
 
-Action::Action(const char* name)
-  : m_name(name)
+EventSystem::EventSystem() {}
+
+EventSystem::~EventSystem() {}
+
+int EventSystem::AddListener(int eventID, std::function<void()> _func)
 {
-	std::for_each(m_name.begin(), m_name.end(), ::tolower);
-	SfmlUtils::ClearKeyEvent(m_shortcut);
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_events[eventID].AddListener(_func);
 }
 
-void Action::Execute()
+bool EventSystem::RemoveListener(int eventID, int _listenerID)
 {
-	if (m_callback)
+	std::lock_guard<std::mutex> lock(m_mutex);
+
+	auto it = m_events.find(eventID);
+	if (it != m_events.end())
 	{
-		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
-		m_callback();
+		return it->second.RemoveListener(_listenerID);
 	}
-	else
+
+	return false;
+}
+
+void EventSystem::Invoke(int eventID)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+
+	auto it = m_events.find(eventID);
+	if (it != m_events.end())
 	{
-		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
-	}
-}
-
-void Action::SetCallback(std::function<void()>&& callback)
-{
-	m_callback = std::move(callback);
-}
-
-void Action::SetShortcut(const std::string& shortcut)
-{
-	m_shortcutStr = shortcut;
-	SfmlUtils::ClearKeyEvent(m_shortcut);
-	SfmlUtils::StringToKeyEvent(shortcut, m_shortcut);
-}
-
-std::string Action::GetShortcutString() const
-{
-	return m_shortcutStr;
-}
-
-void Action::Serialize(bool load, JsonObjectPtr pJsonObject)
-{
-	if (load)
-	{
-		if (JsonObjectPtr pNameObject = pJsonObject->GetObject(m_name.c_str()))
-		{
-			if (StringPtr pShortcut = pNameObject->GetString("shortcut"))
-			{
-				SetShortcut(*pShortcut);
-			}
-			pNameObject->GetString("description", m_description);
-		}
-	}
-	else
-	{
-		JsonObjectPtr pNameObject = pJsonObject->AddObject(m_name.c_str());
-		pNameObject->AddString("shortcut", m_shortcutStr);
-		pNameObject->AddString("description", m_description);
-	}
-}
-
-void Action::Load()
-{
-	Serializer serializer;
-	if (serializer.Parse("action.json"))
-	{
-		JsonObjectPtr pRoot = serializer.GetRoot();
-		Serialize(true, pRoot);
+		it->second.Invoke();
 	}
 }

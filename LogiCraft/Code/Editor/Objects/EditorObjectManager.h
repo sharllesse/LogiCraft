@@ -35,6 +35,7 @@ SOFTWARE.
 #pragma once
 #include "EditorObject.h"
 
+#include <Engine/Core/Action.h>
 #include <memory>
 #include <vector>
 
@@ -48,13 +49,20 @@ public:
 	EditorObjectManager();
 	~EditorObjectManager();
 
-	EditorObjectPtr AddObject();
+	void            Init();
 	void            RemoveObject(REFGUID objectGUID);
 	EditorObjectPtr GetObject(REFGUID objectGUID);
 
 	const std::vector<EditorObjectPtr>& GetObjects() const { return m_objects; }
 
+	ActionPtr GetActionCreateObject() { return m_pActionCreateObject; }
+
+protected:
+	void CreateObject();
+
 protected:
 	std::vector<EditorObjectPtr> m_objects;
+
+	ActionPtr m_pActionCreateObject;
 };
 } // namespace Logicraft

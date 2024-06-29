@@ -57,7 +57,22 @@ ResourceManager::~ResourceManager()
 	s_pResourceManager = nullptr;
 }
 
+ResourcePtr ResourceManager::CreateResource(const char* resourceType)
+{
+	for (auto& pResourceType : ResourceRegisterer::s_registerers)
+	{
+		if (pResourceType->GetName().compare(resourceType) == 0)
+		{
+			ResourcePtr pResource = pResourceType->Create();
+			m_loadedResources.push_back(pResource);
+			return pResource;
+		}
+	}
+	return nullptr;
+}
+
 void ResourceManager::Serialize(bool load, JsonObjectPtr pJsonObject)
+
 {
 	if (load)
 	{

@@ -33,7 +33,6 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/AsyncLoadedObject.h"
 #include "Core/Serializable.h"
 #include "DLLExport.h"
 
@@ -42,6 +41,15 @@ SOFTWARE.
 
 namespace Logicraft
 {
+#define LOGI_DECLARE_RESOURCE(type) inline static ResourceTypeRegisterer<type> s_registerer{#type};
+// How to declare a resource class :
+//	class MyResourceClass : public Resource
+//	{
+//		LOGI_DECLARE_RESOURCE(MyResourceClass)
+// 	public:
+// 		...
+//	};
+
 class LOGI_ENGINE_API Resource : public Serializable
 {
 public:
@@ -58,4 +66,33 @@ private:
 	GUID m_GUID{0};
 };
 using ResourcePtr = std::shared_ptr<Resource>;
+
+class ResourceRegisterer
+{
+public:
+	inline static std::vector<ResourceRegisterer*> s_registerers;
+
+	ResourceRegisterer(const char* resourceName)
+	  : m_resourceName(resourceName)
+	{
+		s_registerers.emplace_back(this);
+	}
+	virtual ResourcePtr Create() = 0;
+
+	const std::string& GetName() const { return m_resourceName; }
+
+private:
+	std::string m_resourceName;
+};
+
+template<typename C>
+class ResourceTypeRegisterer : public ResourceRegisterer
+{
+public:
+	ResourceTypeRegisterer(const char* resourceName)
+	  : ResourceRegisterer(resourceName)
+	{
+	}
+	ResourcePtr Create() override { return std::make_shared<C>(); }
+};
 } // namespace Logicraft

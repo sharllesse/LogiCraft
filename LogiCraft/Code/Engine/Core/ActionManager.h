@@ -34,7 +34,6 @@ SOFTWARE.
 
 #pragma once
 #include "Action.h"
-#include "AsyncLoadedObject.h"
 #include "DLLExport.h"
 #include "Serializable.h"
 

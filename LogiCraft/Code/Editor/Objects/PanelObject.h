@@ -32,81 +32,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Action.h"
+#pragma once
+#include "Core/Panel.h"
+#include "EditorObject.h"
 
-#include "Core/Logger.h"
-#include "Serializer.h"
-#include "Utils/SfmlUtils.h"
-
-#include <algorithm>
-#include <cctype>
-
-using namespace Logicraft;
-
-Action::Action(const char* name)
-  : m_name(name)
+namespace Logicraft
 {
-	std::for_each(m_name.begin(), m_name.end(), ::tolower);
-	SfmlUtils::ClearKeyEvent(m_shortcut);
-}
-
-void Action::Execute()
+class PanelObject : public Panel
 {
-	if (m_callback)
-	{
-		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
-		m_callback();
-	}
-	else
-	{
-		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
-	}
-}
+	LOGI_DECLARE_PANEL(PanelObject, "Object")
 
-void Action::SetCallback(std::function<void()>&& callback)
-{
-	m_callback = std::move(callback);
-}
+public:
+	PanelObject(const char* name);
 
-void Action::SetShortcut(const std::string& shortcut)
-{
-	m_shortcutStr = shortcut;
-	SfmlUtils::ClearKeyEvent(m_shortcut);
-	SfmlUtils::StringToKeyEvent(shortcut, m_shortcut);
-}
+	void Update() override;
 
-std::string Action::GetShortcutString() const
-{
-	return m_shortcutStr;
-}
+protected:
+	void Draw() override;
 
-void Action::Serialize(bool load, JsonObjectPtr pJsonObject)
-{
-	if (load)
-	{
-		if (JsonObjectPtr pNameObject = pJsonObject->GetObject(m_name.c_str()))
-		{
-			if (StringPtr pShortcut = pNameObject->GetString("shortcut"))
-			{
-				SetShortcut(*pShortcut);
-			}
-			pNameObject->GetString("description", m_description);
-		}
-	}
-	else
-	{
-		JsonObjectPtr pNameObject = pJsonObject->AddObject(m_name.c_str());
-		pNameObject->AddString("shortcut", m_shortcutStr);
-		pNameObject->AddString("description", m_description);
-	}
-}
-
-void Action::Load()
-{
-	Serializer serializer;
-	if (serializer.Parse("action.json"))
-	{
-		JsonObjectPtr pRoot = serializer.GetRoot();
-		Serialize(true, pRoot);
-	}
-}
+private:
+	// TODO remove and replace by direct access to SelectionManager
+	EditorObjectPtr m_pSelectedObject;
+};
+} // namespace Logicraft
