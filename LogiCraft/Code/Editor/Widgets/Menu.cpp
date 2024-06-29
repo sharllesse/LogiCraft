@@ -44,6 +44,11 @@ Menu::Menu(const char* name)
 
 void Menu::Draw()
 {
+	// If the menu has no children, draw it as a regular menu item to allow clicking on it
+	if (m_children.empty())
+	{
+		return MenuItem::Draw();
+	}
 	if (ImGui::BeginMenu(m_name.c_str()))
 	{
 		for (MenuItemPtr& child : m_children)

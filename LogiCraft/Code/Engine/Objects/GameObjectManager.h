@@ -49,7 +49,7 @@ public:
 	GameObjectManager();
 	~GameObjectManager();
 
-	GameObjectPtr AddObject();
+	GameObjectPtr CreateObject();
 	void          RemoveObject(REFGUID objectGUID);
 	GameObjectPtr GetObject(REFGUID objectGUID);
 

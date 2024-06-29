@@ -35,3 +35,16 @@ SOFTWARE.
 #include "EditorObject.h"
 
 using namespace Logicraft;
+
+void Logicraft::EditorObject::AddComponent(EditorComponentPtr pComponent)
+{
+	if (pComponent == nullptr)
+		return;
+	if (pComponent->GetGameComponent() == nullptr)
+		return;
+
+	m_components.push_back(pComponent);
+	m_pGameObject->AddComponent(pComponent->GetGameComponent());
+}
+
+void Logicraft::EditorObject::RemoveComponent(EditorComponentPtr pComponent) {}

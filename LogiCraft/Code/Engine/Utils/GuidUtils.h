@@ -35,29 +35,14 @@ SOFTWARE.
 #pragma once
 #include "DLLExport.h"
 
-#include <atomic>
-#include <mutex>
+#include <guiddef.h>
+#include <string>
 
 namespace Logicraft
 {
-class LOGI_ENGINE_API AsyncLoadedObject
+namespace GuidUtils
 {
-public:
-	AsyncLoadedObject();
-	virtual ~AsyncLoadedObject();
-
-	void StartLoading();
-	void Reload();
-
-	virtual void Unload() {}
-
-	bool IsLoaded() const { return m_loaded; }
-
-protected:
-	virtual void Load() = 0;
-
-private:
-	std::mutex        m_loadingMutex;
-	std::atomic<bool> m_loaded{false};
-};
+LOGI_ENGINE_API std::string GuidToString(const GUID& guid);
+LOGI_ENGINE_API GUID        StringToGuid(const std::string& str);
+} // namespace GuidUtils
 } // namespace Logicraft

@@ -44,12 +44,22 @@ void GameObject::Update()
 	}
 }
 
-void GameObject::Serialize(bool load, Serializer& serializer)
+void GameObject::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
 	for (GameComponentPtr component : m_components)
 	{
 		// TODO
 	}
+}
+
+void Logicraft::GameObject::AddComponent(GameComponentPtr component)
+{
+	m_components.push_back(component);
+}
+
+void Logicraft::GameObject::RemoveComponent(GameComponentPtr component)
+{
+	std::erase(m_components, component);
 }
 
 void GameObject::Load() {}

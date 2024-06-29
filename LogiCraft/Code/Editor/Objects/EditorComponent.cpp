@@ -33,3 +33,5 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "EditorComponent.h"
+
+using namespace Logicraft;
