@@ -81,7 +81,6 @@ void Editor::Run()
 
 	m_window.create(sf::VideoMode::getDesktopMode(), "LogiCraft");
 	InitImGui();
-
 	while (m_window.isOpen())
 	{
 		ProcessWindowEvents();
@@ -89,6 +88,8 @@ void Editor::Run()
 		Render();
 	}
 	ImGui::SFML::Shutdown();
+
+	m_pEngine->Release();
 }
 
 void Editor::ProcessWindowEvents()

@@ -46,6 +46,6 @@ Resource::Resource()
 	assert(res == S_OK);
 }
 
-void Resource::Serialize(bool load, JsonObjectPtr pJsonObjectPtr) {}
+void Resource::Serialize(bool load, JsonObjectPtr pJsonObject) {}
 
 void Resource::Load() {}
