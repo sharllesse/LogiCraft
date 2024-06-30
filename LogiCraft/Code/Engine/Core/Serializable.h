@@ -35,6 +35,7 @@ SOFTWARE.
 #pragma once
 #include "DLLExport.h"
 #include "EventSystem.h"
+#include "Serializer.h"
 
 #include <atomic>
 #include <mutex>

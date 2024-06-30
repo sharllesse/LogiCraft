@@ -84,11 +84,6 @@ void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
 	}
 }
 
-void Logicraft::ActionManager::Release()
-{
-	Save();
-}
-
 void ActionManager::Save()
 {
 	Serializer    serializer;

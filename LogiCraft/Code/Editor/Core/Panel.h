@@ -65,7 +65,7 @@ public:
 	void SetVisible(bool visible);
 	bool IsVisible() const { return m_visible; }
 
-	void Serialize(bool load, Serializer& serializer) override;
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	virtual void Draw() = 0;
