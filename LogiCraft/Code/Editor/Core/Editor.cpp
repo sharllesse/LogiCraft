@@ -88,6 +88,8 @@ void Editor::Run()
 		Update();
 		Render();
 	}
+
+	m_pEngine->Release();
 	ImGui::SFML::Shutdown();
 }
 

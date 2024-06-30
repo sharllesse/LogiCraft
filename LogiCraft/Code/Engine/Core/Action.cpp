@@ -78,9 +78,9 @@ void Action::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
 {
 	if (load)
 	{
-		if (JsonObjectPtr pNameObject = pJsonObjectPtr->GetObject(m_name))
+		if (JsonObjectPtr pNameObject = pJsonObjectPtr->GetObject(m_name.c_str()))
 		{
-			if (std::string* pShortcut = pNameObject->GetString("shortcut"))
+			if (StrPtr pShortcut = pNameObject->GetString("shortcut"))
 			{
 				SetShortcut(*pShortcut);
 			}
@@ -99,7 +99,7 @@ void Action::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
 	}
 	else
 	{
-		JsonObjectPtr pNameObject = pJsonObjectPtr->AddObject(m_name);
+		JsonObjectPtr pNameObject = pJsonObjectPtr->AddObject(m_name.c_str());
 		pNameObject->AddString("shortcut", m_shortcutStr); 
 		pNameObject->AddString("description", m_description);
 	}

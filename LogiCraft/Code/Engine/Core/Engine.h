@@ -55,6 +55,7 @@ public:
 	void Init();
 	void Update();
 	void Render();
+	void Release();
 
 private:
 	std::unique_ptr<ActionManager>     m_pActionManager;

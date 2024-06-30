@@ -77,3 +77,8 @@ void Engine::Update()
 }
 
 void Engine::Render() {}
+
+void Engine::Release()
+{
+	m_pActionManager->Release();
+}

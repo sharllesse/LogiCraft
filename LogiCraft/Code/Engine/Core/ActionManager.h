@@ -55,6 +55,8 @@ public:
 	ActionPtr AddAction(const char* name);
 	void      Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
+	void Release();
+
 protected:
 	void Save() override;
 	void Load() override;

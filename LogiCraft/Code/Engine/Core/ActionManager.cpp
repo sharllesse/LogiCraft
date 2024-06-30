@@ -56,7 +56,6 @@ ActionManager::ActionManager()
 
 ActionManager::~ActionManager()
 {
-	Save();
 	s_pActionsManager = nullptr;
 }
 
@@ -86,15 +85,17 @@ void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
 	}
 }
 
+void Logicraft::ActionManager::Release()
+{
+	Save();
+}
+
 void ActionManager::Save()
 {
 	Serializer serializer;
 	JsonObjectPtr pRoot = serializer.CreateRoot();
 	Serialize(false, pRoot);
-	if (serializer.Write("action.json"))
-	{
-		Logger::Get().Log(Logger::eError, "Could not write the file");
-	}
+	serializer.Write("action.json");
 }
 
 void ActionManager::Load()

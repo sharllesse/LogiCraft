@@ -49,6 +49,8 @@ public:
 	Json_Private* GetPrivate() const;
 
 protected:
+	void LogWarning(const char* message) const;
+
 	struct Json_Private* m_jsonPrivate;
 };
 

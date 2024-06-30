@@ -4,6 +4,8 @@
 #include <json/prettywriter.h>
 #include <json/stringbuffer.h>
 
+#include "Action.h"
+
 using namespace rapidjson;
 
 // #include <json.hpp>
@@ -199,66 +201,88 @@ void JsonArray::PushBack(const JsonObjectPtr& value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PushBack(*value->GetPrivate()->pValue, *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an object in a ");
 }
 
 void JsonArray::PushBack(const JsonArrayPtr& value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PushBack(*value->GetPrivate()->pValue, *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an array in a ");
 }
 
 void JsonArray::PushBack(const std::string& value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
-		m_jsonPrivate->pValue->PushBack(value, *m_jsonPrivate->pAllocator);
+		m_jsonPrivate->pValue->PushBack(Value(value.c_str(), *m_jsonPrivate->pAllocator), *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a string in a ");
 }
 
 void JsonArray::PushBack(const char* value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PushBack(Value(value, *m_jsonPrivate->pAllocator), *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a string in a ");
 }
 
 void JsonArray::PushBack(const int& value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PushBack(value, *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an int in a ");
 }
 
 void JsonArray::PushBack(const double& value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PushBack(value, *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a double in a ");
 }
 
 void JsonArray::PushBack(const float& value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PushBack(value, *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a float in a ");
 }
 
 void JsonArray::PushBack(const bool& value) const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PushBack(value, *m_jsonPrivate->pAllocator);
+	else
+		LogWarning("Cannot PushBack a bool in a ");
 }
 
 void JsonArray::PopBack() const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->PopBack();
+	else
+		LogWarning("Cannot use PopBack with a ");
 }
 
 void JsonArray::Clear() const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		m_jsonPrivate->pValue->Clear();
+	else
+		LogWarning("Cannot use Clear with a ");
 }
 
 size_t JsonArray::Size() const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		return m_jsonPrivate->pValue->Size();
+
+	LogWarning("Cannot use Size with a ");
 
 	return 0u;
 }
@@ -267,6 +291,8 @@ bool JsonArray::Empty() const
 {
 	if (m_jsonPrivate->pValue->IsArray())
 		return m_jsonPrivate->pValue->Empty();
+
+	LogWarning("Cannot use Empty with a ");
 
 	return true;
 }
@@ -290,11 +316,27 @@ void JsonArray::ForEach(const std::function<void(const JsonObjectPtr&, const boo
 				it++;
 		}
 	}
+	else
+		LogWarning("Cannot use foreach of an array with a ");
 }
 
 Json_Private* JsonArray::GetPrivate() const
 {
 	return m_jsonPrivate;
+}
+
+void JsonArray::LogWarning(const char* message) const
+{
+	if (m_jsonPrivate->pValue->IsString())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "string");
+	if (m_jsonPrivate->pValue->IsBool())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "bool");
+	if (m_jsonPrivate->pValue->IsDouble())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "double");
+	if (m_jsonPrivate->pValue->IsFloat())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "float");
+	if (m_jsonPrivate->pValue->IsInt())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "int");
 }
 
 JsonObject::JsonObject()
@@ -388,7 +430,7 @@ JsonObjectPtr JsonObject::GetObject(const char* key) const
 		const Value::MemberIterator& memberIterator = m_jsonPrivate->pValue->FindMember(key);
 		if (memberIterator != m_jsonPrivate->pValue->MemberEnd())
 		{
-			const auto object = std::make_shared<JsonObject>();
+			const JsonObjectPtr object = std::make_shared<JsonObject>();
 
 			object->GetPrivate()->pValue     = &memberIterator->value;
 			object->GetPrivate()->pKey       = &memberIterator->name;
@@ -399,6 +441,8 @@ JsonObjectPtr JsonObject::GetObject(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an object from a ");
 
 	return nullptr;
 }
@@ -423,6 +467,8 @@ bool JsonObject::GetObject(const char* key, JsonObjectPtr& object) const
 		return false;
 	}
 
+	LogWarning("Cannot get an object from a ");
+
 	return false;
 }
 
@@ -441,6 +487,8 @@ StrPtr JsonObject::GetString(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an string from a ");
 
 	return nullptr;
 }
@@ -464,6 +512,8 @@ bool JsonObject::GetString(const char* key, std::string& rString) const
 		return false;
 	}
 
+	LogWarning("Cannot get an string from a ");
+
 	return false;
 }
 
@@ -482,6 +532,8 @@ IntPtr JsonObject::GetInt(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an int from a ");
 
 	return nullptr;
 }
@@ -505,6 +557,8 @@ bool JsonObject::GetInt(const char* key, int& rInt) const
 		return false;
 	}
 
+	LogWarning("Cannot get an int from a ");
+
 	return false;
 }
 
@@ -523,6 +577,8 @@ BoolPtr JsonObject::GetBool(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an bool from a ");
 
 	return nullptr;
 }
@@ -546,6 +602,8 @@ bool JsonObject::GetBool(const char* key, bool& rBool) const
 		return false;
 	}
 
+	LogWarning("Cannot get an bool from a ");
+
 	return false;
 }
 
@@ -564,6 +622,8 @@ FloatPtr JsonObject::GetFloat(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an float from a ");
 
 	return nullptr;
 }
@@ -587,6 +647,8 @@ bool JsonObject::GetFloat(const char* key, float& rFloat) const
 		return false;
 	}
 
+	LogWarning("Cannot get an float from a ");
+
 	return false;
 }
 
@@ -605,6 +667,8 @@ DoublePtr JsonObject::GetDouble(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an double from a ");
 
 	return nullptr;
 }
@@ -627,6 +691,8 @@ bool JsonObject::GetDouble(const char* key, double& rDouble) const
 
 		return false;
 	}
+
+	LogWarning("Cannot get an double from a ");
 
 	return false;
 }
@@ -651,6 +717,8 @@ JsonArrayPtr JsonObject::GetArray(const char* key) const
 		return nullptr;
 	}
 
+	LogWarning("Cannot get an array from a ");
+
 	return nullptr;
 }
 
@@ -672,6 +740,8 @@ bool JsonObject::GetArray(const char* key, JsonArrayPtr& rArray) const
 
 		return false;
 	}
+
+	LogWarning("Cannot get an array from a ");
 
 	return false;
 }
@@ -696,13 +766,15 @@ JsonObjectPtr JsonObject::AddObject(const char* key) const
 		const auto iteratorMember =
 		  m_jsonPrivate->pValue->FindMember(key); // Need to do this because the flag is remove when the value is added to the object ???
 
-		const auto objectPtr                = std::make_shared<JsonObject>();
+		const JsonObjectPtr objectPtr       = std::make_shared<JsonObject>();
 		objectPtr->GetPrivate()->pAllocator = m_jsonPrivate->pAllocator;
 		objectPtr->GetPrivate()->pValue     = &iteratorMember->value;
 		objectPtr->GetPrivate()->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an object to a ");
 
 	return nullptr;
 }
@@ -715,13 +787,15 @@ JsonObjectPtr JsonObject::AddObject(const char* key, const JsonObjectPtr& object
 		m_jsonPrivate->pValue->AddMember(newKey, *object->GetPrivate()->pValue, *m_jsonPrivate->pAllocator);
 		const auto iteratorMember = m_jsonPrivate->pValue->FindMember(key);
 
-		const auto objectPtr                = std::make_shared<JsonObject>();
+		const JsonObjectPtr objectPtr       = std::make_shared<JsonObject>();
 		objectPtr->GetPrivate()->pAllocator = m_jsonPrivate->pAllocator;
 		objectPtr->GetPrivate()->pValue     = &iteratorMember->value;
 		objectPtr->GetPrivate()->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an object to a ");
 
 	return nullptr;
 }
@@ -734,13 +808,15 @@ JsonObjectPtr JsonObject::AddObject(const JsonObjectPtr& object) const
 		m_jsonPrivate->pValue->AddMember(newKey, *object->GetPrivate()->pValue, *m_jsonPrivate->pAllocator);
 		const auto iteratorMember = m_jsonPrivate->pValue->FindMember(object->GetKey());
 
-		const auto objectPtr                = std::make_shared<JsonObject>();
+		const JsonObjectPtr objectPtr       = std::make_shared<JsonObject>();
 		objectPtr->GetPrivate()->pAllocator = m_jsonPrivate->pAllocator;
 		objectPtr->GetPrivate()->pValue     = &iteratorMember->value;
 		objectPtr->GetPrivate()->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an object to a ");
 
 	return nullptr;
 }
@@ -756,6 +832,8 @@ StrPtr JsonObject::AddString(const char* key, const char* value) const
 		return std::make_shared<std::string>(value);
 	}
 
+	LogWarning("Cannot add a string to a ");
+
 	return nullptr;
 }
 
@@ -769,6 +847,8 @@ StrPtr JsonObject::AddString(const char* key, const std::string& value) const
 
 		return std::make_shared<std::string>(value);
 	}
+
+	LogWarning("Cannot add a string to a ");
 
 	return nullptr;
 }
@@ -784,6 +864,8 @@ IntPtr JsonObject::AddInt(const char* key, const int& value) const
 		return std::make_shared<int>(value);
 	}
 
+	LogWarning("Cannot add an int to a ");
+
 	return nullptr;
 }
 
@@ -797,6 +879,8 @@ BoolPtr JsonObject::AddBool(const char* key, const bool& value) const
 
 		return std::make_shared<bool>(value);
 	}
+
+	LogWarning("Cannot add a bool to a ");
 
 	return nullptr;
 }
@@ -812,6 +896,8 @@ FloatPtr JsonObject::AddFloat(const char* key, const float& value) const
 		return std::make_shared<float>(value);
 	}
 
+	LogWarning("Cannot add a float to a ");
+
 	return nullptr;
 }
 
@@ -826,6 +912,8 @@ DoublePtr JsonObject::AddDouble(const char* key, const double& value) const
 		return std::make_shared<double>(value);
 	}
 
+	LogWarning("Cannot add a double to a ");
+
 	return nullptr;
 }
 
@@ -835,7 +923,7 @@ JsonArrayPtr JsonObject::AddArray(const char* key) const
 	{
 		Value newKey(key, *m_jsonPrivate->pAllocator);
 		m_jsonPrivate->pValue->AddMember(newKey, Value(kArrayType), *m_jsonPrivate->pAllocator);
-		auto memberIterator = m_jsonPrivate->pValue->FindMember(key);
+		const auto memberIterator = m_jsonPrivate->pValue->FindMember(key);
 
 		JsonArrayPtr array              = std::make_shared<JsonArray>();
 		array->GetPrivate()->pValue     = &memberIterator->value;
@@ -844,6 +932,8 @@ JsonArrayPtr JsonObject::AddArray(const char* key) const
 
 		return array;
 	}
+
+	LogWarning("Cannot add an array to a ");
 
 	return nullptr;
 }
@@ -855,15 +945,17 @@ JsonArrayPtr JsonObject::AddArray(const char* key, const JsonArrayPtr& object) c
 		Value newKey(key, *m_jsonPrivate->pAllocator);
 		m_jsonPrivate->pValue->AddMember(newKey, *object->GetPrivate()->pValue, *m_jsonPrivate->pAllocator);
 		const auto iteratorMember =
-		  m_jsonPrivate->pValue->FindMember(key); // Need to do this because the flag is remove when the value is added to the object ???
+			m_jsonPrivate->pValue->FindMember(key); // Need to do this because the flag is remove when the value is added to the object ???
 
-		const auto objectPtr                = std::make_shared<JsonArray>();
+		const JsonArrayPtr objectPtr        = std::make_shared<JsonArray>();
 		objectPtr->GetPrivate()->pAllocator = m_jsonPrivate->pAllocator;
 		objectPtr->GetPrivate()->pValue     = &iteratorMember->value;
 		objectPtr->GetPrivate()->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an array to a ");
 
 	return nullptr;
 }
@@ -876,13 +968,15 @@ JsonArrayPtr JsonObject::AddArray(const JsonArrayPtr& object) const
 		m_jsonPrivate->pValue->AddMember(newKey, *object->GetPrivate()->pValue, *m_jsonPrivate->pAllocator);
 		const auto iteratorMember = m_jsonPrivate->pValue->FindMember(object->GetKey());
 
-		const auto objectPtr                = std::make_shared<JsonArray>();
+		const JsonArrayPtr objectPtr        = std::make_shared<JsonArray>();
 		objectPtr->GetPrivate()->pAllocator = m_jsonPrivate->pAllocator;
 		objectPtr->GetPrivate()->pValue     = &iteratorMember->value;
 		objectPtr->GetPrivate()->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an array to a ");
 
 	return nullptr;
 }
@@ -924,6 +1018,8 @@ StrPtr JsonObject::AsString() const
 		return std::make_shared<std::string>(m_jsonPrivate->pValue->GetString());
 	}
 
+	LogWarning("Cannot convert a string to a ");
+
 	return nullptr;
 }
 
@@ -933,6 +1029,8 @@ IntPtr JsonObject::AsInt() const
 	{
 		return std::make_shared<int>(m_jsonPrivate->pValue->GetInt());
 	}
+
+	LogWarning("Cannot convert an int to a ");
 
 	return nullptr;
 }
@@ -944,6 +1042,8 @@ BoolPtr JsonObject::AsBool() const
 		return std::make_shared<bool>(m_jsonPrivate->pValue->GetBool());
 	}
 
+	LogWarning("Cannot convert a bool to a ");
+
 	return nullptr;
 }
 
@@ -954,6 +1054,8 @@ FloatPtr JsonObject::AsFloat() const
 		return std::make_shared<float>(m_jsonPrivate->pValue->GetFloat());
 	}
 
+	LogWarning("Cannot convert a float to a ");
+
 	return nullptr;
 }
 
@@ -963,6 +1065,8 @@ DoublePtr JsonObject::AsDouble() const
 	{
 		return std::make_shared<double>(m_jsonPrivate->pValue->GetDouble());
 	}
+
+	LogWarning("Cannot convert a double to a ");
 
 	return nullptr;
 }
@@ -978,6 +1082,8 @@ JsonArrayPtr JsonObject::AsArray() const
 
 		return array;
 	}
+
+	LogWarning("Cannot convert an array to a ");
 
 	return nullptr;
 }
@@ -1001,6 +1107,8 @@ void JsonObject::ForEach(const std::function<void(const JsonObjectPtr&, const bo
 				++it;
 		}
 	}
+	else
+		LogWarning("Cannot use foreach of an object with a ");
 }
 
 struct Serializer_Private
@@ -1022,7 +1130,7 @@ Serializer::~Serializer()
 JsonObjectPtr Serializer::CreateRoot()
 {
 	m_serializerPrivate->document.SetObject();
-	const auto root                = std::make_shared<JsonObject>();
+	const JsonObjectPtr root       = std::make_shared<JsonObject>();
 	root->GetPrivate()->pValue     = &m_serializerPrivate->document;
 	root->GetPrivate()->pAllocator = m_serializerPrivate->pAllocator;
 
@@ -1031,7 +1139,7 @@ JsonObjectPtr Serializer::CreateRoot()
 
 JsonObjectPtr Serializer::GetRoot()
 {
-	const auto root                = std::make_shared<JsonObject>();
+	const JsonObjectPtr root       = std::make_shared<JsonObject>();
 	root->GetPrivate()->pValue     = &m_serializerPrivate->document;
 	root->GetPrivate()->pAllocator = m_serializerPrivate->pAllocator;
 	return root;
@@ -1050,7 +1158,7 @@ bool Serializer::Parse(const std::string& path)
 		return true;
 	}
 
-	// Logicraft::Logger::Get().Log(Logicraft::Logger::eError, "Failed to open the file : " + path);
+	Logicraft::Logger::Get().Log(Logicraft::Logger::eError, "Failed to open the file to read : " + path);
 	return false;
 }
 
@@ -1068,6 +1176,6 @@ bool Serializer::Write(const std::string& path)
 		return true;
 	}
 
-	// Logicraft::Logger::Get().Log(Logicraft::Logger::eError, "Failed to open the file : " + path);
+	Logicraft::Logger::Get().Log(Logicraft::Logger::eError, "Failed to open the file to write : " + path);
 	return false;
 }
