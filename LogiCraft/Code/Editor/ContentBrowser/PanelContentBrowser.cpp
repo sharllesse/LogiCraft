@@ -32,81 +32,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Action.h"
+#include "PanelContentBrowser.h"
+#include "Widgets/Menu.h"
+#include "Widgets/MenuItem.h"
 
-#include "Core/Logger.h"
-#include "Serializer.h"
-#include "Utils/SfmlUtils.h"
-
-#include <algorithm>
-#include <cctype>
+#include <Engine/Core/Action.h>
+#include <Engine/Core/ActionManager.h>
+#include <Engine/ResourceSystem/ResourceManager.h>
+#include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-Action::Action(const char* name)
-  : m_name(name)
+PanelContentBrowser::PanelContentBrowser(const char* name)
+  : Panel(name)
 {
-	std::for_each(m_name.begin(), m_name.end(), ::tolower);
-	SfmlUtils::ClearKeyEvent(m_shortcut);
-}
+	MenuPtr pMenuNew = std::make_shared<Menu>("New");
+	m_menuBar.AddChild(pMenuNew);
 
-void Action::Execute()
-{
-	if (m_callback)
+	for (auto& pResourceType : ResourceRegisterer::s_registerers)
 	{
-		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
-		m_callback();
-	}
-	else
-	{
-		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
+		MenuItemPtr pItemNew = std::make_shared<MenuItem>(pResourceType->GetName().c_str());
+		pMenuNew->AddChild(pItemNew);
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
+		pAction->SetCallback([pResourceType] { ResourceManager::Get().CreateResource(pResourceType->GetName().c_str()); });
+		pItemNew->SetAction(pAction);
 	}
 }
 
-void Action::SetCallback(std::function<void()>&& callback)
-{
-	m_callback = std::move(callback);
-}
-
-void Action::SetShortcut(const std::string& shortcut)
-{
-	m_shortcutStr = shortcut;
-	SfmlUtils::ClearKeyEvent(m_shortcut);
-	SfmlUtils::StringToKeyEvent(shortcut, m_shortcut);
-}
-
-std::string Action::GetShortcutString() const
-{
-	return m_shortcutStr;
-}
-
-void Action::Serialize(bool load, JsonObjectPtr pJsonObject)
-{
-	if (load)
-	{
-		if (JsonObjectPtr pNameObject = pJsonObject->GetObject(m_name.c_str()))
-		{
-			if (StringPtr pShortcut = pNameObject->GetString("shortcut"))
-			{
-				SetShortcut(*pShortcut);
-			}
-			pNameObject->GetString("description", m_description);
-		}
-	}
-	else
-	{
-		JsonObjectPtr pNameObject = pJsonObject->AddObject(m_name.c_str());
-		pNameObject->AddString("shortcut", m_shortcutStr);
-		pNameObject->AddString("description", m_description);
-	}
-}
-
-void Action::Load()
-{
-	Serializer serializer;
-	if (serializer.Parse("action.json"))
-	{
-		JsonObjectPtr pRoot = serializer.GetRoot();
-		Serialize(true, pRoot);
-	}
-}
+void PanelContentBrowser::Draw() {}

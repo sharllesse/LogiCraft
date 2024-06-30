@@ -76,7 +76,6 @@ ActionPtr ActionManager::AddAction(const char* name)
 	return pAction;
 }
 
-
 void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
 {
 	for (ActionPtr& action : m_actions)
@@ -92,7 +91,7 @@ void Logicraft::ActionManager::Release()
 
 void ActionManager::Save()
 {
-	Serializer serializer;
+	Serializer    serializer;
 	JsonObjectPtr pRoot = serializer.CreateRoot();
 	Serialize(false, pRoot);
 	serializer.Write("action.json");
@@ -104,6 +103,6 @@ void ActionManager::Load()
 	if (serializer.Parse("action.json"))
 	{
 		JsonObjectPtr pRoot = serializer.GetRoot();
-		Serialize(true, pRoot);	
+		Serialize(true, pRoot);
 	}
 }

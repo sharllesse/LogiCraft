@@ -32,81 +32,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Action.h"
+#include "PanelObject.h"
 
-#include "Core/Logger.h"
-#include "Serializer.h"
-#include "Utils/SfmlUtils.h"
+#include "EditorObjectManager.h"
 
-#include <algorithm>
-#include <cctype>
+#include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-Action::Action(const char* name)
-  : m_name(name)
+Logicraft::PanelObject::PanelObject(const char* name)
+  : Panel(name)
 {
-	std::for_each(m_name.begin(), m_name.end(), ::tolower);
-	SfmlUtils::ClearKeyEvent(m_shortcut);
 }
 
-void Action::Execute()
+void Logicraft::PanelObject::Update()
 {
-	if (m_callback)
+	auto objects = EditorObjectManager::Get().GetObjects();
+	if (objects.size() > 0)
+		m_pSelectedObject = objects[objects.size() - 1];
+}
+
+void Logicraft::PanelObject::Draw()
+{
+	if (m_pSelectedObject)
 	{
-		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
-		m_callback();
-	}
-	else
-	{
-		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
-	}
-}
+		ImGui::Text(m_pSelectedObject->GetName().c_str());
 
-void Action::SetCallback(std::function<void()>&& callback)
-{
-	m_callback = std::move(callback);
-}
-
-void Action::SetShortcut(const std::string& shortcut)
-{
-	m_shortcutStr = shortcut;
-	SfmlUtils::ClearKeyEvent(m_shortcut);
-	SfmlUtils::StringToKeyEvent(shortcut, m_shortcut);
-}
-
-std::string Action::GetShortcutString() const
-{
-	return m_shortcutStr;
-}
-
-void Action::Serialize(bool load, JsonObjectPtr pJsonObject)
-{
-	if (load)
-	{
-		if (JsonObjectPtr pNameObject = pJsonObject->GetObject(m_name.c_str()))
+		for (auto& pComponent : m_pSelectedObject->GetComponents())
 		{
-			if (StringPtr pShortcut = pNameObject->GetString("shortcut"))
-			{
-				SetShortcut(*pShortcut);
-			}
-			pNameObject->GetString("description", m_description);
+			// TODO: Display component name
+			// ImGui::Text(pComponent->GetName().c_str());
 		}
-	}
-	else
-	{
-		JsonObjectPtr pNameObject = pJsonObject->AddObject(m_name.c_str());
-		pNameObject->AddString("shortcut", m_shortcutStr);
-		pNameObject->AddString("description", m_description);
-	}
-}
-
-void Action::Load()
-{
-	Serializer serializer;
-	if (serializer.Parse("action.json"))
-	{
-		JsonObjectPtr pRoot = serializer.GetRoot();
-		Serialize(true, pRoot);
 	}
 }

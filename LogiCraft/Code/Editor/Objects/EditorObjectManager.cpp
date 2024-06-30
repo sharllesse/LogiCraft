@@ -34,6 +34,9 @@ SOFTWARE.
 
 #include "EditorObjectManager.h"
 
+#include <Engine/Core/ActionManager.h>
+#include <Engine/Core/Engine.h>
+#include <Engine/Objects/GameObjectManager.h>
 #include <assert.h>
 
 using namespace Logicraft;
@@ -75,10 +78,21 @@ EditorObjectManager::~EditorObjectManager()
 	s_pEditorObjectManager = nullptr;
 }
 
-EditorObjectPtr EditorObjectManager::AddObject()
+void EditorObjectManager::Init()
 {
-	m_objects.push_back(std::make_shared<EditorObject>());
-	return m_objects.back();
+	m_pActionCreateObject = ActionManager::Get().AddAction("create_object");
+	m_pActionCreateObject->SetCallback([this]() { CreateObject(); });
+}
+
+void EditorObjectManager::CreateObject()
+{
+	EditorObjectPtr pNewObject = std::make_shared<EditorObject>();
+	std::string     name       = "Object_" + std::to_string(m_objects.size());
+	pNewObject->SetName(name);
+	m_objects.push_back(pNewObject);
+
+	GameObjectPtr pGameObject = GameObjectManager::Get().CreateObject();
+	pNewObject->SetGameObject(pGameObject);
 }
 
 void EditorObjectManager::RemoveObject(REFGUID objectGUID)

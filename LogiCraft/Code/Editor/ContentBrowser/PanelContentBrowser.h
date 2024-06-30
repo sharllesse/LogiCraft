@@ -37,14 +37,14 @@ SOFTWARE.
 
 namespace Logicraft
 {
-
-class ImGuiDemo : public Panel
+class PanelContentBrowser : public Panel
 {
-	LOGI_DECLARE_PANEL(ImGuiDemo)
+	LOGI_DECLARE_PANEL(PanelContentBrowser, "Content Browser")
 
 public:
-	ImGuiDemo(const char* name);
+	PanelContentBrowser(const char* name);
 
+protected:
 	void Draw() override;
 };
 } // namespace Logicraft

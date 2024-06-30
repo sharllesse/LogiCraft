@@ -5,6 +5,7 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
+Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -32,44 +33,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "ContentBrowser.h"
-#include "Widgets/Menu.h"
-#include "Widgets/MenuItem.h"
+#pragma once
+#include "Core/Event.h"
 
-#include <Engine/Core/Action.h>
-#include <Engine/Core/ActionManager.h>
-#include <Engine/Core/TaskManager.h>
-#include <Engine/Objects/GameObject.h>
-#include <Engine/ResourceSystem/ResourceManager.h>
-#include <imgui/imgui.h>
+// #define REGISTER_EVENT_TYPE static int m_eventID = EventSystem::m_eventID++;
 
-using namespace Logicraft;
-
-ContentBrowser::ContentBrowser(const char* name)
-  : Panel(name)
+namespace Logicraft
 {
-	MenuPtr pMenuNew = std::make_shared<Menu>("New");
-	m_menuBar.AddChild(pMenuNew);
-
-	// TODO for all resource types
-	MenuItemPtr pNewGameObject = std::make_shared<MenuItem>("GameObject");
-	pMenuNew->AddChild(pNewGameObject);
-	ActionPtr pAction = ActionManager::Get().AddAction("new_gameobject");
-	pAction->SetCallback([] { ResourceManager::Get().CreateResource<GameObject>(); });
-	pNewGameObject->SetAction(pAction);
-}
-
-void ContentBrowser::Draw()
+class LOGI_ENGINE_API EventSystem
 {
-	if (m_visible)
-	{
-		if (ImGui::Begin(m_name.c_str(), &m_visible, ImGuiWindowFlags_MenuBar))
-		{
-			ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
-			ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);
+public:
+	EventSystem();
+	~EventSystem();
 
-			m_menuBar.Draw();
-		}
-		ImGui::End();
-	}
-}
+	EventSystem(EventSystem&&)      = delete;
+	EventSystem(const EventSystem&) = delete;
+
+	EventSystem& operator=(EventSystem&&)      = delete;
+	EventSystem& operator=(const EventSystem&) = delete;
+
+	int  AddListener(int eventID, std::function<void()> _func);
+	bool RemoveListener(int eventID, int _listenerID);
+	void Invoke(int eventID);
+
+private:
+	std::unordered_map<int, Event> m_events;
+	std::mutex                     m_mutex;
+};
+} // namespace Logicraft

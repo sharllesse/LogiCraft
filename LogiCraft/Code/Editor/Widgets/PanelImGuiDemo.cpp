@@ -32,29 +32,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "AsyncLoadedObject.h"
-#include "TaskManager.h"
+#include "PanelImGuiDemo.h"
+
+#include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-AsyncLoadedObject::AsyncLoadedObject() {}
-
-AsyncLoadedObject::~AsyncLoadedObject() {}
-
-void AsyncLoadedObject::StartLoading()
+PanelImGuiDemo::PanelImGuiDemo(const char* name)
+  : Panel(name)
 {
-	TaskManager::Get().AddTask([this] {
-		const std::lock_guard<std::mutex> lock(m_loadingMutex);
-		m_loaded = false;
-		Load();
-		m_loaded = true;
-	});
 }
 
-void AsyncLoadedObject::Reload()
+void PanelImGuiDemo::Draw()
 {
-	const std::lock_guard<std::mutex> lock(m_loadingMutex);
-	m_loaded = false;
-	Unload();
-	StartLoading();
+	ImGui::ShowDemoWindow();
 }

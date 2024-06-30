@@ -42,9 +42,10 @@ namespace Logicraft
 class EditorComponent
 {
 public:
+	const GameComponentPtr GetGameComponent() const { return m_pGameComponent; }
 
 protected:
 	GameComponentPtr m_pGameComponent;
 };
-using EditorComponentPtr = std::shared_ptr<GameComponent>;
+using EditorComponentPtr = std::shared_ptr<EditorComponent>;
 } // namespace Logicraft
