@@ -34,13 +34,10 @@ SOFTWARE.
 
 #pragma once
 #include "DLLExport.h"
-#include "EventSystem.h"
 #include "Serializer.h"
 
 #include <atomic>
 #include <mutex>
-
-class Serializer;
 
 namespace Logicraft
 {
@@ -77,8 +74,6 @@ protected:
 	virtual void Save() {}
 
 private:
-	EventSystem m_eventSystem;
-
 	std::mutex        m_loadingMutex;
 	std::atomic<bool> m_loaded{false};
 
