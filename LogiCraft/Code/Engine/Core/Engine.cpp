@@ -69,12 +69,6 @@ void Engine::Init()
 	m_pResourceManager->StartLoading();
 }
 
-void Logicraft::Engine::Release()
-{
-	m_pResourceManager->StartSaving();
-	m_pActionManager->StartSaving();
-}
-
 void Engine::Update()
 {
 	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
@@ -84,3 +78,9 @@ void Engine::Update()
 }
 
 void Engine::Render() {}
+
+void Engine::Release()
+{
+	m_pResourceManager->StartSaving();
+	m_pActionManager->StartSaving();
+}

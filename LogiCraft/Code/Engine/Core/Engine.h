@@ -61,9 +61,9 @@ public:
 	~Engine();
 
 	void Init();
-	void Release();
 	void Update();
 	void Render();
+	void Release();
 
 	EventSystem& GetEventSystem() { return *m_pEventSystem; }
 

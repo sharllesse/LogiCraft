@@ -91,6 +91,7 @@ void Editor::Run()
 		Update();
 		Render();
 	}
+
 	ImGui::SFML::Shutdown();
 
 	m_pEngine->Release();

@@ -9,6 +9,10 @@
 #include <string>
 #include <vector>
 
+#include "Action.h"
+#include "Logger.h"
+
+
 using namespace rapidjson;
 
 struct Logicraft::JsonArray::Private
@@ -63,66 +67,88 @@ void Logicraft::JsonArray::PushBack(const Logicraft::JsonObjectPtr& value) const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PushBack(*value->m_pPrivate->pValue, *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an object in a ");
 }
 
 void Logicraft::JsonArray::PushBack(const JsonArrayPtr& value) const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PushBack(*value->m_pPrivate->pValue, *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an array in a ");
 }
 
-// void Logicraft::JsonArray::PushBack(const std::string& value) const
-//{
-//	if (m_pPrivate->pValue->IsArray())
-//		m_pPrivate->pValue->PushBack(value, *m_pPrivate->pAllocator);
-// }
+void Logicraft::JsonArray::PushBack(const std::string& value) const
+{
+	if (m_pPrivate->pValue->IsArray())
+		m_pPrivate->pValue->PushBack(Value(value.c_str(), *m_pPrivate->pAllocator), *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an string in a ");
+}
 
 void Logicraft::JsonArray::PushBack(const char* value) const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PushBack(Value(value, *m_pPrivate->pAllocator), *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a string in a ");
 }
 
 void Logicraft::JsonArray::PushBack(const int& value) const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PushBack(value, *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a string in a ");
 }
 
 void Logicraft::JsonArray::PushBack(const double& value) const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PushBack(value, *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an int in a ");
 }
 
 void Logicraft::JsonArray::PushBack(const float& value) const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PushBack(value, *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a double in a ");
 }
 
 void Logicraft::JsonArray::PushBack(const bool& value) const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PushBack(value, *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back a float in a ");
 }
 
 void Logicraft::JsonArray::PopBack() const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->PopBack();
+	else
+		LogWarning("Cannot PushBack a bool in a ");
 }
 
 void Logicraft::JsonArray::Clear() const
 {
 	if (m_pPrivate->pValue->IsArray())
 		m_pPrivate->pValue->Clear();
+	else
+		LogWarning("Cannot use PopBack with a ");
 }
 
 size_t Logicraft::JsonArray::Size() const
 {
 	if (m_pPrivate->pValue->IsArray())
 		return m_pPrivate->pValue->Size();
+
+	LogWarning("Cannot use Size with a ");
 
 	return 0u;
 }
@@ -131,6 +157,8 @@ bool Logicraft::JsonArray::Empty() const
 {
 	if (m_pPrivate->pValue->IsArray())
 		return m_pPrivate->pValue->Empty();
+
+	LogWarning("Cannot use Empty with a ");
 
 	return true;
 }
@@ -154,6 +182,22 @@ void Logicraft::JsonArray::ForEach(const std::function<void(const Logicraft::Jso
 				it++;
 		}
 	}
+	else
+		LogWarning("Cannot use foreach of an array with a ");
+}
+
+void Logicraft::JsonArray::LogWarning(const char* message) const
+{
+	if (m_pPrivate->pValue->IsString())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "string");
+	if (m_pPrivate->pValue->IsBool())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "bool");
+	if (m_pPrivate->pValue->IsDouble())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "double");
+	if (m_pPrivate->pValue->IsFloat())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "float");
+	if (m_pPrivate->pValue->IsInt())
+		Logicraft::Logger::Get().Log(Logicraft::Logger::eWarning, std::string(message) + "int");
 }
 
 Logicraft::JsonObject::JsonObject()
@@ -247,7 +291,7 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::GetObject(const char* key) const
 		const Value::MemberIterator& memberIterator = m_pPrivate->pValue->FindMember(key);
 		if (memberIterator != m_pPrivate->pValue->MemberEnd())
 		{
-			const auto object = std::make_shared<JsonObject>();
+			const JsonObjectPtr object = std::make_shared<JsonObject>();
 
 			object->m_pPrivate->pValue     = &memberIterator->value;
 			object->m_pPrivate->pKey       = &memberIterator->name;
@@ -258,6 +302,8 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::GetObject(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an object from a ");
 
 	return nullptr;
 }
@@ -282,6 +328,8 @@ bool Logicraft::JsonObject::GetObject(const char* key, Logicraft::JsonObjectPtr&
 		return false;
 	}
 
+	LogWarning("Cannot get an object from a ");
+
 	return false;
 }
 
@@ -300,6 +348,8 @@ Logicraft::StringPtr Logicraft::JsonObject::GetString(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an string from a ");
 
 	return nullptr;
 }
@@ -323,6 +373,8 @@ bool Logicraft::JsonObject::GetString(const char* key, std::string& rString) con
 		return false;
 	}
 
+	LogWarning("Cannot get an string from a ");
+
 	return false;
 }
 
@@ -341,6 +393,8 @@ Logicraft::IntPtr Logicraft::JsonObject::GetInt(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an int from a ");
 
 	return nullptr;
 }
@@ -364,6 +418,8 @@ bool Logicraft::JsonObject::GetInt(const char* key, int& rInt) const
 		return false;
 	}
 
+	LogWarning("Cannot get an int from a ");
+
 	return false;
 }
 
@@ -382,6 +438,8 @@ Logicraft::BoolPtr Logicraft::JsonObject::GetBool(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an bool from a ");
 
 	return nullptr;
 }
@@ -405,6 +463,8 @@ bool Logicraft::JsonObject::GetBool(const char* key, bool& rBool) const
 		return false;
 	}
 
+	LogWarning("Cannot get an bool from a ");
+
 	return false;
 }
 
@@ -423,6 +483,8 @@ Logicraft::FloatPtr Logicraft::JsonObject::GetFloat(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an float from a ");
 
 	return nullptr;
 }
@@ -446,6 +508,8 @@ bool Logicraft::JsonObject::GetFloat(const char* key, float& rFloat) const
 		return false;
 	}
 
+	LogWarning("Cannot get an float from a ");
+
 	return false;
 }
 
@@ -464,6 +528,8 @@ Logicraft::DoublePtr Logicraft::JsonObject::GetDouble(const char* key) const
 
 		return nullptr;
 	}
+
+	LogWarning("Cannot get an double from a ");
 
 	return nullptr;
 }
@@ -486,6 +552,8 @@ bool Logicraft::JsonObject::GetDouble(const char* key, double& rDouble) const
 
 		return false;
 	}
+
+	LogWarning("Cannot get an double from a ");
 
 	return false;
 }
@@ -510,6 +578,8 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::GetArray(const char* key) const
 		return nullptr;
 	}
 
+	LogWarning("Cannot get an array from a ");
+
 	return nullptr;
 }
 
@@ -531,6 +601,8 @@ bool Logicraft::JsonObject::GetArray(const char* key, JsonArrayPtr& rArray) cons
 
 		return false;
 	}
+
+	LogWarning("Cannot get an array from a ");
 
 	return false;
 }
@@ -555,13 +627,15 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::AddObject(const char* key) const
 		const auto iteratorMember =
 		  m_pPrivate->pValue->FindMember(key); // Need to do this because the flag is remove when the value is added to the object ???
 
-		const auto objectPtr              = std::make_shared<Logicraft::JsonObject>();
+		const JsonObjectPtr objectPtr = std::make_shared<Logicraft::JsonObject>();
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an object to a ");
 
 	return nullptr;
 }
@@ -574,13 +648,15 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::AddObject(const char* key, const
 		m_pPrivate->pValue->AddMember(newKey, *object->m_pPrivate->pValue, *m_pPrivate->pAllocator);
 		const auto iteratorMember = m_pPrivate->pValue->FindMember(key);
 
-		const auto objectPtr              = std::make_shared<JsonObject>();
+		const JsonObjectPtr objectPtr = std::make_shared<JsonObject>();
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an object to a ");
 
 	return nullptr;
 }
@@ -593,13 +669,15 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::AddObject(const Logicraft::JsonO
 		m_pPrivate->pValue->AddMember(newKey, *object->m_pPrivate->pValue, *m_pPrivate->pAllocator);
 		const auto iteratorMember = m_pPrivate->pValue->FindMember(object->GetKey());
 
-		const auto objectPtr              = std::make_shared<JsonObject>();
+		const JsonObjectPtr objectPtr = std::make_shared<JsonObject>();
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an object to a ");
 
 	return nullptr;
 }
@@ -615,6 +693,8 @@ Logicraft::StringPtr Logicraft::JsonObject::AddString(const char* key, const cha
 		return std::make_shared<std::string>(value);
 	}
 
+	LogWarning("Cannot add a string to a ");
+
 	return nullptr;
 }
 
@@ -628,6 +708,8 @@ Logicraft::StringPtr Logicraft::JsonObject::AddString(const char* key, const std
 
 		return std::make_shared<std::string>(value);
 	}
+
+	LogWarning("Cannot add a string to a ");
 
 	return nullptr;
 }
@@ -643,6 +725,8 @@ Logicraft::IntPtr Logicraft::JsonObject::AddInt(const char* key, const int& valu
 		return std::make_shared<int>(value);
 	}
 
+	LogWarning("Cannot add an int to a ");
+
 	return nullptr;
 }
 
@@ -656,6 +740,8 @@ Logicraft::BoolPtr Logicraft::JsonObject::AddBool(const char* key, const bool& v
 
 		return std::make_shared<bool>(value);
 	}
+
+	LogWarning("Cannot add a bool to a ");
 
 	return nullptr;
 }
@@ -671,6 +757,8 @@ Logicraft::FloatPtr Logicraft::JsonObject::AddFloat(const char* key, const float
 		return std::make_shared<float>(value);
 	}
 
+	LogWarning("Cannot add a float to a ");
+
 	return nullptr;
 }
 
@@ -684,6 +772,8 @@ Logicraft::DoublePtr Logicraft::JsonObject::AddDouble(const char* key, const dou
 
 		return std::make_shared<double>(value);
 	}
+
+	LogWarning("Cannot add a double to a ");
 
 	return nullptr;
 }
@@ -703,6 +793,8 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AddArray(const char* key) const
 
 		return array;
 	}
+
+	LogWarning("Cannot add an array to a ");
 
 	return nullptr;
 }
@@ -724,6 +816,8 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AddArray(const char* key, const J
 		return objectPtr;
 	}
 
+	LogWarning("Cannot add an array to a ");
+
 	return nullptr;
 }
 
@@ -742,6 +836,8 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AddArray(const JsonArrayPtr& obje
 
 		return objectPtr;
 	}
+
+	LogWarning("Cannot add an array to a ");
 
 	return nullptr;
 }
@@ -783,6 +879,8 @@ Logicraft::StringPtr Logicraft::JsonObject::AsString() const
 		return std::make_shared<std::string>(m_pPrivate->pValue->GetString());
 	}
 
+	LogWarning("Cannot convert a string to a ");
+
 	return nullptr;
 }
 
@@ -792,6 +890,8 @@ Logicraft::IntPtr Logicraft::JsonObject::AsInt() const
 	{
 		return std::make_shared<int>(m_pPrivate->pValue->GetInt());
 	}
+
+	LogWarning("Cannot convert an int to a ");
 
 	return nullptr;
 }
@@ -803,6 +903,8 @@ Logicraft::BoolPtr Logicraft::JsonObject::AsBool() const
 		return std::make_shared<bool>(m_pPrivate->pValue->GetBool());
 	}
 
+	LogWarning("Cannot convert a bool to a ");
+
 	return nullptr;
 }
 
@@ -813,6 +915,8 @@ Logicraft::FloatPtr Logicraft::JsonObject::AsFloat() const
 		return std::make_shared<float>(m_pPrivate->pValue->GetFloat());
 	}
 
+	LogWarning("Cannot convert a float to a ");
+
 	return nullptr;
 }
 
@@ -822,6 +926,8 @@ Logicraft::DoublePtr Logicraft::JsonObject::AsDouble() const
 	{
 		return std::make_shared<double>(m_pPrivate->pValue->GetDouble());
 	}
+
+	LogWarning("Cannot convert a double to a ");
 
 	return nullptr;
 }
@@ -837,6 +943,8 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AsArray() const
 
 		return array;
 	}
+
+	LogWarning("Cannot convert an array to a ");
 
 	return nullptr;
 }
@@ -860,6 +968,8 @@ void Logicraft::JsonObject::ForEach(const std::function<void(const Logicraft::Js
 				++it;
 		}
 	}
+	else
+		LogWarning("Cannot use foreach of an object with a ");
 }
 
 struct Logicraft::Serializer::Private
@@ -881,7 +991,7 @@ Logicraft::Serializer::~Serializer()
 Logicraft::JsonObjectPtr Logicraft::Serializer::CreateRoot()
 {
 	m_pPrivate->document.SetObject();
-	const auto root              = std::make_shared<JsonObject>();
+	const JsonObjectPtr root     = std::make_shared<JsonObject>();
 	root->m_pPrivate->pValue     = &m_pPrivate->document;
 	root->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 
@@ -890,13 +1000,14 @@ Logicraft::JsonObjectPtr Logicraft::Serializer::CreateRoot()
 
 Logicraft::JsonObjectPtr Logicraft::Serializer::GetRoot()
 {
-	const auto root              = std::make_shared<JsonObject>();
+	const JsonObjectPtr root     = std::make_shared<JsonObject>();
 	root->m_pPrivate->pValue     = &m_pPrivate->document;
 	root->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
+
 	return root;
 }
 
-bool Logicraft::Serializer::InternalParse(const std::string& path)
+bool Logicraft::Serializer::Parse(const std::string& path)
 {
 	std::ifstream file(path);
 	if (file.is_open())
@@ -908,10 +1019,13 @@ bool Logicraft::Serializer::InternalParse(const std::string& path)
 		m_pPrivate->document.Parse(buffer.str().c_str());
 		return true;
 	}
+
+	Logicraft::Logger::Get().Log(Logicraft::Logger::eError, "Failed to open the file to read : " + path);
+
 	return false;
 }
 
-bool Logicraft::Serializer::InternalWrite(const std::string& path)
+bool Logicraft::Serializer::Write(const std::string& path)
 {
 	std::ofstream file(path);
 	if (file.is_open())
@@ -924,5 +1038,8 @@ bool Logicraft::Serializer::InternalWrite(const std::string& path)
 
 		return true;
 	}
+
+	Logicraft::Logger::Get().Log(Logicraft::Logger::eError, "Failed to open the file to write : " + path);
+
 	return false;
 }
