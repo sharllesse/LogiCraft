@@ -10,6 +10,8 @@
 #include <vector>
 
 #include "Action.h"
+#include "Logger.h"
+
 
 using namespace rapidjson;
 
@@ -77,11 +79,13 @@ void Logicraft::JsonArray::PushBack(const JsonArrayPtr& value) const
 		LogWarning("Cannot push back an array in a ");
 }
 
-// void Logicraft::JsonArray::PushBack(const std::string& value) const
-//{
-//	if (m_pPrivate->pValue->IsArray())
-//		m_pPrivate->pValue->PushBack(value, *m_pPrivate->pAllocator);
-// }
+void Logicraft::JsonArray::PushBack(const std::string& value) const
+{
+	if (m_pPrivate->pValue->IsArray())
+		m_pPrivate->pValue->PushBack(Value(value.c_str(), *m_pPrivate->pAllocator), *m_pPrivate->pAllocator);
+	else
+		LogWarning("Cannot push back an string in a ");
+}
 
 void Logicraft::JsonArray::PushBack(const char* value) const
 {
@@ -1003,7 +1007,7 @@ Logicraft::JsonObjectPtr Logicraft::Serializer::GetRoot()
 	return root;
 }
 
-bool Logicraft::Serializer::InternalParse(const std::string& path)
+bool Logicraft::Serializer::Parse(const std::string& path)
 {
 	std::ifstream file(path);
 	if (file.is_open())
@@ -1021,7 +1025,7 @@ bool Logicraft::Serializer::InternalParse(const std::string& path)
 	return false;
 }
 
-bool Logicraft::Serializer::InternalWrite(const std::string& path)
+bool Logicraft::Serializer::Write(const std::string& path)
 {
 	std::ofstream file(path);
 	if (file.is_open())

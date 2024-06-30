@@ -1,7 +1,5 @@
 #pragma once
 #include "DLLExport.h"
-#include "Logger.h"
-
 #include <functional>
 #include <memory>
 #include <string>
@@ -31,7 +29,7 @@ public:
 
 	void PushBack(const JsonObjectPtr& value) const;
 	void PushBack(const JsonArrayPtr& value) const;
-	// void PushBack(const std::string& value) const;
+	void PushBack(const std::string& value) const;
 	void PushBack(const char* value) const;
 	void PushBack(const int& value) const;
 	void PushBack(const double& value) const;
@@ -67,7 +65,7 @@ public:
 	JsonObject(const char* key, const bool& value, const JsonObjectPtr& root);
 	JsonObject(const char* key, const float& value, const JsonObjectPtr& root);
 	JsonObject(const char* key, const double& value, const JsonObjectPtr& root);
-	virtual ~JsonObject() override;
+	virtual ~JsonObject();
 
 	JsonObjectPtr GetObject(const char* key) const;
 	bool          GetObject(const char* key, JsonObjectPtr& object) const;
@@ -134,29 +132,9 @@ public:
 	JsonObjectPtr CreateRoot();
 	JsonObjectPtr GetRoot();
 
-	bool Parse(const std::string& path)
-	{
-		if (!InternalParse(path))
-		{
-			Logger::Get().Log(Logger::eError, "Failed to open the file : " + path);
-			return false;
-		}
-		return true;
-	}
+	bool Parse(const std::string& path);
 
-	bool Write(const std::string& path)
-	{
-		if (!InternalWrite(path))
-		{
-			Logger::Get().Log(Logger::eError, "Failed to open the file : " + path);
-			return false;
-		}
-		return true;
-	}
-
-private:
-	bool InternalParse(const std::string& path);
-	bool InternalWrite(const std::string& path);
+	bool Write(const std::string& path);
 
 private:
 	struct Private;
