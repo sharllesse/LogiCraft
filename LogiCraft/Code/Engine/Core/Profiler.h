@@ -37,11 +37,9 @@ public:
 	void Start();
 
 private:
-	const char* m_name{"No Name"};
-
+	const char* m_name;
 	Timer m_timer;
-
-	Profiler* m_parent{nullptr};
+	Profiler* m_pParent{nullptr};
 
 	inline static Profiler* s_pRunningProfiler{nullptr};
 };
