@@ -36,7 +36,6 @@ SOFTWARE.
 
 #include <Engine/Core/Action.h>
 #include <SFML/Graphics.hpp>
-#include <SFML/OpenGL.hpp>
 #include <algorithm>
 #include <assert.h>
 #include <imgui/imgui-SFML.h>
