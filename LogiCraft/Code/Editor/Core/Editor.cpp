@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Editor.h"
 
 #include <Engine/Core/Action.h>
+#include <Engine/Core/Profiler.h>
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <assert.h>
@@ -84,7 +85,9 @@ void Editor::Run()
 	ActionManager::Get().StartLoading();
 
 	m_window.create(sf::VideoMode::getDesktopMode(), "LogiCraft");
+
 	InitImGui();
+
 	while (m_window.isOpen())
 	{
 		ProcessWindowEvents();
