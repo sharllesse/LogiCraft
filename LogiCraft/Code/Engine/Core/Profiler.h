@@ -29,7 +29,6 @@ private:
 class LOGI_ENGINE_API Profiler
 {
 public:
-	Profiler() = default;
 	explicit Profiler(const char* name);
 	~Profiler();
 
