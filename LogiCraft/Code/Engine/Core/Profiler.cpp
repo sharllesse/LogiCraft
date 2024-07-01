@@ -1,8 +1,6 @@
 #include "Profiler.h"
 #include "Logger.h"
 
-#include <iostream>
-
 using namespace std::chrono;
 
 namespace Logicraft
