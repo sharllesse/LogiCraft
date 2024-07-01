@@ -33,6 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Engine.h"
+#include "Profiler.h"
 #include "Objects/GameObject.h"
 
 #include <assert.h>
@@ -71,6 +72,7 @@ void Engine::Init()
 
 void Engine::Update()
 {
+	PROFILE_FUNCTION
 	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
 	{
 		pObject->Update();
