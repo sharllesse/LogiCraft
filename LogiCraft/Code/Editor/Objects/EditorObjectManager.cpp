@@ -86,7 +86,7 @@ void EditorObjectManager::Init()
 
 void EditorObjectManager::CreateObject()
 {
-	EditorObjectPtr pNewObject = std::make_shared<EditorObject>();
+	EditorObjectPtr pNewObject = make_shared(EditorObject);
 	std::string     name       = "Object_" + std::to_string(m_objects.size());
 	pNewObject->SetName(name);
 	m_objects.push_back(pNewObject);

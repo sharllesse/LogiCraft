@@ -35,11 +35,13 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Core/Editor.h"
+#include "Engine/Utils/SmartPtr.h"
 
 int main()
 {
-	Logicraft::Editor editor;
-	editor.Run();
-
+	{
+		Logicraft::Editor editor;
+		editor.Run();
+	}
 	return 0;
 }

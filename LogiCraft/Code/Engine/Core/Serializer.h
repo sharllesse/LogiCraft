@@ -1,7 +1,7 @@
 #pragma once
 #include "DLLExport.h"
+#include "Utils/SmartPtr.h"
 #include <functional>
-#include <memory>
 #include <string>
 
 namespace Logicraft

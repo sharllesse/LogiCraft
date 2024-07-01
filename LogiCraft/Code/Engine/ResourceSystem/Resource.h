@@ -37,7 +37,7 @@ SOFTWARE.
 #include "DLLExport.h"
 
 #include <guiddef.h>
-#include <memory>
+#include "Utils/SmartPtr.h"
 
 namespace Logicraft
 {
@@ -93,6 +93,6 @@ public:
 	  : ResourceRegisterer(resourceName)
 	{
 	}
-	ResourcePtr Create() override { return std::make_shared<C>(); }
+	ResourcePtr Create() override { return make_shared(C); }
 };
 } // namespace Logicraft

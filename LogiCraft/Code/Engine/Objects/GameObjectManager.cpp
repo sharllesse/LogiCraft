@@ -72,7 +72,7 @@ GameObjectManager::~GameObjectManager()
 
 GameObjectPtr GameObjectManager::CreateObject()
 {
-	GameObjectPtr pNewObject = std::make_shared<GameObject>();
+	GameObjectPtr pNewObject = make_shared(GameObject);
 	m_objects.push_back(pNewObject);
 	return pNewObject;
 }

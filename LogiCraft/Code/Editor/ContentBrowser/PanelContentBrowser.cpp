@@ -46,12 +46,12 @@ using namespace Logicraft;
 PanelContentBrowser::PanelContentBrowser(const char* name)
   : Panel(name)
 {
-	MenuPtr pMenuNew = std::make_shared<Menu>("New");
+	MenuPtr pMenuNew = make_shared(Menu,"New");
 	m_menuBar.AddChild(pMenuNew);
 
 	for (auto& pResourceType : ResourceRegisterer::s_registerers)
 	{
-		MenuItemPtr pItemNew = std::make_shared<MenuItem>(pResourceType->GetName().c_str());
+		MenuItemPtr pItemNew = make_shared(MenuItem,pResourceType->GetName().c_str());
 		pMenuNew->AddChild(pItemNew);
 		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
 		pAction->SetCallback([pResourceType] { ResourceManager::Get().CreateResource(pResourceType->GetName().c_str()); });
