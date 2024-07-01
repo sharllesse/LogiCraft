@@ -88,6 +88,7 @@ void Editor::Run()
 	while (m_window.isOpen())
 	{
 		ProcessWindowEvents();
+		ProcessEventSystem();
 		Update();
 		Render();
 	}
@@ -115,6 +116,11 @@ void Editor::ProcessWindowEvents()
 			}
 		}
 	}
+}
+
+void Editor::ProcessEventSystem()
+{
+	GetEventSystem().ProcessEvents();
 }
 
 void Editor::Update()
@@ -177,6 +183,5 @@ void Editor::CreatePanels()
 
 		GetEventSystem().AddListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
-
 	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return a->GetName() < b->GetName(); });
 }
