@@ -35,8 +35,8 @@ SOFTWARE.
 #include "Editor.h"
 
 #include <Engine/Core/Action.h>
-#include <Engine/Core/Profiler.h>
 #include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp>
 #include <algorithm>
 #include <assert.h>
 #include <imgui/imgui-SFML.h>
@@ -88,6 +88,8 @@ void Editor::Run()
 
 	InitImGui();
 
+	m_timer.Start();
+
 	while (m_window.isOpen())
 	{
 		ProcessWindowEvents();
@@ -122,17 +124,21 @@ void Editor::ProcessWindowEvents()
 
 void Editor::Update()
 {
+	PROFILE_FUNCTION
 	m_pEngine->Update();
 	for (PanelPtr& pPanel : m_panels)
 	{
+		PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->Update();
 	}
 }
 
 void Editor::Render()
 {
+	PROFILE_FUNCTION
 	// TODO replace by real time
-	sf::Time currentTime = sf::milliseconds(16);
+	sf::Time currentTime = sf::microseconds(m_timer.GetElapsedTime());
+	m_timer.Start();
 	ImGui::SFML::Update(m_window, currentTime);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
@@ -140,11 +146,13 @@ void Editor::Render()
 
 	for (PanelPtr& pPanel : m_panels)
 	{
+		PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->BaseDraw();
 	}
 
 	m_pEngine->Render();
 
+	PROFILE_SCOPE("Window Render");
 	m_window.clear();
 	ImGui::SFML::Render(m_window);
 	m_window.display();

@@ -39,6 +39,7 @@ SOFTWARE.
 
 #include <Engine/Core/Engine.h>
 #include <Engine/Core/EventSystem.h>
+#include <Engine/Core/Profiler.h>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <memory>
@@ -76,5 +77,7 @@ private:
 	std::unique_ptr<MainMenu>            m_pMainMenu;
 
 	std::vector<PanelPtr> m_panels;
+
+	Timer m_timer;
 };
 } // namespace Logicraft

@@ -47,7 +47,7 @@ Logicraft::PanelObject::PanelObject(const char* name)
 
 void Logicraft::PanelObject::Update()
 {
-	auto objects = EditorObjectManager::Get().GetObjects(); //Selection manager
+	auto objects = EditorObjectManager::Get().GetObjects();
 	if (objects.size() > 0)
 		m_pSelectedObject = objects[objects.size() - 1];
 }

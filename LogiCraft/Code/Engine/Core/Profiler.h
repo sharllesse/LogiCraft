@@ -3,27 +3,48 @@
 
 #include "DLLExport.h"
 
-#define PROFILE_SCOPE(name) Profiler name(#name)
-#define PROFILE_FUNCTION()  PROFILE_SCOPE(__FUNCTION__)
+#include "TaskManager.h"
+
+#define PROFILE_SCOPE(name) Logicraft::Profiler __profiler(name)
+#define PROFILE_FUNCTION    Logicraft::Profiler __functionProfiler(__FUNCTION__);
 
 using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+
+namespace Logicraft
+{
+class LOGI_ENGINE_API Timer
+{
+public:
+	Timer() = default;
+
+	void Start();
+	void Pause();
+
+	long long GetElapsedTime() const;
+
+private:
+	TimePoint m_start;
+	long long m_duration{0};
+	bool      m_running{false};
+};
 
 class LOGI_ENGINE_API Profiler
 {
 public:
-	Profiler(const Profiler&) = delete;
-	Profiler(Profiler&&)      = delete;
-
 	Profiler() = default;
 	explicit Profiler(const char* name);
 	~Profiler();
 
-	Profiler& operator=(const Profiler&) = delete;
-	Profiler& operator=(Profiler&&)      = delete;
+	void Pause();
+	void Start();
 
 private:
 	const char* m_name{"No Name"};
 
-	TimePoint m_start{std::chrono::high_resolution_clock::now()};
-	TimePoint m_end;
+	Timer m_timer;
+
+	Profiler* m_parent{nullptr};
+
+	inline static Profiler* s_pRunningProfiler{nullptr};
 };
+} // namespace Logicraft

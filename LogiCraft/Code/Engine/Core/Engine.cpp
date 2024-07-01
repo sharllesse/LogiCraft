@@ -37,6 +37,8 @@ SOFTWARE.
 
 #include <assert.h>
 
+#include "Profiler.h"
+
 using namespace Logicraft;
 
 Engine* s_pEngine = nullptr;
@@ -71,6 +73,7 @@ void Engine::Init()
 
 void Engine::Update()
 {
+	PROFILE_FUNCTION
 	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
 	{
 		pObject->Update();
