@@ -42,8 +42,10 @@ namespace Logicraft
 {
 class LOGI_ENGINE_API Texture : public Resource
 {
+	LOGI_DECLARE_RESOURCE(Texture)
+
 public:
-	void         Serialize(bool load, Serializer& serializer) override;
+	void         Serialize(bool load, JsonObjectPtr pJsonObject) override;
 	sf::Texture& GetTexture() { return m_texture; }
 
 protected:

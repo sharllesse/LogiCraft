@@ -32,44 +32,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "ContentBrowser.h"
-#include "Widgets/Menu.h"
-#include "Widgets/MenuItem.h"
+#pragma once
+#include "Core/Panel.h"
 
-#include <Engine/Core/Action.h>
-#include <Engine/Core/ActionManager.h>
-#include <Engine/Core/TaskManager.h>
-#include <Engine/Objects/GameObject.h>
-#include <Engine/ResourceSystem/ResourceManager.h>
-#include <imgui/imgui.h>
-
-using namespace Logicraft;
-
-ContentBrowser::ContentBrowser(const char* name)
-  : Panel(name)
+namespace Logicraft
 {
-	MenuPtr pMenuNew = std::make_shared<Menu>("New");
-	m_menuBar.AddChild(pMenuNew);
-
-	// TODO for all resource types
-	MenuItemPtr pNewGameObject = std::make_shared<MenuItem>("GameObject");
-	pMenuNew->AddChild(pNewGameObject);
-	ActionPtr pAction = ActionManager::Get().AddAction("new_gameobject");
-	pAction->SetCallback([] { ResourceManager::Get().CreateResource<GameObject>(); });
-	pNewGameObject->SetAction(pAction);
-}
-
-void ContentBrowser::Draw()
+class PanelImGuiDemo : public Panel
 {
-	if (m_visible)
-	{
-		if (ImGui::Begin(m_name.c_str(), &m_visible, ImGuiWindowFlags_MenuBar))
-		{
-			ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
-			ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);
+	LOGI_DECLARE_PANEL(PanelImGuiDemo, "ImGui Demo")
 
-			m_menuBar.Draw();
-		}
-		ImGui::End();
-	}
-}
+public:
+	PanelImGuiDemo(const char* name);
+
+protected:
+	void Draw() override;
+};
+} // namespace Logicraft

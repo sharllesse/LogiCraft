@@ -33,31 +33,18 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "EventSystem.h"
-
-#include <atomic>
+#include "Core/Panel.h"
 
 namespace Logicraft
 {
-class LOGI_ENGINE_API AsyncLoadedObject
+class PanelContentBrowser : public Panel
 {
+	LOGI_DECLARE_PANEL(PanelContentBrowser, "Content Browser")
+
 public:
-	AsyncLoadedObject();
-	virtual ~AsyncLoadedObject();
-
-	void StartLoading();
-	void Reload();
-
-	virtual void Unload() {}
-
-	bool IsLoaded() const { return m_loaded; }
+	PanelContentBrowser(const char* name);
 
 protected:
-	virtual void Load() = 0;
-
-private:
-	std::mutex        m_loadingMutex;
-	std::atomic<bool> m_loaded{false};
-	EventSystem       m_eventSystem;
+	void Draw() override;
 };
 } // namespace Logicraft

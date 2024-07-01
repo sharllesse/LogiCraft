@@ -1,96 +1,143 @@
 #pragma once
 #include "DLLExport.h"
-#include "json.hpp"
-
-#include <fstream>
+#include <functional>
+#include <memory>
 #include <string>
 
-using namespace nlohmann;
+namespace Logicraft
+{
+class JsonArray;
+using JsonArrayPtr = std::shared_ptr<JsonArray>;
 
-class Serializer
+class JsonObject;
+using JsonObjectPtr = std::shared_ptr<JsonObject>;
+
+using IntPtr    = std::shared_ptr<int>;
+using BoolPtr   = std::shared_ptr<bool>;
+using FloatPtr  = std::shared_ptr<float>;
+using DoublePtr = std::shared_ptr<double>;
+using StringPtr = std::shared_ptr<std::string>;
+
+class LOGI_ENGINE_API JsonArray
 {
 public:
-	Serializer()  = default;
-	~Serializer() = default;
+	JsonArray();
+	JsonArray(const char* key, const JsonObjectPtr& root);
+	virtual ~JsonArray();
 
-	Serializer(const Serializer& other)            = delete;
-	Serializer(Serializer&& other)                 = delete;
-	Serializer& operator=(const Serializer& other) = delete;
-	Serializer& operator=(Serializer&& other)      = delete;
+	virtual const char* GetKey() const;
 
-	json& operator[](const std::string& key) { return m_json[key]; }
+	void PushBack(const JsonObjectPtr& value) const;
+	void PushBack(const JsonArrayPtr& value) const;
+	void PushBack(const std::string& value) const;
+	void PushBack(const char* value) const;
+	void PushBack(const int& value) const;
+	void PushBack(const double& value) const;
+	void PushBack(const float& value) const;
+	void PushBack(const bool& value) const;
+	void PopBack() const;
 
-	bool operator!=(const Serializer& other) const { return m_json != other.m_json; }
-	bool operator==(const Serializer& other) const { return m_json == other.m_json; }
+	void   Clear() const;
+	size_t Size() const;
+	bool   Empty() const;
+
+	virtual void ForEach(const std::function<void(const JsonObjectPtr&, const bool&)>& function) const;
+
+protected:
+	void LogWarning(const char* message) const;
+
+	friend class JsonObject;
+	friend class Serializer;
+	struct Private;
+	Private* m_pPrivate;
+};
+
+class LOGI_ENGINE_API JsonObject : public JsonArray
+{
+public:
+	JsonObject();
+	// This constructor is used if the object as no allocator
+	//@param root: The root of the object.
+	JsonObject(const char* key, const JsonObjectPtr& root);
+	JsonObject(const char* key, const std::string& value, const JsonObjectPtr& root);
+	JsonObject(const char* key, const char* value, const JsonObjectPtr& root);
+	JsonObject(const char* key, const int& value, const JsonObjectPtr& root);
+	JsonObject(const char* key, const bool& value, const JsonObjectPtr& root);
+	JsonObject(const char* key, const float& value, const JsonObjectPtr& root);
+	JsonObject(const char* key, const double& value, const JsonObjectPtr& root);
+	virtual ~JsonObject();
+
+	JsonObjectPtr GetObject(const char* key) const;
+	bool          GetObject(const char* key, JsonObjectPtr& object) const;
+
+	StringPtr GetString(const char* key) const;
+	bool      GetString(const char* key, std::string& rString) const;
+
+	IntPtr GetInt(const char* key) const;
+	bool   GetInt(const char* key, int& rInt) const;
+
+	BoolPtr GetBool(const char* key) const;
+	bool    GetBool(const char* key, bool& rBool) const;
+
+	FloatPtr GetFloat(const char* key) const;
+	bool     GetFloat(const char* key, float& rFloat) const;
+
+	DoublePtr GetDouble(const char* key) const;
+	bool      GetDouble(const char* key, double& rDouble) const;
+
+	JsonArrayPtr GetArray(const char* key) const;
+	bool         GetArray(const char* key, JsonArrayPtr& rArray) const;
+
+	virtual const char* GetKey() const override;
+
+	JsonObjectPtr AddObject(const char* key) const;
+	JsonObjectPtr AddObject(const char* key, const JsonObjectPtr& object) const;
+	JsonObjectPtr AddObject(const JsonObjectPtr& object) const;
+
+	StringPtr AddString(const char* key, const char* value) const; // No ptr but normal value at the return ? maybe ?
+	StringPtr AddString(const char* key, const std::string& value) const;
+
+	IntPtr    AddInt(const char* key, const int& value) const;
+	BoolPtr   AddBool(const char* key, const bool& value) const;
+	FloatPtr  AddFloat(const char* key, const float& value) const;
+	DoublePtr AddDouble(const char* key, const double& value) const;
+
+	JsonArrayPtr AddArray(const char* key) const;
+	JsonArrayPtr AddArray(const char* key, const JsonArrayPtr& object) const;
+	JsonArrayPtr AddArray(const JsonArrayPtr& object) const;
+
+	bool IsString() const;
+	bool IsInt() const;
+	bool IsBool() const;
+	bool IsFloat() const;
+	bool IsDouble() const;
+	bool IsArray() const;
+
+	StringPtr    AsString() const;
+	IntPtr       AsInt() const;
+	BoolPtr      AsBool() const;
+	FloatPtr     AsFloat() const;
+	DoublePtr    AsDouble() const;
+	JsonArrayPtr AsArray() const;
+
+	virtual void ForEach(const std::function<void(const JsonObjectPtr&, const bool&)>& function) const override;
+};
+
+class LOGI_ENGINE_API Serializer
+{
+public:
+	Serializer();
+	~Serializer();
+
+	JsonObjectPtr CreateRoot();
+	JsonObjectPtr GetRoot();
 
 	bool Parse(const std::string& path);
-	void Save(const std::string& path);
 
-	/*
-	 * @brief Return the iterator to the beginning of the json objects
-	 */
-	json::iterator Begin() { return m_json.begin(); }
-
-	/*
-	 * @brief Return the iterator to the end of the json objects
-	 */
-	json::iterator End() { return m_json.end(); }
-
-	/*
-	 * @brief Return the const iterator to the beginning of the json objects
-	 */
-	json::const_iterator ConstBegin() const { return m_json.cbegin(); }
-	/*
-	 * @brief Return the const iterator to the end of the json objects
-	 */
-	json::const_iterator ConstEnd() const { return m_json.cend(); }
-
-	/*
-	 * @brief Erase the iterator from the json objects
-	 */
-	json::iterator Erase(const json::iterator& it) { return m_json.erase(it); }
-
-	/*
-	 * @brief Remove the iterator from the json objects
-	 */
-	void Remove(const std::string& key) { m_json.erase(key); }
-
-	/*
-	 * @brief Swap the json objects with another json object
-	 */
-	void Swap(json& other) { m_json.swap(other); }
-
-	json::iterator Insert(const json::const_iterator& it, const json& value) { return m_json.insert(it, value); }
-	json::iterator Insert(const json::const_iterator& it, json&& value) { return m_json.insert(it, std::move(value)); }
-	json::iterator Insert(const json::const_iterator& it, size_t count, const json& value) { return m_json.insert(it, count, value); }
-
-	// void Emplace(const std::string& key, const json& value) { m_json.emplace(key, value); }
-	// void EmplaceBack(const std::string& key, const json& value) { m_json.emplace_back(key, value); }
-
-	json::iterator       Find(const std::string& key) { return m_json.find(key); }
-	json::const_iterator Find(const std::string& key) const { return m_json.find(key); }
-
-	template<typename T>
-	T At(const std::string& key)
-	{
-		return m_json.at(key).get<T>();
-	}
-
-	template<>
-	json At<json>(const std::string& key)
-	{
-		return m_json.at(key);
-	}
-
-	bool Contains(const std::string& key) const { return m_json.contains(key); }
-
-	size_t Size() const { return m_json.size(); }
-	bool   Empty() const { return m_json.empty(); }
-
-	json& GetJson() { return m_json; }
-
-	std::vector<std::string> GetKeys() const;
+	bool Write(const std::string& path);
 
 private:
-	json m_json;
+	struct Private;
+	Private* m_pPrivate;
 };
+} // namespace Logicraft

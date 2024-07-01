@@ -60,7 +60,6 @@ public:
 
 private:
 	std::unordered_map<int, Event> m_events;
-	std::condition_variable        m_condition;
 
 	std::queue<int> m_queueEvents;
 	std::mutex      m_mutex;

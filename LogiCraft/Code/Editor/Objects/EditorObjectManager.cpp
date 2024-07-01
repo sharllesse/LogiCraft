@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "EditorObjectManager.h"
 
+#include <Engine/Core/ActionManager.h>
 #include <Engine/Core/Engine.h>
 #include <Engine/Objects/GameObjectManager.h>
 #include <assert.h>
@@ -79,13 +80,19 @@ EditorObjectManager::~EditorObjectManager()
 
 void EditorObjectManager::Init()
 {
-	GameObjectManager::Get().GetEventSystem().AddListener(Engine::EEvent::eObjectCreated, [this]() { AddObject(); });
+	m_pActionCreateObject = ActionManager::Get().AddAction("create_object");
+	m_pActionCreateObject->SetCallback([this]() { CreateObject(); });
 }
 
-EditorObjectPtr EditorObjectManager::AddObject()
+void EditorObjectManager::CreateObject()
 {
-	m_objects.push_back(std::make_shared<EditorObject>());
-	return m_objects.back();
+	EditorObjectPtr pNewObject = std::make_shared<EditorObject>();
+	std::string     name       = "Object_" + std::to_string(m_objects.size());
+	pNewObject->SetName(name);
+	m_objects.push_back(pNewObject);
+
+	GameObjectPtr pGameObject = GameObjectManager::Get().CreateObject();
+	pNewObject->SetGameObject(pGameObject);
 }
 
 void EditorObjectManager::RemoveObject(REFGUID objectGUID)

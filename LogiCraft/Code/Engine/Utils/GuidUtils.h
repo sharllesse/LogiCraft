@@ -32,21 +32,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "ImGuiDemo.h"
+#pragma once
+#include "DLLExport.h"
 
-#include <imgui/imgui.h>
+#include <guiddef.h>
+#include <string>
 
-using namespace Logicraft;
-
-ImGuiDemo::ImGuiDemo(const char* name)
-  : Panel(name)
+namespace Logicraft
 {
-}
-
-void ImGuiDemo::Draw()
+namespace GuidUtils
 {
-	if (m_visible)
-	{
-		ImGui::ShowDemoWindow(&m_visible);
-	}
-}
+LOGI_ENGINE_API std::string GuidToString(const GUID& guid);
+LOGI_ENGINE_API GUID        StringToGuid(const std::string& str);
+} // namespace GuidUtils
+} // namespace Logicraft

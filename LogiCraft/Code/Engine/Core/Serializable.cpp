@@ -37,12 +37,30 @@ SOFTWARE.
 
 using namespace Logicraft;
 
+void Serializable::StartLoading()
+{
+	TaskManager::Get().AddTask([this] {
+		const std::lock_guard<std::mutex> lock(m_loadingMutex);
+		m_loaded = false;
+		Load();
+		m_loaded = true;
+	});
+}
+
+void Serializable::Reload()
+{
+	const std::lock_guard<std::mutex> lock(m_loadingMutex);
+	m_loaded = false;
+	Unload();
+	StartLoading();
+}
+
 void Serializable::StartSaving()
 {
 	TaskManager::Get().AddTask([this] {
 		const std::lock_guard<std::mutex> lock(m_savingMutex);
 		m_isSaving = true;
-		Load();
+		Save();
 		m_isSaving = false;
 	});
 }

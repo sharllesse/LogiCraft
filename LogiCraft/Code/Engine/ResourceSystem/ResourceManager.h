@@ -58,8 +58,9 @@ public:
 		m_loadedResources.push_back(pResource);
 		return pResource;
 	}
+	ResourcePtr CreateResource(const char* resourceType);
 
-	void Serialize(bool load, Serializer& serializer) override;
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	void Load() override;

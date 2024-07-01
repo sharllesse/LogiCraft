@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Widgets/MainMenu.h"
 
 #include <Engine/Core/Engine.h>
+#include <Engine/Core/EventSystem.h>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <memory>
@@ -65,14 +66,16 @@ public:
 	void InitImGui();
 	void CreatePanels();
 
+	EventSystem& GetEventSystem() { return *m_pEventSystem; }
+
 private:
 	sf::RenderWindow m_window;
 
 	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
 	std::unique_ptr<Engine>              m_pEngine;
+	std::unique_ptr<EventSystem>         m_pEventSystem;
 	std::unique_ptr<MainMenu>            m_pMainMenu;
 
 	std::vector<PanelPtr> m_panels;
-	EventSystem           m_eventSystem;
 };
 } // namespace Logicraft

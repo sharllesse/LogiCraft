@@ -33,10 +33,13 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
+#include "EditorComponent.h"
+
 #include <Engine/Objects/GameObject.h>
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace Logicraft
 {
@@ -44,12 +47,21 @@ class EditorObject
 {
 public:
 	GameObjectPtr GetGameObject() const { return m_pGameObject; }
+	void          SetGameObject(GameObjectPtr pGameObject) { m_pGameObject = pGameObject; }
 
+	void AddComponent(EditorComponentPtr pComponent);
+	void RemoveComponent(EditorComponentPtr pComponent);
+
+	const std::vector<EditorComponentPtr>& GetComponents() const { return m_components; }
+
+	void               SetName(const std::string& name) { m_name = name; }
 	const std::string& GetName() const { return m_name; }
 
 protected:
-	GameObjectPtr m_pGameObject;
-	std::string   m_name;
+	GameObjectPtr                   m_pGameObject;
+	std::vector<EditorComponentPtr> m_components;
+
+	std::string m_name;
 };
 using EditorObjectPtr = std::shared_ptr<EditorObject>;
 
