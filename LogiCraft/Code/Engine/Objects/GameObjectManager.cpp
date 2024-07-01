@@ -73,7 +73,7 @@ GameObjectManager::~GameObjectManager()
 GameObjectPtr GameObjectManager::AddObject()
 {
 	m_objects.push_back(std::make_shared<GameObject>());
-	m_eventSystem.Invoke(Engine::EEvent::eObjectCreated);
+	m_eventSystem.QueueEvent(Engine::EEvent::eObjectCreated);
 	return m_objects.back();
 }
 

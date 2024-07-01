@@ -59,6 +59,7 @@ public:
 	~Editor();
 	void Run();
 	void ProcessWindowEvents();
+	void ProcessEventSystem();
 	void Update();
 	void Render();
 	void InitImGui();

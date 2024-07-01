@@ -49,7 +49,7 @@ void AsyncLoadedObject::StartLoading()
 		m_loaded = false;
 		Load();
 		m_loaded = true;
-		m_eventSystem.Invoke(Engine::EEvent::eObjectLoaded);
+		m_eventSystem.QueueEvent(Engine::EEvent::eObjectLoaded);
 	});
 }
 

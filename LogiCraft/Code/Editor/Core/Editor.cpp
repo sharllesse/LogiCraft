@@ -85,6 +85,7 @@ void Editor::Run()
 	while (m_window.isOpen())
 	{
 		ProcessWindowEvents();
+		ProcessEventSystem();
 		Update();
 		Render();
 	}
@@ -109,6 +110,11 @@ void Editor::ProcessWindowEvents()
 			}
 		}
 	}
+}
+
+void Editor::ProcessEventSystem()
+{
+	m_eventSystem.ProcessEvents();
 }
 
 void Editor::Update()
@@ -165,10 +171,13 @@ void Editor::CreatePanels()
 		pPanelsMenu->AddChild(pItem);
 
 		const std::string actionName = std::string("toggle_") + pPanel->GetName().c_str();
-		ActionPtr pAction = ActionManager::Get().AddAction(actionName.c_str());
+		ActionPtr         pAction    = ActionManager::Get().AddAction(actionName.c_str());
+
 		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
+		pAction->SetCallback([this] { m_eventSystem.QueueEvent(Editor::EEvent::ePanelVisible); });
 		pItem->SetAction(pAction);
 
 		// TODO subscribe to event visibility changed to update the menu item checked state
 	}
+	m_eventSystem.AddListener(Editor::EEvent::ePanelVisible, [] { std::cout << "Test" << std::endl; });
 }
