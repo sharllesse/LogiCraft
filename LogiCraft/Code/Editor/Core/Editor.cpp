@@ -120,7 +120,7 @@ void Editor::ProcessWindowEvents()
 
 void Editor::ProcessEventSystem()
 {
-	m_eventSystem.ProcessEvents();
+	GetEventSystem().ProcessEvents();
 }
 
 void Editor::Update()
@@ -180,6 +180,8 @@ void Editor::CreatePanels()
 		ActionPtr         pAction    = ActionManager::Get().AddAction(actionName.c_str());
 		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
 		pItem->SetAction(pAction);
+
+		GetEventSystem().AddListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
 	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return a->GetName() < b->GetName(); });
 }

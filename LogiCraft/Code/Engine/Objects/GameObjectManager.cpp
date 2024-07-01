@@ -74,7 +74,6 @@ GameObjectPtr GameObjectManager::CreateObject()
 {
 	GameObjectPtr pNewObject = std::make_shared<GameObject>();
 	m_objects.push_back(pNewObject);
-	m_eventSystem.QueueEvent(Engine::EEvent::eObjectCreated);
 	return pNewObject;
 }
 
