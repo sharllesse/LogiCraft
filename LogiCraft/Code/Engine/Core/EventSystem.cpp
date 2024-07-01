@@ -60,13 +60,28 @@ bool EventSystem::RemoveListener(int eventID, int _listenerID)
 	return false;
 }
 
-void EventSystem::Invoke(int eventID)
+void EventSystem::ProcessEvents()
+{
+	while (!m_queueEvents.empty())
+	{
+		int eventID;
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+
+			eventID = m_queueEvents.front();
+			m_queueEvents.pop();
+		}
+		m_events[eventID].Invoke();
+	}
+}
+
+void EventSystem::QueueEvent(int eventID)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
 	auto it = m_events.find(eventID);
 	if (it != m_events.end())
 	{
-		it->second.Invoke();
+		m_queueEvents.emplace(it->first);
 	}
 }
