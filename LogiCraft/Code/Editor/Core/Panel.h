@@ -104,6 +104,6 @@ public:
 	  : PanelRegisterer(panelName)
 	{
 	}
-	PanelPtr Create() override { return std::make_shared<C>(m_panelName.c_str()); }
+	PanelPtr Create() override { return make_shared(C,m_panelName.c_str()); }
 };
 } // namespace Logicraft

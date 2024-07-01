@@ -48,7 +48,7 @@ using namespace Logicraft;
 Logicraft::PanelOutliner::PanelOutliner(const char* name)
   : Panel(name)
 {
-	MenuPtr pMenuNew = std::make_shared<Menu>("New Object");
+	MenuPtr pMenuNew = make_shared(Menu,"New Object");
 	m_menuBar.AddChild(pMenuNew);
 	pMenuNew->SetAction(EditorObjectManager::Get().GetActionCreateObject());
 }

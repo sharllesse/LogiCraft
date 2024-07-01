@@ -35,16 +35,15 @@ SOFTWARE.
 #include "DLLExport.h"
 
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <mutex>
 
-
 // Macro to create a tracked shared_ptr
 #ifdef _DEBUG
-#define MAKE_TRACKED_SHARED(type, ...) Logicraft::Memory::make_tracked_shared<type>(__FILE__, __LINE__, ##__VA_ARGS__)
+#define make_shared(type, ...) Logicraft::Memory::make_tracked_shared<type>(__FILE__, __LINE__, ##__VA_ARGS__)
 #else
-#define MAKE_TRACKED_SHARED(type, ...) std::make_shared<type>(##__VA_ARGS__)
+#define make_shared(type, ...) std::make_shared<type>(##__VA_ARGS__)
 #endif
 
 namespace Logicraft
@@ -62,13 +61,13 @@ struct AllocationInfo
 };
 
 // Global map to store allocation information
-std::map<void*, AllocationInfo> allocations;
-std::mutex                      allocationsMutex;
-size_t                          totalAllocated = 0;
-size_t                          totalFreed     = 0;
+inline std::unordered_map<void*, AllocationInfo> allocations;
+inline std::mutex                       allocationsMutex;
+inline size_t                           totalAllocated = 0;
+inline size_t                           totalFreed     = 0;
 
 // Track an allocation
-void trackAllocation(void* ptr, size_t size, const char* file, int line)
+inline void trackAllocation(void* ptr, size_t size, const char* file, int line)
 {
 	std::lock_guard<std::mutex> lock(allocationsMutex);
 	allocations[ptr] = {size, file, line};
@@ -76,7 +75,7 @@ void trackAllocation(void* ptr, size_t size, const char* file, int line)
 }
 
 // Track a deallocation
-void trackDeallocation(void* ptr)
+inline void trackDeallocation(void* ptr)
 {
 	std::lock_guard<std::mutex> lock(allocationsMutex);
 	auto                        it = allocations.find(ptr);
@@ -98,7 +97,7 @@ struct TrackingDeleter
 };
 } // namespace priv
 
-void reportLeaks()
+inline void reportLeaks()
 {
 	std::lock_guard<std::mutex> lock(priv::allocationsMutex);
 	if (!priv::allocations.empty())
@@ -126,5 +125,3 @@ std::shared_ptr<T> make_tracked_shared(const char* file, int line, Args&&... arg
 } // namespace Memory
 
 } // namespace Logicraft
-
-

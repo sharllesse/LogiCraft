@@ -37,6 +37,7 @@ SOFTWARE.
 #include "DLLExport.h"
 #include "Resource.h"
 
+
 #include <map>
 #include <string>
 #include <vector>
@@ -54,7 +55,7 @@ public:
 	template<typename T>
 	ResourcePtr CreateResource()
 	{
-		ResourcePtr pResource = std::make_shared<T>();
+		ResourcePtr pResource = make_shared(T);
 		m_loadedResources.push_back(pResource);
 		return pResource;
 	}
