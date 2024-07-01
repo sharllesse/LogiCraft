@@ -33,15 +33,34 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Serializable.h"
+#include "TaskManager.h"
 
 using namespace Logicraft;
 
-void Serializable::Save()
+void Serializable::StartLoading()
 {
-	Serialize(false);
+	TaskManager::Get().AddTask([this] {
+		const std::lock_guard<std::mutex> lock(m_loadingMutex);
+		m_loaded = false;
+		Load();
+		m_loaded = true;
+	});
 }
 
-void Serializable::Load()
+void Serializable::Reload()
 {
-	Serialize(true);
+	const std::lock_guard<std::mutex> lock(m_loadingMutex);
+	m_loaded = false;
+	Unload();
+	StartLoading();
+}
+
+void Serializable::StartSaving()
+{
+	TaskManager::Get().AddTask([this] {
+		const std::lock_guard<std::mutex> lock(m_savingMutex);
+		m_isSaving = true;
+		Save();
+		m_isSaving = false;
+	});
 }

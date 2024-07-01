@@ -16,8 +16,4 @@ target_include_directories(ImGui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SFML-2.6.
 # Link SFML statically
 target_link_libraries(ImGui PUBLIC sfml-graphics)
 
-install(TARGETS ImGui
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib)
-
+install(TARGETS ImGui ARCHIVE DESTINATION lib)

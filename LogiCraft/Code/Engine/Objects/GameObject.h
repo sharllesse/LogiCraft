@@ -45,9 +45,15 @@ class LOGI_ENGINE_API GameObject : public Resource
 {
 public:
 	void Update();
-	void Serialize(bool load) override;
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
+
+	void AddComponent(GameComponentPtr component);
+	void RemoveComponent(GameComponentPtr component);
 
 protected:
+	void Load() override;
+
+private:
 	std::vector<GameComponentPtr> m_components;
 };
 using GameObjectPtr = std::shared_ptr<GameObject>;

@@ -52,6 +52,7 @@ Engine::Engine()
 	assert(!s_pEngine);
 	s_pEngine            = this;
 	m_pActionManager     = std::make_unique<ActionManager>();
+	m_pEventSystem       = std::make_unique<EventSystem>();
 	m_pGameObjectManager = std::make_unique<GameObjectManager>();
 	m_pLogger            = std::make_unique<Logger>();
 	m_pResourceManager   = std::make_unique<ResourceManager>();
@@ -65,7 +66,6 @@ Engine::~Engine()
 
 void Engine::Init()
 {
-	m_pActionManager->StartLoading();
 	m_pResourceManager->StartLoading();
 }
 
@@ -78,3 +78,9 @@ void Engine::Update()
 }
 
 void Engine::Render() {}
+
+void Engine::Release()
+{
+	m_pResourceManager->StartSaving();
+	m_pActionManager->StartSaving();
+}

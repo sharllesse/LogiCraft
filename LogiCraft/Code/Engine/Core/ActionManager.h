@@ -34,7 +34,6 @@ SOFTWARE.
 
 #pragma once
 #include "Action.h"
-#include "AsyncLoadedObject.h"
 #include "DLLExport.h"
 #include "Serializable.h"
 
@@ -53,7 +52,11 @@ public:
 	~ActionManager();
 
 	ActionPtr AddAction(const char* name);
-	void      Serialize(bool load) override;
+	void      Serialize(bool load, JsonObjectPtr pJsonObject) override;
+
+protected:
+	void Save() override;
+	void Load() override;
 
 private:
 	std::vector<ActionPtr> m_actions;

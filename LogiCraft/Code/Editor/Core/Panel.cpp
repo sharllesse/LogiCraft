@@ -34,14 +34,51 @@ SOFTWARE.
 
 #include "Panel.h"
 
+#include "Editor.h"
+
+#include <imgui/imgui.h>
+
 using namespace Logicraft;
 
-Panel::Panel(const char* name)
+Logicraft::Panel::Panel(const char* name)
   : m_name(name)
 {
 }
 
+void Logicraft::Panel::BaseDraw()
+{
+	if (m_visible)
+	{
+		if (ImGui::Begin(m_name.c_str(), &m_visible, ImGuiWindowFlags_MenuBar))
+		{
+			ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
+			ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);
+			m_menuBar.Draw();
+			Draw();
+		}
+		if (!m_visible)
+		{
+			SetVisible(false);
+		}
+		ImGui::End();
+	}
+}
+
+void Logicraft::Panel::SetVisible(bool visible)
+{
+	m_visible = visible;
+	Editor::Get().GetEventSystem().Invoke(Editor::ePanelVisible);
+}
+
+void Logicraft::Panel::Serialize(bool load, JsonObjectPtr pJsonObject) {}
+
 void Logicraft::Panel::Load()
 {
 	// TODO load m_visible
+	// Serialize(true, );
+}
+
+void Logicraft::Panel::Save()
+{
+	// Serialize(false, );
 }

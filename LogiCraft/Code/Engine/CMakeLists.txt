@@ -15,13 +15,13 @@ target_compile_definitions(Logi_Engine PRIVATE LOGI_ENGINE_EXPORTS)
 
 target_include_directories(Logi_Engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../)
 
-install(TARGETS Logi_Engine
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib)
+install(TARGETS Logi_Engine RUNTIME DESTINATION bin)
 
 # Link SFML statically
 target_link_libraries(Logi_Engine PUBLIC sfml-system sfml-window sfml-graphics)
 
 # Link ImGui statically
 target_link_libraries(Logi_Engine PUBLIC ImGui)
+
+# Link Json statically
+target_link_libraries(Logi_Engine PUBLIC Json)

@@ -33,14 +33,19 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Resource.h"
+#include "Core/Serializer.h"
 
+#include <assert.h>
 #include <combaseapi.h>
 
 using namespace Logicraft;
 
 Resource::Resource()
 {
-	CoCreateGuid(&m_GUID);
+	HRESULT res = CoCreateGuid(&m_GUID);
+	assert(res == S_OK);
 }
 
-void Resource::Serialize(bool load) {}
+void Resource::Serialize(bool load, JsonObjectPtr pJsonObject) {}
+
+void Resource::Load() {}

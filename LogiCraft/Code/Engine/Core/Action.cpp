@@ -34,22 +34,33 @@ SOFTWARE.
 
 #include "Action.h"
 
-#include <Core/Logger.h>
-#include <Utils/SfmlUtils.h>
+#include "Core/Logger.h"
+#include "Serializer.h"
+#include "Utils/SfmlUtils.h"
+
+#include <algorithm>
+#include <cctype>
 
 using namespace Logicraft;
 
 Action::Action(const char* name)
   : m_name(name)
 {
+	std::for_each(m_name.begin(), m_name.end(), ::tolower);
 	SfmlUtils::ClearKeyEvent(m_shortcut);
 }
 
 void Action::Execute()
 {
-	std::string message = "Action executed: " + m_name;
-	Logger::Get().Log(Logger::eInfo, message);
-	m_callback();
+	if (m_callback)
+	{
+		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
+		m_callback();
+	}
+	else
+	{
+		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
+	}
 }
 
 void Action::SetCallback(std::function<void()>&& callback)
@@ -69,4 +80,33 @@ std::string Action::GetShortcutString() const
 	return m_shortcutStr;
 }
 
-void Action::Serialize(bool load) {}
+void Action::Serialize(bool load, JsonObjectPtr pJsonObject)
+{
+	if (load)
+	{
+		if (JsonObjectPtr pNameObject = pJsonObject->GetObject(m_name.c_str()))
+		{
+			if (StringPtr pShortcut = pNameObject->GetString("shortcut"))
+			{
+				SetShortcut(*pShortcut);
+			}
+			pNameObject->GetString("description", m_description);
+		}
+	}
+	else
+	{
+		JsonObjectPtr pNameObject = pJsonObject->AddObject(m_name.c_str());
+		pNameObject->AddString("shortcut", m_shortcutStr);
+		pNameObject->AddString("description", m_description);
+	}
+}
+
+void Action::Load()
+{
+	Serializer serializer;
+	if (serializer.Parse("action.json"))
+	{
+		JsonObjectPtr pRoot = serializer.GetRoot();
+		Serialize(true, pRoot);
+	}
+}
