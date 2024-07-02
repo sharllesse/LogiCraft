@@ -1,8 +1,6 @@
 #include "Profiler.h"
 #include "Logger.h"
 
-#include <iostream>
-
 namespace Logicraft
 {
 Profiler::Profiler(const char* name)

@@ -36,9 +36,9 @@ SOFTWARE.
 #include "Action.h"
 #include "DLLExport.h"
 #include "Serializable.h"
+#include "Utils/SmartPtr.h"
 
 #include <functional>
-#include <memory>
 #include <vector>
 
 namespace Logicraft

@@ -5,8 +5,6 @@
 
 #include "DLLExport.h"
 
-#include "TaskManager.h"
-
 #define PROFILE_SCOPE(name) Logicraft::Profiler __profiler(name)
 #define PROFILE_FUNCTION    Logicraft::Profiler __functionProfiler(__FUNCTION__);
 

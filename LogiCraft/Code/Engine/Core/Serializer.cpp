@@ -167,7 +167,7 @@ void Logicraft::JsonArray::ForEach(const std::function<void(const Logicraft::Jso
 {
 	if (m_pPrivate->pValue->IsArray())
 	{
-		const Logicraft::JsonObjectPtr pObject = std::make_shared<JsonObject>();
+		const Logicraft::JsonObjectPtr pObject = make_shared(JsonObject);
 		for (auto it = m_pPrivate->pValue->Begin(); it != m_pPrivate->pValue->End();)
 		{
 			bool needToBeErase(false);
@@ -291,7 +291,7 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::GetObject(const char* key) const
 		const Value::MemberIterator& memberIterator = m_pPrivate->pValue->FindMember(key);
 		if (memberIterator != m_pPrivate->pValue->MemberEnd())
 		{
-			const JsonObjectPtr object = std::make_shared<JsonObject>();
+			const JsonObjectPtr object = make_shared(JsonObject);
 
 			object->m_pPrivate->pValue     = &memberIterator->value;
 			object->m_pPrivate->pKey       = &memberIterator->name;
@@ -316,7 +316,7 @@ bool Logicraft::JsonObject::GetObject(const char* key, Logicraft::JsonObjectPtr&
 		if (memberIterator != m_pPrivate->pValue->MemberEnd())
 		{
 			if (!object)
-				object = std::make_shared<JsonObject>();
+				object = make_shared(JsonObject);
 
 			object->m_pPrivate->pValue     = &memberIterator->value;
 			object->m_pPrivate->pKey       = &memberIterator->name;
@@ -343,7 +343,7 @@ Logicraft::StringPtr Logicraft::JsonObject::GetString(const char* key) const
 			const Value& value = memberIterator->value;
 
 			if (value.IsString())
-				return std::make_shared<std::string>(value.GetString());
+				return make_shared(std::string,value.GetString());
 		}
 
 		return nullptr;
@@ -388,7 +388,7 @@ Logicraft::IntPtr Logicraft::JsonObject::GetInt(const char* key) const
 			const Value& value = memberIterator->value;
 
 			if (value.IsInt())
-				return std::make_shared<int>(value.GetInt());
+				return make_shared(int,value.GetInt());
 		}
 
 		return nullptr;
@@ -433,7 +433,7 @@ Logicraft::BoolPtr Logicraft::JsonObject::GetBool(const char* key) const
 			const Value& value = memberIterator->value;
 
 			if (value.IsBool())
-				return std::make_shared<bool>(value.GetBool());
+				return make_shared(bool,value.GetBool());
 		}
 
 		return nullptr;
@@ -478,7 +478,7 @@ Logicraft::FloatPtr Logicraft::JsonObject::GetFloat(const char* key) const
 			const Value& value = memberIterator->value;
 
 			if (value.IsFloat())
-				return std::make_shared<float>(value.GetFloat());
+				return make_shared(float,value.GetFloat());
 		}
 
 		return nullptr;
@@ -523,7 +523,7 @@ Logicraft::DoublePtr Logicraft::JsonObject::GetDouble(const char* key) const
 			const Value& value = memberIterator->value;
 
 			if (value.IsDouble())
-				return std::make_shared<double>(value.GetDouble());
+				return make_shared(double,value.GetDouble());
 		}
 
 		return nullptr;
@@ -567,7 +567,7 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::GetArray(const char* key) const
 		{
 			if (memberIterator->value.IsArray())
 			{
-				const JsonArrayPtr array      = std::make_shared<JsonArray>();
+				const JsonArrayPtr array      = make_shared(JsonArray);
 				array->m_pPrivate->pValue     = &memberIterator->value;
 				array->m_pPrivate->pKey       = &memberIterator->name;
 				array->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
@@ -627,7 +627,7 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::AddObject(const char* key) const
 		const auto iteratorMember =
 		  m_pPrivate->pValue->FindMember(key); // Need to do this because the flag is remove when the value is added to the object ???
 
-		const JsonObjectPtr objectPtr = std::make_shared<Logicraft::JsonObject>();
+		const JsonObjectPtr objectPtr = make_shared(Logicraft::JsonObject);
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
@@ -648,7 +648,7 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::AddObject(const char* key, const
 		m_pPrivate->pValue->AddMember(newKey, *object->m_pPrivate->pValue, *m_pPrivate->pAllocator);
 		const auto iteratorMember = m_pPrivate->pValue->FindMember(key);
 
-		const JsonObjectPtr objectPtr = std::make_shared<JsonObject>();
+		const JsonObjectPtr objectPtr = make_shared(JsonObject);
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
@@ -669,7 +669,7 @@ Logicraft::JsonObjectPtr Logicraft::JsonObject::AddObject(const Logicraft::JsonO
 		m_pPrivate->pValue->AddMember(newKey, *object->m_pPrivate->pValue, *m_pPrivate->pAllocator);
 		const auto iteratorMember = m_pPrivate->pValue->FindMember(object->GetKey());
 
-		const JsonObjectPtr objectPtr = std::make_shared<JsonObject>();
+		const JsonObjectPtr objectPtr = make_shared(JsonObject);
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
@@ -690,7 +690,7 @@ Logicraft::StringPtr Logicraft::JsonObject::AddString(const char* key, const cha
 		Value newObject(value, *m_pPrivate->pAllocator);
 		m_pPrivate->pValue->AddMember(newKey, newObject, *m_pPrivate->pAllocator);
 
-		return std::make_shared<std::string>(value);
+		return make_shared(std::string,value);
 	}
 
 	LogWarning("Cannot add a string to a ");
@@ -706,7 +706,7 @@ Logicraft::StringPtr Logicraft::JsonObject::AddString(const char* key, const std
 		Value newObject(value.c_str(), *m_pPrivate->pAllocator);
 		m_pPrivate->pValue->AddMember(newKey, newObject, *m_pPrivate->pAllocator);
 
-		return std::make_shared<std::string>(value);
+		return make_shared(std::string,value);
 	}
 
 	LogWarning("Cannot add a string to a ");
@@ -722,7 +722,7 @@ Logicraft::IntPtr Logicraft::JsonObject::AddInt(const char* key, const int& valu
 		Value newObject(value);
 		m_pPrivate->pValue->AddMember(newKey, newObject, *m_pPrivate->pAllocator);
 
-		return std::make_shared<int>(value);
+		return make_shared(int,value);
 	}
 
 	LogWarning("Cannot add an int to a ");
@@ -738,7 +738,7 @@ Logicraft::BoolPtr Logicraft::JsonObject::AddBool(const char* key, const bool& v
 		Value newObject(value);
 		m_pPrivate->pValue->AddMember(newKey, newObject, *m_pPrivate->pAllocator);
 
-		return std::make_shared<bool>(value);
+		return make_shared(bool,value);
 	}
 
 	LogWarning("Cannot add a bool to a ");
@@ -754,7 +754,7 @@ Logicraft::FloatPtr Logicraft::JsonObject::AddFloat(const char* key, const float
 		Value newObject(value);
 		m_pPrivate->pValue->AddMember(newKey, newObject, *m_pPrivate->pAllocator);
 
-		return std::make_shared<float>(value);
+		return make_shared(float,value);
 	}
 
 	LogWarning("Cannot add a float to a ");
@@ -770,7 +770,7 @@ Logicraft::DoublePtr Logicraft::JsonObject::AddDouble(const char* key, const dou
 		Value newObject(value);
 		m_pPrivate->pValue->AddMember(newKey, newObject, *m_pPrivate->pAllocator);
 
-		return std::make_shared<double>(value);
+		return make_shared(double,value);
 	}
 
 	LogWarning("Cannot add a double to a ");
@@ -786,7 +786,7 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AddArray(const char* key) const
 		m_pPrivate->pValue->AddMember(newKey, Value(kArrayType), *m_pPrivate->pAllocator);
 		auto memberIterator = m_pPrivate->pValue->FindMember(key);
 
-		JsonArrayPtr array            = std::make_shared<JsonArray>();
+		JsonArrayPtr array            = make_shared(JsonArray);
 		array->m_pPrivate->pValue     = &memberIterator->value;
 		array->m_pPrivate->pKey       = &memberIterator->name;
 		array->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
@@ -808,7 +808,7 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AddArray(const char* key, const J
 		const auto iteratorMember =
 		  m_pPrivate->pValue->FindMember(key); // Need to do this because the flag is remove when the value is added to the object ???
 
-		const auto objectPtr              = std::make_shared<JsonArray>();
+		const auto objectPtr              = make_shared(JsonArray);
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
@@ -829,7 +829,7 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AddArray(const JsonArrayPtr& obje
 		m_pPrivate->pValue->AddMember(newKey, *object->m_pPrivate->pValue, *m_pPrivate->pAllocator);
 		const auto iteratorMember = m_pPrivate->pValue->FindMember(object->GetKey());
 
-		const auto objectPtr              = std::make_shared<JsonArray>();
+		const auto objectPtr              = make_shared(JsonArray);
 		objectPtr->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 		objectPtr->m_pPrivate->pValue     = &iteratorMember->value;
 		objectPtr->m_pPrivate->pKey       = &iteratorMember->name;
@@ -876,7 +876,7 @@ Logicraft::StringPtr Logicraft::JsonObject::AsString() const
 {
 	if (m_pPrivate->pValue->IsString())
 	{
-		return std::make_shared<std::string>(m_pPrivate->pValue->GetString());
+		return make_shared(std::string,m_pPrivate->pValue->GetString());
 	}
 
 	LogWarning("Cannot convert a string to a ");
@@ -888,7 +888,7 @@ Logicraft::IntPtr Logicraft::JsonObject::AsInt() const
 {
 	if (m_pPrivate->pValue->IsInt())
 	{
-		return std::make_shared<int>(m_pPrivate->pValue->GetInt());
+		return make_shared(int,m_pPrivate->pValue->GetInt());
 	}
 
 	LogWarning("Cannot convert an int to a ");
@@ -900,7 +900,7 @@ Logicraft::BoolPtr Logicraft::JsonObject::AsBool() const
 {
 	if (m_pPrivate->pValue->IsBool())
 	{
-		return std::make_shared<bool>(m_pPrivate->pValue->GetBool());
+		return make_shared(bool,m_pPrivate->pValue->GetBool());
 	}
 
 	LogWarning("Cannot convert a bool to a ");
@@ -912,7 +912,7 @@ Logicraft::FloatPtr Logicraft::JsonObject::AsFloat() const
 {
 	if (m_pPrivate->pValue->IsFloat())
 	{
-		return std::make_shared<float>(m_pPrivate->pValue->GetFloat());
+		return make_shared(float,m_pPrivate->pValue->GetFloat());
 	}
 
 	LogWarning("Cannot convert a float to a ");
@@ -924,7 +924,7 @@ Logicraft::DoublePtr Logicraft::JsonObject::AsDouble() const
 {
 	if (m_pPrivate->pValue->IsDouble())
 	{
-		return std::make_shared<double>(m_pPrivate->pValue->GetDouble());
+		return make_shared(double,m_pPrivate->pValue->GetDouble());
 	}
 
 	LogWarning("Cannot convert a double to a ");
@@ -936,7 +936,7 @@ Logicraft::JsonArrayPtr Logicraft::JsonObject::AsArray() const
 {
 	if (m_pPrivate->pValue->IsArray())
 	{
-		std::shared_ptr<JsonArray> array = std::make_shared<JsonArray>();
+		std::shared_ptr<JsonArray> array = make_shared(JsonArray);
 		array->m_pPrivate->pValue        = m_pPrivate->pValue;
 		array->m_pPrivate->pKey          = m_pPrivate->pKey;
 		array->m_pPrivate->pAllocator    = m_pPrivate->pAllocator;
@@ -953,7 +953,7 @@ void Logicraft::JsonObject::ForEach(const std::function<void(const Logicraft::Js
 {
 	if (m_pPrivate->pValue->IsObject())
 	{
-		const Logicraft::JsonObjectPtr pObject = std::make_shared<JsonObject>();
+		const Logicraft::JsonObjectPtr pObject = make_shared(JsonObject);
 		for (auto it = m_pPrivate->pValue->MemberBegin(); it != m_pPrivate->pValue->MemberEnd();)
 		{
 			bool needToBeErase(false);
@@ -991,7 +991,7 @@ Logicraft::Serializer::~Serializer()
 Logicraft::JsonObjectPtr Logicraft::Serializer::CreateRoot()
 {
 	m_pPrivate->document.SetObject();
-	const JsonObjectPtr root     = std::make_shared<JsonObject>();
+	const JsonObjectPtr root     = make_shared(JsonObject);
 	root->m_pPrivate->pValue     = &m_pPrivate->document;
 	root->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 
@@ -1000,7 +1000,7 @@ Logicraft::JsonObjectPtr Logicraft::Serializer::CreateRoot()
 
 Logicraft::JsonObjectPtr Logicraft::Serializer::GetRoot()
 {
-	const JsonObjectPtr root     = std::make_shared<JsonObject>();
+	const JsonObjectPtr root     = make_shared(JsonObject);
 	root->m_pPrivate->pValue     = &m_pPrivate->document;
 	root->m_pPrivate->pAllocator = m_pPrivate->pAllocator;
 

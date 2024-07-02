@@ -33,11 +33,10 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Engine.h"
+#include "Profiler.h"
 #include "Objects/GameObject.h"
 
 #include <assert.h>
-
-#include "Profiler.h"
 
 using namespace Logicraft;
 
