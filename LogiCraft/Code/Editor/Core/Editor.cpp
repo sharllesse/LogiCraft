@@ -69,7 +69,7 @@ Editor::~Editor()
 	s_pEditor = nullptr;
 }
 
-void Editor::Run()
+void Editor::Run(const int& argc, char* argv[])
 {
 	// Always initialize Engine first
 	m_pEngine->Init();
@@ -81,6 +81,10 @@ void Editor::Run()
 	// Initialize panels late as nothing depends on them and they depend on the other systems
 	CreatePanels();
 
+	for (int i = 1; i < argc; i++)
+	{
+		ActionManager::Get().AddAction(argv[i]);
+	}
 	// Load actions shortcuts after other systems have been initialized and added their actions
 	ActionManager::Get().StartLoading();
 
@@ -129,20 +133,20 @@ void Editor::ProcessEventSystem()
 
 void Editor::Update()
 {
-	//PROFILE_FUNCTION
+	// PROFILE_FUNCTION
 	m_pEngine->Update();
 	for (PanelPtr& pPanel : m_panels)
 	{
-		//PROFILE_SCOPE(pPanel->GetName().c_str());
+		// PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->Update();
 	}
 }
 
 void Editor::Render()
 {
-	//PROFILE_FUNCTION
-	//PROFILE_SCOPE("Window Render");
-	// TODO replace by real time
+	// PROFILE_FUNCTION
+	// PROFILE_SCOPE("Window Render");
+	//  TODO replace by real time
 	ImGui::SFML::Update(m_window, m_timer);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
@@ -150,7 +154,7 @@ void Editor::Render()
 
 	for (PanelPtr& pPanel : m_panels)
 	{
-		//PROFILE_SCOPE(pPanel->GetName().c_str());
+		// PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->BaseDraw();
 	}
 
