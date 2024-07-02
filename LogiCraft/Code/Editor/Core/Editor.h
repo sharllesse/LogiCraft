@@ -67,6 +67,9 @@ public:
 	void InitImGui();
 	void CreatePanels();
 
+	void RestartClock() { m_timer = m_clock.restart(); }
+	float GetDeltaTime() const { return m_timer.asSeconds(); }
+
 	EventSystem& GetEventSystem() { return *m_pEventSystem; }
 
 private:
@@ -79,6 +82,7 @@ private:
 
 	std::vector<PanelPtr> m_panels;
 
-	Timer m_timer;
+	sf::Time m_timer;
+	sf::Clock m_clock;
 };
 } // namespace Logicraft

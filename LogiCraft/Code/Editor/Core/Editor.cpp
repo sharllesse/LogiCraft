@@ -92,10 +92,9 @@ void Editor::Run(const int& argc, char* argv[])
 
 	InitImGui();
 
-	m_timer.Start();
-
 	while (m_window.isOpen())
 	{
+		RestartClock();
 		ProcessWindowEvents();
 		ProcessEventSystem();
 		Update();
@@ -134,35 +133,33 @@ void Editor::ProcessEventSystem()
 
 void Editor::Update()
 {
-	PROFILE_FUNCTION
+	//PROFILE_FUNCTION
 	m_pEngine->Update();
 	for (PanelPtr& pPanel : m_panels)
 	{
-		PROFILE_SCOPE(pPanel->GetName().c_str());
+		//PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->Update();
 	}
 }
 
 void Editor::Render()
 {
-	PROFILE_FUNCTION
+	//PROFILE_FUNCTION
+	//PROFILE_SCOPE("Window Render");
 	// TODO replace by real time
-	sf::Time currentTime = sf::microseconds(m_timer.GetElapsedTime());
-	m_timer.Start();
-	ImGui::SFML::Update(m_window, currentTime);
+	ImGui::SFML::Update(m_window, m_timer);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	m_pMainMenu->Draw();
 
 	for (PanelPtr& pPanel : m_panels)
 	{
-		PROFILE_SCOPE(pPanel->GetName().c_str());
+		//PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->BaseDraw();
 	}
 
 	m_pEngine->Render();
 
-	PROFILE_SCOPE("Window Render");
 	m_window.clear();
 	ImGui::SFML::Render(m_window);
 	m_window.display();

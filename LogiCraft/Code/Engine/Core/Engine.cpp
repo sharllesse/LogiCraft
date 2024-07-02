@@ -72,7 +72,7 @@ void Engine::Init()
 
 void Engine::Update()
 {
-	PROFILE_FUNCTION
+	//PROFILE_FUNCTION
 	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
 	{
 		pObject->Update();
