@@ -85,10 +85,15 @@ void Editor::Run()
 	ActionManager::Get().StartLoading();
 
 	m_window.create(sf::VideoMode::getDesktopMode(), "LogiCraft");
+
 	InitImGui();
+
+	m_timer.Start();
+
 	while (m_window.isOpen())
 	{
 		ProcessWindowEvents();
+		ProcessEventSystem();
 		Update();
 		Render();
 	}
@@ -118,19 +123,28 @@ void Editor::ProcessWindowEvents()
 	}
 }
 
+void Editor::ProcessEventSystem()
+{
+	GetEventSystem().ProcessEvents();
+}
+
 void Editor::Update()
 {
+	PROFILE_FUNCTION
 	m_pEngine->Update();
 	for (PanelPtr& pPanel : m_panels)
 	{
+		PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->Update();
 	}
 }
 
 void Editor::Render()
 {
+	PROFILE_FUNCTION
 	// TODO replace by real time
-	sf::Time currentTime = sf::milliseconds(16);
+	sf::Time currentTime = sf::microseconds(m_timer.GetElapsedTime());
+	m_timer.Start();
 	ImGui::SFML::Update(m_window, currentTime);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
@@ -138,11 +152,13 @@ void Editor::Render()
 
 	for (PanelPtr& pPanel : m_panels)
 	{
+		PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->BaseDraw();
 	}
 
 	m_pEngine->Render();
 
+	PROFILE_SCOPE("Window Render");
 	m_window.clear();
 	ImGui::SFML::Render(m_window);
 	m_window.display();
@@ -178,6 +194,5 @@ void Editor::CreatePanels()
 
 		GetEventSystem().AddListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
-
 	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return a->GetName() < b->GetName(); });
 }

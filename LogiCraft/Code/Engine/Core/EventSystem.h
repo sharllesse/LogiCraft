@@ -35,6 +35,7 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Event.h"
+#include <queue>
 
 // #define REGISTER_EVENT_TYPE static int m_eventID = EventSystem::m_eventID++;
 
@@ -54,10 +55,13 @@ public:
 
 	int  AddListener(int eventID, std::function<void()> _func);
 	bool RemoveListener(int eventID, int _listenerID);
-	void Invoke(int eventID);
+	void QueueEvent(int eventID);
+	void ProcessEvents();
 
 private:
 	std::unordered_map<int, Event> m_events;
-	std::mutex                     m_mutex;
+
+	std::queue<int> m_queueEvents;
+	std::mutex      m_mutex;
 };
 } // namespace Logicraft
