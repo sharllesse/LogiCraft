@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "GameObjectManager.h"
 #include "Engine/Core/Engine.h"
+#include "Engine/Utils/SmartPtr.h"
 
 #include <assert.h>
 

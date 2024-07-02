@@ -35,9 +35,9 @@ SOFTWARE.
 #pragma once
 #include "Core/Serializable.h"
 #include "DLLExport.h"
+#include "Utils/SmartPtr.h"
 
 #include <guiddef.h>
-#include "Utils/SmartPtr.h"
 
 namespace Logicraft
 {

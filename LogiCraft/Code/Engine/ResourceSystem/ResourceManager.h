@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Core/Serializable.h"
 #include "DLLExport.h"
 #include "Resource.h"
-
+#include "Utils/SmartPtr.h"
 
 #include <map>
 #include <string>

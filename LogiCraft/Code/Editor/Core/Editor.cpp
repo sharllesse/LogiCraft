@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Editor.h"
 
 #include <Engine/Core/Action.h>
+#include <Engine/Utils/SmartPtr.h>
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <assert.h>
@@ -66,7 +67,6 @@ Editor::Editor()
 Editor::~Editor()
 {
 	s_pEditor = nullptr;
-	Logicraft::Memory::reportLeaks();
 }
 
 void Editor::Run()
@@ -182,7 +182,7 @@ void Editor::CreatePanels()
 		pPanel->StartLoading();
 
 		// Add panel to the menu with action to toggle its visibility
-		MenuItemPtr pItem = make_shared(MenuItem,pPanel->GetName().c_str());
+		MenuItemPtr pItem = make_shared(MenuItem, pPanel->GetName().c_str());
 		pItem->SetCheckEnabled(true);
 		pItem->SetChecked(pPanel->IsVisible());
 		pPanelsMenu->AddChild(pItem);

@@ -43,5 +43,6 @@ int main()
 		Logicraft::Editor editor;
 		editor.Run();
 	}
+	Logicraft::Memory::reportLeaks();
 	return 0;
 }
