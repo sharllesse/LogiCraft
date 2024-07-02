@@ -88,10 +88,9 @@ void Editor::Run()
 
 	InitImGui();
 
-	m_timer.Start();
-
 	while (m_window.isOpen())
 	{
+		RestartClock();
 		ProcessWindowEvents();
 		ProcessEventSystem();
 		Update();
@@ -143,9 +142,7 @@ void Editor::Render()
 {
 	PROFILE_FUNCTION
 	// TODO replace by real time
-	sf::Time currentTime = sf::microseconds(m_timer.GetElapsedTime());
-	m_timer.Start();
-	ImGui::SFML::Update(m_window, currentTime);
+	ImGui::SFML::Update(m_window, m_timer);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	m_pMainMenu->Draw();

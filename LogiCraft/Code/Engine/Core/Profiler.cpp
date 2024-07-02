@@ -7,56 +7,46 @@ using namespace std::chrono;
 
 namespace Logicraft
 {
-void Timer::Start()
-{
-	m_running = true;
-	m_start   = high_resolution_clock::now();
-}
-
-void Timer::Pause()
-{
-	m_running = false;
-	m_duration += duration_cast<microseconds>(high_resolution_clock::now() - m_start).count();
-}
-
-long long Timer::GetElapsedTime() const
-{
-	if (m_running)
-		return m_duration + duration_cast<microseconds>(high_resolution_clock::now() - m_start).count();
-
-	return m_duration;
-}
-
 Profiler::Profiler(const char* name)
   : m_name(name)
-  , m_parent(s_pRunningProfiler)
+  , m_pParent(s_pLastProfiler)
 {
-	s_pRunningProfiler = this;
-	m_timer.Start();
+	s_pLastProfiler = this;
+	Start();
 }
 
 Profiler::~Profiler()
 {
-	Pause();
-	long long duration = m_timer.GetElapsedTime();
+	if (m_pParent)
+		m_pParent->Pause();
 
-	Logger::Get().Log(Logger::eInfo, std::string(m_name) + " took : " + std::to_string(duration) + "us");
+	m_timer += m_clock.getElapsedTime();
 
-	Start();
-	s_pRunningProfiler = m_parent;
+	Logger::Get().Log(Logger::eInfo, std::string(m_name) + " took : " + std::to_string(m_timer.asMicroseconds()) + "us");
+
+	if (m_pParent)
+		m_pParent->Resume();
+
+	s_pLastProfiler = m_pParent;
 }
 
 void Profiler::Pause()
 {
-	m_timer.Pause();
-	if (m_parent)
-		m_parent->Pause();
+	m_timer += m_clock.getElapsedTime();
+	if (m_pParent)
+		m_pParent->Pause();
+}
+
+void Profiler::Resume()
+{
+	m_clock.restart();
+	if (m_pParent)
+		m_pParent->Resume();
 }
 
 void Profiler::Start()
 {
-	m_timer.Start();
-	if (m_parent)
-		m_parent->Start();
+	m_clock.restart();
+	m_timer = sf::Time::Zero;
 }
 } // namespace Logicraft
