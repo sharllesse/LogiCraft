@@ -69,7 +69,7 @@ Editor::~Editor()
 	s_pEditor = nullptr;
 }
 
-void Editor::Run()
+void Editor::Run(const int& argc, char* argv[])
 {
 	// Always initialize Engine first
 	m_pEngine->Init();
@@ -81,6 +81,10 @@ void Editor::Run()
 	// Initialize panels late as nothing depends on them and they depend on the other systems
 	CreatePanels();
 
+	for (int i = 0; i < argc; i++)
+	{
+		ActionManager::Get().AddAction(argv[i]);
+	}
 	// Load actions shortcuts after other systems have been initialized and added their actions
 	ActionManager::Get().StartLoading();
 

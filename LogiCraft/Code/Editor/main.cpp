@@ -37,11 +37,11 @@ SOFTWARE.
 #include "Core/Editor.h"
 #include "Engine/Utils/SmartPtr.h"
 
-int main()
+int main(int argc, char* argv[])
 {
 	{
 		Logicraft::Editor editor;
-		editor.Run();
+		editor.Run(argc, argv);
 	}
 	Logicraft::Memory::reportLeaks();
 	return 0;

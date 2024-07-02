@@ -59,7 +59,7 @@ public:
 
 	Editor();
 	~Editor();
-	void Run();
+	void Run(const int& argc, char* argv[]);
 	void ProcessWindowEvents();
 	void ProcessEventSystem();
 	void Update();
