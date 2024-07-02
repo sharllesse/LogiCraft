@@ -1,7 +1,7 @@
 #include "Profiler.h"
 #include "Logger.h"
 
-#include <iostream>
+#include <string>
 
 namespace Logicraft
 {
