@@ -129,18 +129,19 @@ void Editor::ProcessEventSystem()
 
 void Editor::Update()
 {
-	PROFILE_FUNCTION
+	//PROFILE_FUNCTION
 	m_pEngine->Update();
 	for (PanelPtr& pPanel : m_panels)
 	{
-		PROFILE_SCOPE(pPanel->GetName().c_str());
+		//PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->Update();
 	}
 }
 
 void Editor::Render()
 {
-	PROFILE_FUNCTION
+	//PROFILE_FUNCTION
+	//PROFILE_SCOPE("Window Render");
 	// TODO replace by real time
 	ImGui::SFML::Update(m_window, m_timer);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
@@ -149,13 +150,12 @@ void Editor::Render()
 
 	for (PanelPtr& pPanel : m_panels)
 	{
-		PROFILE_SCOPE(pPanel->GetName().c_str());
+		//PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->BaseDraw();
 	}
 
 	m_pEngine->Render();
 
-	PROFILE_SCOPE("Window Render");
 	m_window.clear();
 	ImGui::SFML::Render(m_window);
 	m_window.display();

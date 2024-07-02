@@ -1,5 +1,6 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Clock.hpp>
 #include <chrono>
 
 #include "DLLExport.h"

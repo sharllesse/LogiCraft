@@ -49,7 +49,7 @@ MenuPtr MainMenu::AddMenu(const char* name)
 
 void MainMenu::Draw()
 {
-	PROFILE_FUNCTION
+	//PROFILE_FUNCTION
 	if (ImGui::BeginMainMenuBar())
 	{
 		for (MenuPtr& menu : m_menus)
