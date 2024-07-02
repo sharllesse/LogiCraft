@@ -63,9 +63,9 @@ ActionManager::~ActionManager()
 
 ActionPtr ActionManager::AddAction(const char* name)
 {
-	ActionPtr pAction = std::make_shared<Action>(name);
-	m_actions.push_back(pAction);
+	ActionPtr pAction = make_shared(Action,name);
 
+	m_actions.push_back(pAction);
 	if (IsLoaded())
 	{
 		// If the manager is already loaded and a new action is added, load it alone
