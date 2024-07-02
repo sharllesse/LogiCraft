@@ -63,7 +63,7 @@ ActionManager::~ActionManager()
 
 ActionPtr ActionManager::AddAction(const char* name)
 {
-	ActionPtr pAction = make_shared(Action,name);
+	ActionPtr pAction = make_shared(Action, name);
 
 	m_actions.push_back(pAction);
 	if (IsLoaded())
