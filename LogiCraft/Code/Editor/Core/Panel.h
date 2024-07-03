@@ -107,6 +107,6 @@ public:
 	{
 	}
 
-	PanelPtr Create() override { return make_shared(C); }
+	PanelPtr Create() override { return make_shared(T); }
 };
 } // namespace Logicraft

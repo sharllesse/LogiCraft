@@ -33,6 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ResourceManager.h"
+#include "Core/Logger.h"
 
 #include <assert.h>
 

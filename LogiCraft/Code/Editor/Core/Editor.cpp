@@ -179,7 +179,7 @@ void Editor::CreatePanels()
 		pPanel->StartLoading();
 
 		// Add panel to the menu with action to toggle its visibility
-		MenuItemPtr pItem = make_shared(MenuItem, pPanel->GetTypeName);
+		MenuItemPtr pItem = make_shared(MenuItem, pPanel->GetTypeName());
 		pItem->SetCheckEnabled(true);
 		pItem->SetChecked(pPanel->IsVisible());
 		pPanelsMenu->AddChild(pItem);
