@@ -5,6 +5,7 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
+Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -40,32 +41,47 @@ EventSystem::EventSystem() {}
 
 EventSystem::~EventSystem() {}
 
-int EventSystem::AddListener(const std::string& _name, std::function<void()> _func)
+int EventSystem::AddListener(int eventID, std::function<void()> _func)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_events[_name].AddListener(_func);
+	return m_events[eventID].AddListener(_func);
 }
 
-bool EventSystem::RemoveListener(const std::string& _name, int _id)
+bool EventSystem::RemoveListener(int eventID, int _listenerID)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	auto it = m_events.find(_name);
+	auto it = m_events.find(eventID);
 	if (it != m_events.end())
 	{
-		return it->second.RemoveListener(_id);
+		return it->second.RemoveListener(_listenerID);
 	}
 
 	return false;
 }
 
-void EventSystem::Invoke(const std::string& _name)
+void EventSystem::ProcessEvents()
+{
+	while (!m_queueEvents.empty())
+	{
+		int eventID;
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+
+			eventID = m_queueEvents.front();
+			m_queueEvents.pop();
+		}
+		m_events[eventID].Invoke();
+	}
+}
+
+void EventSystem::QueueEvent(int eventID)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	auto it = m_events.find(_name);
+	auto it = m_events.find(eventID);
 	if (it != m_events.end())
 	{
-		it->second.Invoke();
+		m_queueEvents.emplace(it->first);
 	}
 }

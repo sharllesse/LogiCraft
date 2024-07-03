@@ -55,7 +55,9 @@ public:
 	std::string        GetShortcutString() const;
 	const std::string& GetName() const { return m_name; }
 
-	void Serialize(bool load, Serializer& serializer) override;
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
+
+	static void SetActionsToExecute(std::vector<std::string>& actionsToExecute);
 
 protected:
 	void Load() override;
@@ -66,6 +68,8 @@ private:
 	sf::Event::KeyEvent   m_shortcut;
 	std::string           m_shortcutStr;
 	std::string           m_description;
+
+	inline static std::vector<std::string> s_actionsToExecute;
 };
 using ActionPtr = std::shared_ptr<Action>;
 } // namespace Logicraft

@@ -52,14 +52,30 @@ Action::Action(const char* name)
 
 void Action::Execute()
 {
-	std::string message = "Action executed: " + m_name;
-	Logger::Get().Log(Logger::eInfo, message);
-	m_callback();
+	if (m_callback)
+	{
+		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
+		m_callback();
+	}
+	else
+	{
+		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
+	}
 }
 
 void Action::SetCallback(std::function<void()>&& callback)
 {
 	m_callback = std::move(callback);
+
+	for (auto it = s_actionsToExecute.begin(); it != s_actionsToExecute.end(); ++it)
+	{
+		if (m_name == (*it))
+		{
+			Execute();
+			s_actionsToExecute.erase(it);
+			return;
+		}
+	}
 }
 
 void Action::SetShortcut(const std::string& shortcut)
@@ -74,19 +90,24 @@ std::string Action::GetShortcutString() const
 	return m_shortcutStr;
 }
 
-void Action::Serialize(bool load, Serializer& serializer)
+void Action::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
 	if (load)
 	{
-		json        action   = serializer[m_name];
-		std::string shortcut = action["shortcut"];
-		SetShortcut(shortcut);
-		m_description = action["description"];
+		if (JsonObjectPtr pNameObject = pJsonObject->GetObject(m_name.c_str()))
+		{
+			if (StringPtr pShortcut = pNameObject->GetString("shortcut"))
+			{
+				SetShortcut(*pShortcut);
+			}
+			pNameObject->GetString("description", m_description);
+		}
 	}
 	else
 	{
-		serializer[m_name]["shortcut"]    = m_shortcutStr;
-		serializer[m_name]["description"] = m_description;
+		JsonObjectPtr pNameObject = pJsonObject->AddObject(m_name.c_str());
+		pNameObject->AddString("shortcut", m_shortcutStr);
+		pNameObject->AddString("description", m_description);
 	}
 }
 
@@ -95,6 +116,12 @@ void Action::Load()
 	Serializer serializer;
 	if (serializer.Parse("action.json"))
 	{
-		Serialize(true, serializer);
+		JsonObjectPtr pRoot = serializer.GetRoot();
+		Serialize(true, pRoot);
 	}
+}
+
+void Logicraft::Action::SetActionsToExecute(std::vector<std::string>& actionsToExecute)
+{
+	s_actionsToExecute.swap(actionsToExecute);
 }

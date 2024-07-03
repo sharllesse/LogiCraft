@@ -32,44 +32,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "ContentBrowser.h"
+#include "PanelContentBrowser.h"
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
-#include <Engine/Core/TaskManager.h>
-#include <Engine/Objects/GameObject.h>
 #include <Engine/ResourceSystem/ResourceManager.h>
+#include <Engine/Utils/SmartPtr.h>
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-ContentBrowser::ContentBrowser(const char* name)
+PanelContentBrowser::PanelContentBrowser(const char* name)
   : Panel(name)
 {
-	MenuPtr pMenuNew = std::make_shared<Menu>("New");
+	MenuPtr pMenuNew = make_shared(Menu, "New");
 	m_menuBar.AddChild(pMenuNew);
 
-	// TODO for all resource types
-	MenuItemPtr pNewGameObject = std::make_shared<MenuItem>("GameObject");
-	pMenuNew->AddChild(pNewGameObject);
-	ActionPtr pAction = ActionManager::Get().AddAction("new_gameobject");
-	pAction->SetCallback([] { ResourceManager::Get().CreateResource<GameObject>(); });
-	pNewGameObject->SetAction(pAction);
-}
-
-void ContentBrowser::Draw()
-{
-	if (m_visible)
+	for (auto& pResourceType : ResourceRegisterer::s_registerers)
 	{
-		if (ImGui::Begin(m_name.c_str(), &m_visible, ImGuiWindowFlags_MenuBar))
-		{
-			ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
-			ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);
-
-			m_menuBar.Draw();
-		}
-		ImGui::End();
+		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
+		pMenuNew->AddChild(pItemNew);
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
+		pAction->SetCallback([pResourceType] { ResourceManager::Get().CreateResource(pResourceType->GetName().c_str()); });
+		pItemNew->SetAction(pAction);
 	}
 }
+
+void PanelContentBrowser::Draw() {}

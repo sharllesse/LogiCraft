@@ -33,9 +33,11 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ActionManager.h"
+
 #include "Logger.h"
 #include "Serializer.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <utility>
 
@@ -57,13 +59,12 @@ ActionManager::ActionManager()
 
 ActionManager::~ActionManager()
 {
-	Save();
 	s_pActionsManager = nullptr;
 }
 
 ActionPtr ActionManager::AddAction(const char* name)
 {
-	ActionPtr pAction = std::make_shared<Action>(name);
+	ActionPtr pAction = make_shared(Action, name);
 	m_actions.push_back(pAction);
 
 	if (IsLoaded())
@@ -78,24 +79,41 @@ ActionPtr ActionManager::AddAction(const char* name)
 	return pAction;
 }
 
-void ActionManager::Serialize(bool load, Serializer& serializer)
+bool Logicraft::ActionManager::ExecuteAction(const char* name)
 {
 	for (ActionPtr& action : m_actions)
 	{
-		action->Serialize(load, serializer);
+		if (action->GetName() == name)
+		{
+			action->Execute();
+			return true;
+		}
+	}
+	return false;
+}
+
+void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
+{
+	for (ActionPtr& action : m_actions)
+	{
+		action->Serialize(load, pJsonObjectPtr);
 	}
 }
 
 void ActionManager::Save()
 {
-	Serializer serializer;
-	Serialize(false, serializer);
-	serializer.Save("action.json");
+	Serializer    serializer;
+	JsonObjectPtr pRoot = serializer.CreateRoot();
+	Serialize(false, pRoot);
+	serializer.Write("action.json");
 }
 
 void ActionManager::Load()
 {
 	Serializer serializer;
 	if (serializer.Parse("action.json"))
-		Serialize(true, serializer);
+	{
+		JsonObjectPtr pRoot = serializer.GetRoot();
+		Serialize(true, pRoot);
+	}
 }

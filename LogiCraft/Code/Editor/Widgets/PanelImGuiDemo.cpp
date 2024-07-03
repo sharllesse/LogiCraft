@@ -32,23 +32,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-#include "Widgets/MenuBar.h"
+#include "PanelImGuiDemo.h"
 
-namespace Logicraft
+#include <imgui/imgui.h>
+
+using namespace Logicraft;
+
+PanelImGuiDemo::PanelImGuiDemo(const char* name)
+  : Panel(name)
 {
+}
 
-class ContentBrowser : public Panel
+void PanelImGuiDemo::Draw()
 {
-	LOGI_DECLARE_PANEL(ContentBrowser)
-
-public:
-	ContentBrowser(const char* name);
-
-	void Draw() override;
-
-protected:
-	MenuBar m_menuBar;
-};
-} // namespace Logicraft
+	ImGui::ShowDemoWindow();
+}

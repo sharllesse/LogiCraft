@@ -33,15 +33,17 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include <Engine/Core/AsyncLoadedObject.h>
+#include "Widgets/MenuBar.h"
 
-#include <memory>
+#include <Engine/Core/Serializable.h>
+#include <Engine/Utils/SmartPtr.h>
+
 #include <string>
 #include <vector>
 
 namespace Logicraft
 {
-#define LOGI_DECLARE_PANEL(type) inline static TypedRegisterer<type> s_registerer{#type};
+#define LOGI_DECLARE_PANEL(type, name) inline static PanelTypeRegisterer<type> s_registerer{name};
 // How to declare a panel class :
 //	class MyPanelClass : public Panel
 //	{
@@ -50,23 +52,29 @@ namespace Logicraft
 // 		...
 //	};
 
-class Panel : public AsyncLoadedObject
+class Panel : public Serializable
 {
 public:
 	Panel(const char* name);
 
 	virtual void Update() {}
-	virtual void Draw() = 0;
+	void         BaseDraw();
 
 	const std::string& GetName() const { return m_name; }
 
-	void SetVisible(bool visible) { m_visible = visible; }
+	void SetVisible(bool visible);
 	bool IsVisible() const { return m_visible; }
 
-protected:
-	void Load() override;
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
+	virtual void Draw() = 0;
+
+	void Load() override;
+	void Save() override;
+
+protected:
+	MenuBar     m_menuBar;
 	std::string m_name;
 	bool        m_visible{true};
 };
@@ -82,18 +90,20 @@ public:
 	{
 		s_registerers.emplace_back(this);
 	}
-	virtual std::shared_ptr<Panel> Create() = 0;
-	std::string                    m_panelName;
+	virtual PanelPtr Create() = 0;
+
+protected:
+	std::string m_panelName;
 };
 
 template<typename C>
-class TypedRegisterer : public PanelRegisterer
+class PanelTypeRegisterer : public PanelRegisterer
 {
 public:
-	TypedRegisterer(const char* panelName)
+	PanelTypeRegisterer(const char* panelName)
 	  : PanelRegisterer(panelName)
 	{
 	}
-	std::shared_ptr<Panel> Create() override { return std::make_shared<C>(m_panelName.c_str()); }
+	PanelPtr Create() override { return make_shared(C, m_panelName.c_str()); }
 };
 } // namespace Logicraft

@@ -35,7 +35,9 @@ SOFTWARE.
 #include "Editor.h"
 
 #include <Engine/Core/Action.h>
+#include <Engine/Utils/SmartPtr.h>
 #include <SFML/Graphics.hpp>
+#include <algorithm>
 #include <assert.h>
 #include <imgui/imgui-SFML.h>
 #include <imgui/imgui.h>
@@ -58,6 +60,7 @@ Editor::Editor()
 	// alphabetical order, no dependencies
 	m_pEditorObjectManager = std::make_unique<EditorObjectManager>();
 	m_pEngine              = std::make_unique<Engine>();
+	m_pEventSystem         = std::make_unique<EventSystem>();
 	m_pMainMenu            = std::make_unique<MainMenu>();
 }
 
@@ -70,9 +73,10 @@ void Editor::Run()
 {
 	// Always initialize Engine first
 	m_pEngine->Init();
-	m_pEditorObjectManager->Init();
 
 	// Put other initializations here
+
+	m_pEditorObjectManager->Init();
 
 	// Initialize panels late as nothing depends on them and they depend on the other systems
 	CreatePanels();
@@ -81,14 +85,21 @@ void Editor::Run()
 	ActionManager::Get().StartLoading();
 
 	m_window.create(sf::VideoMode::getDesktopMode(), "LogiCraft");
+
 	InitImGui();
+
 	while (m_window.isOpen())
 	{
+		RestartClock();
 		ProcessWindowEvents();
+		ProcessEventSystem();
 		Update();
 		Render();
 	}
+
 	ImGui::SFML::Shutdown();
+
+	m_pEngine->Release();
 }
 
 void Editor::ProcessWindowEvents()
@@ -111,27 +122,36 @@ void Editor::ProcessWindowEvents()
 	}
 }
 
+void Editor::ProcessEventSystem()
+{
+	GetEventSystem().ProcessEvents();
+}
+
 void Editor::Update()
 {
+	// PROFILE_FUNCTION
 	m_pEngine->Update();
+
 	for (PanelPtr& pPanel : m_panels)
 	{
+		// PROFILE_SCOPE(pPanel->GetName().c_str());
 		pPanel->Update();
 	}
 }
 
 void Editor::Render()
 {
-	// TODO replace by real time
-	sf::Time currentTime = sf::milliseconds(16);
-	ImGui::SFML::Update(m_window, currentTime);
+	// PROFILE_FUNCTION
+	// PROFILE_SCOPE("Window Render");
+	ImGui::SFML::Update(m_window, m_timer);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	m_pMainMenu->Draw();
 
 	for (PanelPtr& pPanel : m_panels)
 	{
-		pPanel->Draw();
+		// PROFILE_SCOPE(pPanel->GetName().c_str());
+		pPanel->BaseDraw();
 	}
 
 	m_pEngine->Render();
@@ -159,17 +179,17 @@ void Editor::CreatePanels()
 		pPanel->StartLoading();
 
 		// Add panel to the menu with action to toggle its visibility
-		MenuItemPtr pItem = std::make_shared<MenuItem>(pPanel->GetName().c_str());
+		MenuItemPtr pItem = make_shared(MenuItem, pPanel->GetName().c_str());
 		pItem->SetCheckEnabled(true);
 		pItem->SetChecked(pPanel->IsVisible());
 		pPanelsMenu->AddChild(pItem);
 
 		const std::string actionName = std::string("toggle_") + pPanel->GetName().c_str();
-		ActionPtr pAction = ActionManager::Get().AddAction(actionName.c_str());
-		//pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
-		pAction->SetCallback([this, actionName] { m_eventSystem.Invoke(actionName); });
+		ActionPtr         pAction    = ActionManager::Get().AddAction(actionName.c_str());
+		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
 		pItem->SetAction(pAction);
-		// TODO subscribe to event visibility changed to update the menu item checked state
-		m_eventSystem.AddListener(actionName, [pPanel]() { pPanel->SetVisible(!pPanel->IsVisible()); });
+
+		GetEventSystem().AddListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
+	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return a->GetName() < b->GetName(); });
 }
