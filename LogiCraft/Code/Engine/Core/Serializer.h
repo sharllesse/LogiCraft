@@ -1,6 +1,7 @@
 #pragma once
 #include "DLLExport.h"
-#include "Utils/SmartPtr.h"
+#include "SmartPtr.h"
+
 #include <functional>
 #include <string>
 

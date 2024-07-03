@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Logger.h"
 #include "Serializer.h"
 
-#include <algorithm>
 #include <assert.h>
 #include <utility>
 
@@ -92,11 +91,11 @@ bool Logicraft::ActionManager::ExecuteAction(const char* name)
 	return false;
 }
 
-void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
+void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
 	for (ActionPtr& action : m_actions)
 	{
-		action->Serialize(load, pJsonObjectPtr);
+		action->Serialize(load, pJsonObject);
 	}
 }
 

@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Editor.h"
 
 #include <Engine/Core/Action.h>
-#include <Engine/Utils/SmartPtr.h>
+#include <Engine/Core/SmartPtr.h>
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <assert.h>

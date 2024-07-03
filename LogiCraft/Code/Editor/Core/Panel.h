@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Widgets/MenuBar.h"
 
 #include <Engine/Core/Serializable.h>
-#include <Engine/Utils/SmartPtr.h>
+#include <Engine/Core/SmartPtr.h>
 
 #include <string>
 #include <vector>

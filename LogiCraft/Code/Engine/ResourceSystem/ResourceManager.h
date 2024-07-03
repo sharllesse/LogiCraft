@@ -34,9 +34,9 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Serializable.h"
+#include "Core/SmartPtr.h"
 #include "DLLExport.h"
 #include "Resource.h"
-#include "Utils/SmartPtr.h"
 
 #include <map>
 #include <string>
