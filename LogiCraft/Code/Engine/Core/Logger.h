@@ -34,6 +34,7 @@ SOFTWARE.
 
 #pragma once
 #include "DLLExport.h"
+#include "EventSystem.h"
 
 #include <mutex>
 
@@ -44,6 +45,7 @@ class LOGI_ENGINE_API Logger
 public:
 	enum ELogLevel
 	{
+		eCommand = -1,
 		eInfo,
 		eWarning,
 		eError
@@ -53,8 +55,10 @@ public:
 	~Logger();
 
 	void Log(ELogLevel level, const std::string& message);
+	EventSystem& GetEventSystem() { return m_eventSystem; }
 
 private:
-	std::mutex m_mutex;
+	std::mutex  m_mutex;
+	EventSystem m_eventSystem;
 };
 } // namespace Logicraft

@@ -54,6 +54,7 @@ public:
 
 	void SetCheckEnabled(bool enabled) { m_checkEnabled = enabled; }
 	void SetChecked(bool checked) { m_checked = checked; }
+	void setName(std::string name) { m_name = name; }
 
 protected:
 	std::string              m_name;
