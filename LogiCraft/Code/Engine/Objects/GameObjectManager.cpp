@@ -78,6 +78,22 @@ GameObjectPtr GameObjectManager::CreateObject()
 	return pNewObject;
 }
 
+GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
+{
+	for (auto& pComponentType : ComponentRegisterer::s_registerers)
+	{
+		if (pComponentType->GetTypeName().compare(componentType) == 0)
+		{
+			GameComponentPtr pComponent = pComponentType->Create();
+			m_components.push_back(pComponent);
+			return pComponent;
+		}
+	}
+	std::string message = "Component type " + std::string(componentType) + " does not exist!";
+	Logger::Get().Log(Logger::eError, message);
+	return nullptr;
+}
+
 void GameObjectManager::RemoveObject(REFGUID objectGUID)
 {
 	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())

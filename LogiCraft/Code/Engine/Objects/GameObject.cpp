@@ -44,6 +44,14 @@ void GameObject::Update()
 	}
 }
 
+void Logicraft::GameObject::Render()
+{
+	for (GameComponentPtr component : m_components)
+	{
+		component->Render();
+	}
+}
+
 void GameObject::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
 	for (GameComponentPtr component : m_components)

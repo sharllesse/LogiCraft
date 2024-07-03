@@ -34,15 +34,33 @@ SOFTWARE.
 
 #include "PanelObject.h"
 
+#include "Core/ActionManager.h"
 #include "EditorObjectManager.h"
+#include "Widgets/Menu.h"
+#include "Widgets/MenuItem.h"
 
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-Logicraft::PanelObject::PanelObject(const char* name)
-  : Panel(name)
+Logicraft::PanelObject::PanelObject()
 {
+	MenuPtr pMenuNew = std::make_shared<Menu>("Add Component");
+	m_menuBar.AddChild(pMenuNew);
+
+	for (auto& pComponentType : EditorComponentRegisterer::s_registerers)
+	{
+		MenuItemPtr pItemNew = std::make_shared<MenuItem>(pComponentType->GetGameTypeName().c_str());
+		pMenuNew->AddChild(pItemNew);
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("add_component_") + pComponentType->GetGameTypeName()).c_str());
+		pAction->SetCallback([this, pComponentType] {
+			if (m_pSelectedObject)
+			{
+				EditorObjectManager::Get().CreateComponent(m_pSelectedObject, pComponentType->GetEditorTypeName().c_str());
+			}
+		});
+		pItemNew->SetAction(pAction);
+	}
 }
 
 void Logicraft::PanelObject::Update()
@@ -60,8 +78,8 @@ void Logicraft::PanelObject::Draw()
 
 		for (auto& pComponent : m_pSelectedObject->GetComponents())
 		{
-			// TODO: Display component name
-			// ImGui::Text(pComponent->GetName().c_str());
+			ImGui::Text(pComponent->GetTypeClass().GetGameTypeName().c_str());
+			pComponent->DrawUI();
 		}
 	}
 }

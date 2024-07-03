@@ -32,19 +32,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
+#include "EditorComponentSprite.h"
 
-namespace Logicraft
-{
-class PanelOutliner : public Panel
-{
-	LOGI_DECLARE_PANEL(PanelOutliner, "Outliner")
+using namespace Logicraft;
 
-public:
-	PanelOutliner();
-
-protected:
-	void Draw() override;
-};
-} // namespace Logicraft
+void Logicraft::EditorComponentSprite::DrawUI() const {}

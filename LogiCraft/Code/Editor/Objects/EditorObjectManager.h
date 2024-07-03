@@ -52,10 +52,10 @@ public:
 	void            Init();
 	void            RemoveObject(REFGUID objectGUID);
 	EditorObjectPtr GetObject(REFGUID objectGUID);
+	void            CreateComponent(EditorObjectPtr pObject, const char* editorComponentType);
 
 	const std::vector<EditorObjectPtr>& GetObjects() const { return m_objects; }
-
-	ActionPtr GetActionCreateObject() { return m_pActionCreateObject; }
+	ActionPtr                           GetActionCreateObject() { return m_pActionCreateObject; }
 
 protected:
 	void CreateObject();

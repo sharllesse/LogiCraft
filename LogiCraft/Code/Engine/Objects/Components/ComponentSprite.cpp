@@ -32,19 +32,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Panel.h"
-
-namespace Logicraft
-{
-class PanelOutliner : public Panel
-{
-	LOGI_DECLARE_PANEL(PanelOutliner, "Outliner")
-
-public:
-	PanelOutliner();
-
-protected:
-	void Draw() override;
-};
-} // namespace Logicraft
+#include "ComponentSprite.h"

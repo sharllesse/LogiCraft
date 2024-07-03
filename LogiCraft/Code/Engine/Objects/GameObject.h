@@ -45,10 +45,12 @@ class LOGI_ENGINE_API GameObject : public Resource
 {
 public:
 	void Update();
-	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
+	void Render();
 
 	void AddComponent(GameComponentPtr component);
 	void RemoveComponent(GameComponentPtr component);
+
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	void Load() override;

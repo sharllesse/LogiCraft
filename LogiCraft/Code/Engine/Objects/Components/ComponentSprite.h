@@ -33,18 +33,14 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
+#include "Objects/GameComponent.h"
 
 namespace Logicraft
 {
-class PanelOutliner : public Panel
+class LOGI_ENGINE_API ComponentSprite : public GameComponent
 {
-	LOGI_DECLARE_PANEL(PanelOutliner, "Outliner")
+	LOGI_DECLARE_COMPONENT(ComponentSprite)
 
 public:
-	PanelOutliner();
-
-protected:
-	void Draw() override;
 };
 } // namespace Logicraft

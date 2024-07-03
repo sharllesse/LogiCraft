@@ -46,8 +46,7 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-Logicraft::PanelOutliner::PanelOutliner(const char* name)
-  : Panel(name)
+Logicraft::PanelOutliner::PanelOutliner()
 {
 	MenuPtr pMenuNew = make_shared(Menu, "New Object");
 	m_menuBar.AddChild(pMenuNew);
