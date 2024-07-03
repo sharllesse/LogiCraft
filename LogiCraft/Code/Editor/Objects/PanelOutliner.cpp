@@ -40,6 +40,7 @@ SOFTWARE.
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
+#include <Engine/Core/SmartPtr.h>
 
 #include <imgui/imgui.h>
 
@@ -47,7 +48,7 @@ using namespace Logicraft;
 
 Logicraft::PanelOutliner::PanelOutliner()
 {
-	MenuPtr pMenuNew = std::make_shared<Menu>("New Object");
+	MenuPtr pMenuNew = make_shared(Menu, "New Object");
 	m_menuBar.AddChild(pMenuNew);
 	pMenuNew->SetAction(EditorObjectManager::Get().GetActionCreateObject());
 }

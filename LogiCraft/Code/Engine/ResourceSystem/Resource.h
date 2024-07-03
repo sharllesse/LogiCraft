@@ -34,10 +34,10 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Serializable.h"
+#include "Core/SmartPtr.h"
 #include "DLLExport.h"
 
 #include <guiddef.h>
-#include <memory>
 
 namespace Logicraft
 {
@@ -93,6 +93,7 @@ public:
 	  : ResourceRegisterer(resourceName)
 	{
 	}
-	ResourcePtr Create() override { return std::make_shared<T>(); }
+
+	ResourcePtr Create() override { return make_shared(T); }
 };
 } // namespace Logicraft

@@ -62,7 +62,7 @@ void Logicraft::Panel::BaseDraw()
 void Logicraft::Panel::SetVisible(bool visible)
 {
 	m_visible = visible;
-	Editor::Get().GetEventSystem().Invoke(Editor::ePanelVisible);
+	Editor::Get().GetEventSystem().QueueEvent(Editor::ePanelVisible);
 }
 
 void Logicraft::Panel::Serialize(bool load, JsonObjectPtr pJsonObject) {}

@@ -39,7 +39,10 @@ SOFTWARE.
 
 #include <Engine/Core/Engine.h>
 #include <Engine/Core/EventSystem.h>
+#include <Engine/Core/Profiler.h>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Time.hpp>
 
 #include <memory>
 #include <vector>
@@ -60,10 +63,14 @@ public:
 	~Editor();
 	void Run();
 	void ProcessWindowEvents();
+	void ProcessEventSystem();
 	void Update();
 	void Render();
 	void InitImGui();
 	void CreatePanels();
+
+	void      RestartClock() { m_timer = m_clock.restart(); }
+	sf::Int32 GetDeltaTime() const { return m_timer.asMilliseconds(); }
 
 	EventSystem& GetEventSystem() { return *m_pEventSystem; }
 
@@ -76,5 +83,8 @@ private:
 	std::unique_ptr<MainMenu>            m_pMainMenu;
 
 	std::vector<PanelPtr> m_panels;
+
+	sf::Time  m_timer;
+	sf::Clock m_clock;
 };
 } // namespace Logicraft

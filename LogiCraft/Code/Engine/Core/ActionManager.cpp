@@ -63,7 +63,7 @@ ActionManager::~ActionManager()
 
 ActionPtr ActionManager::AddAction(const char* name)
 {
-	ActionPtr pAction = std::make_shared<Action>(name);
+	ActionPtr pAction = make_shared(Action, name);
 	m_actions.push_back(pAction);
 
 	if (IsLoaded())
@@ -78,11 +78,24 @@ ActionPtr ActionManager::AddAction(const char* name)
 	return pAction;
 }
 
-void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)
+bool Logicraft::ActionManager::ExecuteAction(const char* name)
 {
 	for (ActionPtr& action : m_actions)
 	{
-		action->Serialize(load, pJsonObjectPtr);
+		if (action->GetName() == name)
+		{
+			action->Execute();
+			return true;
+		}
+	}
+	return false;
+}
+
+void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObject)
+{
+	for (ActionPtr& action : m_actions)
+	{
+		action->Serialize(load, pJsonObject);
 	}
 }
 

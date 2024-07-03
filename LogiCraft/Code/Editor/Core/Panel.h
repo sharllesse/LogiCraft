@@ -36,8 +36,8 @@ SOFTWARE.
 #include "Widgets/MenuBar.h"
 
 #include <Engine/Core/Serializable.h>
+#include <Engine/Core/SmartPtr.h>
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -106,6 +106,7 @@ public:
 	  : PanelRegisterer(_typename)
 	{
 	}
-	PanelPtr Create() override { return std::make_shared<T>(); }
+
+	PanelPtr Create() override { return make_shared(C); }
 };
 } // namespace Logicraft

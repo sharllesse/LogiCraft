@@ -34,6 +34,7 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Serializable.h"
+#include "Core/SmartPtr.h"
 #include "DLLExport.h"
 #include "Resource.h"
 
@@ -54,7 +55,7 @@ public:
 	template<typename T>
 	ResourcePtr CreateResource()
 	{
-		ResourcePtr pResource = std::make_shared<T>();
+		ResourcePtr pResource = make_shared(T);
 		m_loadedResources.push_back(pResource);
 		return pResource;
 	}

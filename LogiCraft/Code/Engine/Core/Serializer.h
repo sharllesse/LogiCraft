@@ -1,9 +1,8 @@
 #pragma once
 #include "DLLExport.h"
-#include "Logger.h"
+#include "SmartPtr.h"
 
 #include <functional>
-#include <memory>
 #include <string>
 
 namespace Logicraft
@@ -31,7 +30,7 @@ public:
 
 	void PushBack(const JsonObjectPtr& value) const;
 	void PushBack(const JsonArrayPtr& value) const;
-	// void PushBack(const std::string& value) const;
+	void PushBack(const std::string& value) const;
 	void PushBack(const char* value) const;
 	void PushBack(const int& value) const;
 	void PushBack(const double& value) const;
@@ -46,6 +45,8 @@ public:
 	virtual void ForEach(const std::function<void(const JsonObjectPtr&, const bool&)>& function) const;
 
 protected:
+	void LogWarning(const char* message) const;
+
 	friend class JsonObject;
 	friend class Serializer;
 	struct Private;
@@ -57,7 +58,7 @@ class LOGI_ENGINE_API JsonObject : public JsonArray
 public:
 	JsonObject();
 	// This constructor is used if the object as no allocator
-	//@param furtherParent: The further parent of the object.
+	//@param root: The root of the object.
 	JsonObject(const char* key, const JsonObjectPtr& root);
 	JsonObject(const char* key, const std::string& value, const JsonObjectPtr& root);
 	JsonObject(const char* key, const char* value, const JsonObjectPtr& root);
@@ -65,7 +66,7 @@ public:
 	JsonObject(const char* key, const bool& value, const JsonObjectPtr& root);
 	JsonObject(const char* key, const float& value, const JsonObjectPtr& root);
 	JsonObject(const char* key, const double& value, const JsonObjectPtr& root);
-	virtual ~JsonObject() override;
+	virtual ~JsonObject();
 
 	JsonObjectPtr GetObject(const char* key) const;
 	bool          GetObject(const char* key, JsonObjectPtr& object) const;
@@ -132,28 +133,9 @@ public:
 	JsonObjectPtr CreateRoot();
 	JsonObjectPtr GetRoot();
 
-	bool Parse(const std::string& path)
-	{
-		if (!InternalParse(path))
-		{
-			Logger::Get().Log(Logger::eError, "Failed to open the file : " + path);
-			return false;
-		}
-		return true;
-	}
-	bool Write(const std::string& path)
-	{
-		if (!InternalWrite(path))
-		{
-			Logger::Get().Log(Logger::eError, "Failed to open the file : " + path);
-			return false;
-		}
-		return true;
-	}
+	bool Parse(const std::string& path);
 
-private:
-	bool InternalParse(const std::string& path);
-	bool InternalWrite(const std::string& path);
+	bool Write(const std::string& path);
 
 private:
 	struct Private;

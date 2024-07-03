@@ -32,8 +32,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 #include "MainMenu.h"
+#include <SFML/OpenGL.hpp>
 
 #include <imgui/imgui.h>
+
+#include <Engine/Core/Profiler.h>
 
 using namespace Logicraft;
 
@@ -46,6 +49,7 @@ MenuPtr MainMenu::AddMenu(const char* name)
 
 void MainMenu::Draw()
 {
+	//PROFILE_FUNCTION
 	if (ImGui::BeginMainMenuBar())
 	{
 		for (MenuPtr& menu : m_menus)

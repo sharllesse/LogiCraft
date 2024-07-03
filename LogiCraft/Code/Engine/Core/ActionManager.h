@@ -36,9 +36,9 @@ SOFTWARE.
 #include "Action.h"
 #include "DLLExport.h"
 #include "Serializable.h"
+#include "SmartPtr.h"
 
 #include <functional>
-#include <memory>
 #include <vector>
 
 namespace Logicraft
@@ -52,7 +52,9 @@ public:
 	~ActionManager();
 
 	ActionPtr AddAction(const char* name);
-	void      Serialize(bool load, JsonObjectPtr pJsonObject) override;
+	bool      ExecuteAction(const char* name);
+
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	void Save() override;

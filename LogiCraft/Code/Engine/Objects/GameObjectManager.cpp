@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "GameObjectManager.h"
 #include "Engine/Core/Engine.h"
+#include "Engine/Core/SmartPtr.h"
 
 #include <assert.h>
 
@@ -72,7 +73,7 @@ GameObjectManager::~GameObjectManager()
 
 GameObjectPtr GameObjectManager::CreateObject()
 {
-	GameObjectPtr pNewObject = std::make_shared<GameObject>();
+	GameObjectPtr pNewObject = make_shared(GameObject);
 	m_objects.push_back(pNewObject);
 	return pNewObject;
 }

@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "Engine.h"
 #include "Objects/GameObject.h"
+#include "Profiler.h"
 
 #include <assert.h>
 
@@ -69,14 +70,9 @@ void Engine::Init()
 	m_pResourceManager->StartLoading();
 }
 
-void Logicraft::Engine::Release()
-{
-	m_pResourceManager->StartSaving();
-	m_pActionManager->StartSaving();
-}
-
 void Engine::Update()
 {
+	// PROFILE_FUNCTION
 	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
 	{
 		pObject->Update();
@@ -89,4 +85,10 @@ void Engine::Render()
 	{
 		pObject->Render();
 	}
+}
+
+void Engine::Release()
+{
+	m_pResourceManager->StartSaving();
+	m_pActionManager->StartSaving();
 }

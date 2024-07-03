@@ -36,10 +36,25 @@ SOFTWARE.
 
 #include "Core/Editor.h"
 
-int main()
-{
-	Logicraft::Editor editor;
-	editor.Run();
+#include <Engine/Core/ActionManager.h>
+#include <Engine/Core/SmartPtr.h>
+#include <vector>
 
+int main(int argc, char* argv[])
+{
+	{
+		Logicraft::Editor editor;
+
+		std::vector<std::string> actionsToExecute;
+		for (int i = 1; i < argc; i++)
+		{
+			actionsToExecute.emplace_back(argv[i]);
+		}
+		Logicraft::Action::SetActionsToExecute(actionsToExecute);
+
+		editor.Run();
+	}
+
+	Logicraft::Memory::reportLeaks();
 	return 0;
 }
