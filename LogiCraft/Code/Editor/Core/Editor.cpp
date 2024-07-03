@@ -164,12 +164,12 @@ void Editor::CreatePanels()
 		pPanel->StartLoading();
 
 		// Add panel to the menu with action to toggle its visibility
-		MenuItemPtr pItem = std::make_shared<MenuItem>(pPanel->GetName().c_str());
+		MenuItemPtr pItem = std::make_shared<MenuItem>(pPanel->GetTypeName());
 		pItem->SetCheckEnabled(true);
 		pItem->SetChecked(pPanel->IsVisible());
 		pPanelsMenu->AddChild(pItem);
 
-		const std::string actionName = std::string("toggle_") + pPanel->GetName().c_str();
+		const std::string actionName = std::string("toggle_") + pPanel->GetTypeName();
 		ActionPtr         pAction    = ActionManager::Get().AddAction(actionName.c_str());
 		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
 		pItem->SetAction(pAction);
@@ -177,5 +177,5 @@ void Editor::CreatePanels()
 		GetEventSystem().AddListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
 
-	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return a->GetName() < b->GetName(); });
+	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return strcmp(a->GetTypeName(), b->GetTypeName()) < 0; });
 }

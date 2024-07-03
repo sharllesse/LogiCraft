@@ -85,7 +85,7 @@ private:
 	std::string m_resourceName;
 };
 
-template<typename C>
+template<typename T>
 class ResourceTypeRegisterer : public ResourceRegisterer
 {
 public:
@@ -93,6 +93,6 @@ public:
 	  : ResourceRegisterer(resourceName)
 	{
 	}
-	ResourcePtr Create() override { return std::make_shared<C>(); }
+	ResourcePtr Create() override { return std::make_shared<T>(); }
 };
 } // namespace Logicraft

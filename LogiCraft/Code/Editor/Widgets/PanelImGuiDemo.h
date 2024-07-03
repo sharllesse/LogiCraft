@@ -42,7 +42,6 @@ class PanelImGuiDemo : public Panel
 	LOGI_DECLARE_PANEL(PanelImGuiDemo, "ImGui Demo")
 
 public:
-	PanelImGuiDemo(const char* name);
 
 protected:
 	void Draw() override;

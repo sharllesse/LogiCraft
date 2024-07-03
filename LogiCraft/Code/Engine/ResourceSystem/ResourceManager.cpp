@@ -68,6 +68,8 @@ ResourcePtr ResourceManager::CreateResource(const char* resourceType)
 			return pResource;
 		}
 	}
+	std::string message = "Resource type " + std::string(resourceType) + " does not exist!";
+	Logger::Get().Log(Logger::eError, message);
 	return nullptr;
 }
 

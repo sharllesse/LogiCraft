@@ -83,4 +83,10 @@ void Engine::Update()
 	}
 }
 
-void Engine::Render() {}
+void Engine::Render()
+{
+	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
+	{
+		pObject->Render();
+	}
+}

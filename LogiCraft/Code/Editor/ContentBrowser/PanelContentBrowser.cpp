@@ -43,8 +43,7 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-PanelContentBrowser::PanelContentBrowser(const char* name)
-  : Panel(name)
+PanelContentBrowser::PanelContentBrowser()
 {
 	MenuPtr pMenuNew = std::make_shared<Menu>("New");
 	m_menuBar.AddChild(pMenuNew);

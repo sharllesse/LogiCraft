@@ -43,7 +43,7 @@ class PanelObject : public Panel
 	LOGI_DECLARE_PANEL(PanelObject, "Object")
 
 public:
-	PanelObject(const char* name);
+	PanelObject();
 
 	void Update() override;
 

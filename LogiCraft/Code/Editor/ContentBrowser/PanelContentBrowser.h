@@ -42,7 +42,7 @@ class PanelContentBrowser : public Panel
 	LOGI_DECLARE_PANEL(PanelContentBrowser, "Content Browser")
 
 public:
-	PanelContentBrowser(const char* name);
+	PanelContentBrowser();
 
 protected:
 	void Draw() override;
