@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Logger.h"
 #include "Serializer.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <utility>
 
@@ -64,8 +65,8 @@ ActionManager::~ActionManager()
 ActionPtr ActionManager::AddAction(const char* name)
 {
 	ActionPtr pAction = make_shared(Action, name);
-
 	m_actions.push_back(pAction);
+
 	if (IsLoaded())
 	{
 		// If the manager is already loaded and a new action is added, load it alone
@@ -76,6 +77,19 @@ ActionPtr ActionManager::AddAction(const char* name)
 	}
 
 	return pAction;
+}
+
+bool Logicraft::ActionManager::ExecuteAction(const char* name)
+{
+	for (ActionPtr& action : m_actions)
+	{
+		if (action->GetName() == name)
+		{
+			action->Execute();
+			return true;
+		}
+	}
+	return false;
 }
 
 void ActionManager::Serialize(bool load, JsonObjectPtr pJsonObjectPtr)

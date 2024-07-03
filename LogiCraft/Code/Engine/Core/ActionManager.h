@@ -52,7 +52,9 @@ public:
 	~ActionManager();
 
 	ActionPtr AddAction(const char* name);
-	void      Serialize(bool load, JsonObjectPtr pJsonObject) override;
+	bool      ExecuteAction(const char* name);
+
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	void Save() override;

@@ -66,6 +66,16 @@ void Action::Execute()
 void Action::SetCallback(std::function<void()>&& callback)
 {
 	m_callback = std::move(callback);
+
+	for (auto it = s_actionsToExecute.begin(); it != s_actionsToExecute.end(); ++it)
+	{
+		if (m_name == (*it))
+		{
+			Execute();
+			s_actionsToExecute.erase(it);
+			return;
+		}
+	}
 }
 
 void Action::SetShortcut(const std::string& shortcut)
@@ -109,4 +119,9 @@ void Action::Load()
 		JsonObjectPtr pRoot = serializer.GetRoot();
 		Serialize(true, pRoot);
 	}
+}
+
+void Logicraft::Action::SetActionsToExecute(std::vector<std::string>& actionsToExecute)
+{
+	s_actionsToExecute.swap(actionsToExecute);
 }

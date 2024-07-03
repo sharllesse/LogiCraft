@@ -59,8 +59,8 @@ Editor::Editor()
 
 	// alphabetical order, no dependencies
 	m_pEditorObjectManager = std::make_unique<EditorObjectManager>();
-	m_pEventSystem         = std::make_unique<EventSystem>();
 	m_pEngine              = std::make_unique<Engine>();
+	m_pEventSystem         = std::make_unique<EventSystem>();
 	m_pMainMenu            = std::make_unique<MainMenu>();
 }
 
@@ -69,7 +69,7 @@ Editor::~Editor()
 	s_pEditor = nullptr;
 }
 
-void Editor::Run(const int& argc, char* argv[])
+void Editor::Run()
 {
 	// Always initialize Engine first
 	m_pEngine->Init();
@@ -81,10 +81,6 @@ void Editor::Run(const int& argc, char* argv[])
 	// Initialize panels late as nothing depends on them and they depend on the other systems
 	CreatePanels();
 
-	for (int i = 1; i < argc; i++)
-	{
-		ActionManager::Get().AddAction(argv[i]);
-	}
 	// Load actions shortcuts after other systems have been initialized and added their actions
 	ActionManager::Get().StartLoading();
 
@@ -135,6 +131,7 @@ void Editor::Update()
 {
 	// PROFILE_FUNCTION
 	m_pEngine->Update();
+
 	for (PanelPtr& pPanel : m_panels)
 	{
 		// PROFILE_SCOPE(pPanel->GetName().c_str());
@@ -146,7 +143,6 @@ void Editor::Render()
 {
 	// PROFILE_FUNCTION
 	// PROFILE_SCOPE("Window Render");
-	//  TODO replace by real time
 	ImGui::SFML::Update(m_window, m_timer);
 	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 

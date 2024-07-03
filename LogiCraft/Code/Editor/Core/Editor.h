@@ -59,7 +59,7 @@ public:
 
 	Editor();
 	~Editor();
-	void Run(const int& argc, char* argv[]);
+	void Run();
 	void ProcessWindowEvents();
 	void ProcessEventSystem();
 	void Update();
@@ -67,7 +67,7 @@ public:
 	void InitImGui();
 	void CreatePanels();
 
-	void RestartClock() { m_timer = m_clock.restart(); }
+	void  RestartClock() { m_timer = m_clock.restart(); }
 	float GetDeltaTime() const { return m_timer.asSeconds(); }
 
 	EventSystem& GetEventSystem() { return *m_pEventSystem; }
@@ -82,7 +82,7 @@ private:
 
 	std::vector<PanelPtr> m_panels;
 
-	sf::Time m_timer;
+	sf::Time  m_timer;
 	sf::Clock m_clock;
 };
 } // namespace Logicraft
