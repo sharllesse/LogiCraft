@@ -12,6 +12,8 @@ void Logicraft::Widget::AddChild(WidgetPtr pChild)
 	m_children.push_back(pChild);
 }
 
+void Logicraft::Widget::Update() {}
+
 void Logicraft::Widget::Draw()
 {
 	for (WidgetPtr& child : m_children)

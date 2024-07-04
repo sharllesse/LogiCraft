@@ -55,6 +55,7 @@ public:
 	enum EEvent
 	{
 		ePanelVisible = Engine::EEvent::eEventCount,
+		eObjectChanged,
 		eEventCount
 	};
 	static Editor& Get();

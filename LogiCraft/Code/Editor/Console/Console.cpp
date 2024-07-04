@@ -44,7 +44,7 @@ Console::Console()
 
 	// push back un objet complet (loglevel + message)
 	Logger::Get().GetEventSystem().AddListener<EventLog>(this, [this](const EventLog& _event) {
-		// améliorer et utiliser AddLog()
+		// amÃ©liorer et utiliser AddLog()
 		AddLog(_event.m_level, _event.m_message);
 	});
 
@@ -56,7 +56,7 @@ Console::Console()
 
 Console::~Console()
 {
-	Logger::Get().GetEventSystem().RemoveListener<EventLog>(this);
+	//Logger::Get().GetEventSystem().RemoveListener<EventLog>(this);
 	ClearLog();
 }
 

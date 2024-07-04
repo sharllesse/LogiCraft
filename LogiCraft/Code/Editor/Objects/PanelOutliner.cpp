@@ -33,6 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 #include "PanelOutliner.h"
 
+#include "Core/Editor.h"
 #include "EditorComponent.h"
 #include "EditorObjectManager.h"
 #include "Widgets/Menu.h"
@@ -41,7 +42,6 @@ SOFTWARE.
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
 #include <Engine/Core/SmartPtr.h>
-
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
@@ -51,13 +51,62 @@ Logicraft::PanelOutliner::PanelOutliner()
 	MenuPtr pMenuNew = make_shared(Menu, "New Object");
 	m_menuBar.AddChild(pMenuNew);
 	pMenuNew->SetAction(EditorObjectManager::Get().GetActionCreateObject());
+
+	Editor::Get().GetEventSystem().AddAsyncListener(Editor::eObjectChanged, [this]() { m_refreshObjectList = true; });
+}
+
+Logicraft::PanelOutliner::~PanelOutliner() 
+{
+	m_objects.clear();
+}
+
+void Logicraft::PanelOutliner::Update()
+{
+	if (m_refreshObjectList)
+	{
+		RefrectObjectList();
+		m_refreshObjectList = false;
+	}
+
+	for (auto& selectable : m_objects)
+	{
+		selectable.first.Update();
+	}
 }
 
 void Logicraft::PanelOutliner::Draw()
 {
-	auto& objects = EditorObjectManager::Get().GetObjects();
-	for (auto& pObject : objects)
+	for (auto& selectable : m_objects) 
 	{
-		ImGui::Text(pObject->GetName().c_str());
+		selectable.first.Draw();
+	}
+}
+
+void Logicraft::PanelOutliner::RefrectObjectList() 
+{
+	const std::vector<EditorObjectPtr>& managerObjects = EditorObjectManager::Get().GetObjects();
+	if (m_objects.size() > managerObjects.size())
+	{
+		for (auto outlinerObject = m_objects.begin(); outlinerObject != m_objects.end();)
+		{
+			const auto objectIt = std::find(managerObjects.begin(), managerObjects.end(), (*outlinerObject).second);
+
+			if (objectIt == managerObjects.end())
+				outlinerObject = m_objects.erase(outlinerObject);
+			else
+				outlinerObject++;
+		}
+	}
+	else
+	{
+		for (auto& managerObject : managerObjects)
+		{
+			const auto objectIt = std::find_if(m_objects.begin(), m_objects.end(), [&managerObject](const std::pair<Selectable, EditorObjectPtr>& outlinerObject) {
+				return outlinerObject.second == managerObject;
+			});
+
+			if (objectIt == m_objects.end())
+				m_objects.emplace_back(std::make_pair(Selectable(managerObject->GetName().c_str()), managerObject));
+		}
 	}
 }

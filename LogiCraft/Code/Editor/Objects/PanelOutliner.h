@@ -34,6 +34,11 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Panel.h"
+#include "Widgets/Selectable.h"
+#include "Objects/EditorObject.h"
+
+#include <vector>
+#include <utility>
 
 namespace Logicraft
 {
@@ -43,8 +48,18 @@ class PanelOutliner : public Panel
 
 public:
 	PanelOutliner();
+	~PanelOutliner();
+
+	void Update() override;
 
 protected:
 	void Draw() override;
+
+private:
+	void RefrectObjectList();
+
+	std::vector<std::pair<Selectable, EditorObjectPtr>> m_objects;
+
+	bool m_refreshObjectList{true};
 };
 } // namespace Logicraft

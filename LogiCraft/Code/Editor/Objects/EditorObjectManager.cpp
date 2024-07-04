@@ -33,6 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "EditorObjectManager.h"
+#include "Core/Editor.h"
 
 #include <Engine/Core/ActionManager.h>
 #include <Engine/Core/Engine.h>
@@ -93,12 +94,15 @@ void EditorObjectManager::CreateObject()
 
 	GameObjectPtr pGameObject = GameObjectManager::Get().CreateObject();
 	pNewObject->SetGameObject(pGameObject);
+
+	Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectChanged);
 }
 
 void EditorObjectManager::RemoveObject(REFGUID objectGUID)
 {
 	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
 	{
+		Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectChanged);
 		m_objects.erase(it);
 	}
 }

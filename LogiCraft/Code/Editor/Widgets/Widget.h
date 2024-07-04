@@ -15,6 +15,7 @@ public:
 	Widget() = default;
 	Widget(const std::string& name);
 	void         AddChild(WidgetPtr pChild);
+	virtual void Update();
 	virtual void Draw();
 
 protected:
