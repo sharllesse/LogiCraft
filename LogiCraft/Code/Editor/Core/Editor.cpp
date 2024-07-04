@@ -41,6 +41,7 @@ SOFTWARE.
 #include <assert.h>
 #include <imgui/imgui-SFML.h>
 #include <imgui/imgui.h>
+#include <imgui/imnodes.h>
 
 using namespace Logicraft;
 
@@ -98,6 +99,7 @@ void Editor::Run()
 	}
 
 	ImGui::SFML::Shutdown();
+	ImNodes::DestroyContext();
 
 	m_pEngine->Release();
 }
@@ -166,6 +168,7 @@ void Editor::InitImGui()
 	ImGui::CreateContext();
 	ImGui::SFML::Init(m_window);
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	ImNodes::CreateContext();
 }
 
 void Editor::CreatePanels()
