@@ -33,35 +33,133 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Event.h"
-#include <queue>
+// namespace Logicraft
+//{
+// class LOGI_ENGINE_API EventSystem
+//{
+// public:
+//	EventSystem();
+//	~EventSystem();
+//
+//	EventSystem(EventSystem&&)      = delete;
+//	EventSystem(const EventSystem&) = delete;
+//
+//	EventSystem& operator=(EventSystem&&)      = delete;
+//	EventSystem& operator=(const EventSystem&) = delete;
+//
+//	struct CallBack
+//	{
+//		void* listenerAdress;
+//		int   eventID;
+//	};
+//
+//	int  AddListener(int eventID, std::function<void()> _func);
+//	bool RemoveListener(int eventID, int _listenerID);
+//	void QueueEvent(int eventID);
+//	void ProcessEvents();
+//
+// private:
+//	std::unordered_map<int, Event> m_events;
+//
+//	std::queue<int> m_queueEvents;
+//	std::mutex      m_mutex;
+// };
+// } // namespace Logicraft
 
-// #define REGISTER_EVENT_TYPE static int m_eventID = EventSystem::m_eventID++;
+#pragma once
+#include "DLLExport.h"
+
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <queue>
+#include <unordered_map>
+#include <vector>
 
 namespace Logicraft
 {
-class LOGI_ENGINE_API EventSystem
+class LOGI_ENGINE_API Event
 {
 public:
-	EventSystem();
-	~EventSystem();
+	Event();
+	~Event();
 
-	EventSystem(EventSystem&&)      = delete;
-	EventSystem(const EventSystem&) = delete;
+	int  AddListener(std::function<void()> _func);
+	bool RemoveListener(int _id);
 
+	void Invoke();
+
+private:
+	std::unordered_map<int, std::function<void()>> m_listeners;
+
+	std::mutex m_mutex;
+	int        m_listenerID;
+};
+} // namespace Logicraft
+
+class LOGI_ENGINE_API EventSystem
+{
+	struct CallBack
+	{
+		void* listenerAdress;
+		int   eventID;
+	};
+	using CallBackPair = std::pair<CallBack, std::function<void(void*)>>;
+
+public:
+	EventSystem()  = default;
+	~EventSystem() = default;
+
+	EventSystem(EventSystem&&)                 = delete;
+	EventSystem(const EventSystem&)            = delete;
 	EventSystem& operator=(EventSystem&&)      = delete;
 	EventSystem& operator=(const EventSystem&) = delete;
 
-	int  AddListener(int eventID, std::function<void()> _func);
-	bool RemoveListener(int eventID, int _listenerID);
+	int  AddAsyncListener(int eventID, std::function<void()> _func);
+	bool RemoveAsyncListener(int eventID, int _listenerID);
 	void QueueEvent(int eventID);
 	void ProcessEvents();
 
-private:
-	std::unordered_map<int, Event> m_events;
+	template<typename TEvent, typename TListener>
+	void AddListener(TListener* listener, std::function<void(const TEvent&)>&& func)
+	{
+		CallBack cb = {(void*)listener, TEvent::ID};
 
-	std::queue<int> m_queueEvents;
-	std::mutex      m_mutex;
+		CallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
+
+		m_listeners.push_back(std::move(pair));
+	}
+
+	template<typename TEvent, typename TListener>
+	void RemoveListener(TListener* pListener)
+	{
+		m_listeners.erase(std::remove_if(m_listeners.begin(),
+		                    m_listeners.end(),
+		                    [pListener](CallBackPair& pair) {
+			                    bool tmp = (pair.first.eventID == TEvent::ID && pair.first.listenerAdress == pListener);
+			                    std::cout << tmp;
+			                    return tmp;
+		                    }),
+		  m_listeners.end());
+	}
+
+	template<typename TEvent>
+	void SendEvent(const TEvent& typeEvent)
+	{
+		for (auto& cb : m_listeners)
+		{
+			if (cb.first.eventID == TEvent::ID)
+			{
+				cb.second((void*)&typeEvent);
+			}
+		}
+	}
+
+private:
+	std::vector<CallBackPair> m_listeners;
+
+	std::unordered_map<int, Event> m_asyncListeners; // TODO avec l'adresse du listener
+	std::queue<int>                m_queuedEvents;
+	std::mutex                     m_mutex;
 };
 } // namespace Logicraft

@@ -37,22 +37,47 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-EventSystem::EventSystem() {}
-
-EventSystem::~EventSystem() {}
-
-int EventSystem::AddListener(int eventID, std::function<void()> _func)
+Event::Event()
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_events[eventID].AddListener(_func);
+	m_listenerID = 0;
 }
 
-bool EventSystem::RemoveListener(int eventID, int _listenerID)
+Event::~Event() {}
+
+int Event::AddListener(std::function<void()> _func)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	m_listeners[m_listenerID] = _func;
+	return m_listenerID++;
+}
+
+bool Event::RemoveListener(int _id)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_listeners.erase(_id);
+}
+
+void Event::Invoke()
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	for (auto& func : m_listeners)
+	{
+		func.second();
+	}
+}
+
+int EventSystem::AddAsyncListener(int eventID, std::function<void()> _func)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_asyncListeners[eventID].AddListener(_func);
+}
+
+bool EventSystem::RemoveAsyncListener(int eventID, int _listenerID)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	auto it = m_events.find(eventID);
-	if (it != m_events.end())
+	auto it = m_asyncListeners.find(eventID);
+	if (it != m_asyncListeners.end())
 	{
 		return it->second.RemoveListener(_listenerID);
 	}
@@ -62,16 +87,16 @@ bool EventSystem::RemoveListener(int eventID, int _listenerID)
 
 void EventSystem::ProcessEvents()
 {
-	while (!m_queueEvents.empty())
+	while (!m_queuedEvents.empty())
 	{
 		int eventID;
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
 
-			eventID = m_queueEvents.front();
-			m_queueEvents.pop();
+			eventID = m_queuedEvents.front();
+			m_queuedEvents.pop();
 		}
-		m_events[eventID].Invoke();
+		m_asyncListeners[eventID].Invoke();
 	}
 }
 
@@ -79,9 +104,9 @@ void EventSystem::QueueEvent(int eventID)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	auto it = m_events.find(eventID);
-	if (it != m_events.end())
+	auto it = m_asyncListeners.find(eventID);
+	if (it != m_asyncListeners.end())
 	{
-		m_queueEvents.emplace(it->first);
+		m_queuedEvents.emplace(it->first);
 	}
 }
