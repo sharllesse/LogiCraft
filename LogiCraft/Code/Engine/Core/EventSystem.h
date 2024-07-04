@@ -95,7 +95,6 @@ private:
 	std::mutex m_mutex;
 	int        m_listenerID;
 };
-} // namespace Logicraft
 
 class LOGI_ENGINE_API EventSystem
 {
