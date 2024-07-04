@@ -31,24 +31,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
-
-#pragma once
-#include "DLLExport.h"
-#include "Resource.h"
-
-#include <SFML/Graphics/Texture.hpp>
-
-namespace Logicraft
-{
-class LOGI_ENGINE_API Texture : public Resource
-{
-	LOGI_DECLARE_RESOURCE(Texture)
-
-public:
-	void         Serialize(bool load, JsonObjectPtr pJsonObject) override;
-	sf::Texture& GetTexture() { return m_texture; }
-
-protected:
-	sf::Texture m_texture;
-};
-} // namespace Logicraft

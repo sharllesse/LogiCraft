@@ -39,7 +39,7 @@ namespace Logicraft
 {
 class PanelContentBrowser : public Panel
 {
-	LOGI_DECLARE_PANEL(PanelContentBrowser, "Content Browser")
+	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelContentBrowser, "Content Browser")
 
 public:
 	PanelContentBrowser();

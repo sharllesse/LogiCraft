@@ -31,55 +31,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
-
-#include "PanelObject.h"
-
-#include "Core/ActionManager.h"
-#include "EditorObjectManager.h"
+#include "PanelResourceEditor.h"
+#include "Objects/EditorComponent.h"
 #include "Widgets/Menu.h"
-#include "Widgets/MenuItem.h"
 
+#include <Engine/Core/Action.h>
+#include <Engine/Core/ActionManager.h>
+#include <Engine/Core/TaskManager.h>
+#include <Engine/ResourceSystem/Resource.h>
+#include <Engine/ResourceSystem/ResourceManager.h>
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-Logicraft::PanelObject::PanelObject()
+Logicraft::PanelResourceEditor::PanelResourceEditor()
 {
-	MenuPtr pMenuNew = make_shared(Menu, "Add Component");
+	MenuPtr pMenuNew = make_shared(Menu, "New");
 	m_menuBar.AddChild(pMenuNew);
 
-	for (auto& pComponentType : EditorComponent::GetRegisteredTypes())
+	for (auto& pResourceType : Resource::GetRegisteredTypes())
 	{
-		MenuItemPtr pItemNew = make_shared(MenuItem, pComponentType->GetName().c_str());
+		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
 		pMenuNew->AddChild(pItemNew);
-		ActionPtr pAction = ActionManager::Get().AddAction((std::string("add_component_") + pComponentType->GetName()).c_str());
-		pAction->SetCallback([this, pComponentType] {
-			if (m_pSelectedObject)
-			{
-				EditorObjectManager::Get().CreateComponent(m_pSelectedObject, pComponentType->GetName().c_str());
-			}
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
+		pAction->SetCallback([this, pResourceType] {
+			TaskManager::Get().AddTask(
+			  [this, pResourceType] { SetEditedResource(ResourceManager::Get().CreateResource(pResourceType->GetName().c_str())); });
 		});
 		pItemNew->SetAction(pAction);
 	}
 }
 
-void Logicraft::PanelObject::Update()
+void Logicraft::PanelResourceEditor::SetEditedResource(ResourcePtr pResource)
 {
-	auto objects = EditorObjectManager::Get().GetObjects();
-	if (objects.size() > 0)
-		m_pSelectedObject = objects[objects.size() - 1];
+	std::lock_guard<std::mutex> lock(m_mutex);
+	m_pEditedResource = pResource;
 }
 
-void Logicraft::PanelObject::Draw()
+ResourcePtr Logicraft::PanelResourceEditor::GetEditedResource() const
 {
-	if (m_pSelectedObject)
-	{
-		ImGui::Text(m_pSelectedObject->GetName().c_str());
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_pEditedResource;
+}
 
-		for (auto& pComponent : m_pSelectedObject->GetComponents())
-		{
-			// ImGui::Text(pComponent->GetTypeClass().GetGameTypeName().c_str());
-			// pComponent->DrawUI();
-		}
+void Logicraft::PanelResourceEditor::Draw()
+{
+	if (m_pEditedResource)
+	{
+		// m_pEditedResource->Draw();
 	}
 }

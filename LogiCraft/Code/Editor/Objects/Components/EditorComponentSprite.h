@@ -43,7 +43,7 @@ namespace Logicraft
 {
 class EditorComponentSprite : public EditorComponent
 {
-	LOGI_DECLARE_EDITOR_COMPONENT(EditorComponentSprite, ComponentSprite)
+	LOGI_TYPEDEF_LINKED_DERIVED_TYPE(EditorComponent, EditorComponentSprite, ComponentSprite)
 
 public:
 	void DrawUI() const override;

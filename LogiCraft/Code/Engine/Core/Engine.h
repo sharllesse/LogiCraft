@@ -52,6 +52,7 @@ public:
 	{
 		eObjectCreated = 0,
 		eObjectLoaded,
+		eActionExecuteRequested,
 		eEventCount
 	};
 

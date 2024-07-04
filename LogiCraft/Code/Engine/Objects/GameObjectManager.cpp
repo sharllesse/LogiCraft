@@ -80,9 +80,9 @@ GameObjectPtr GameObjectManager::CreateObject()
 
 GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
 {
-	for (auto& pComponentType : ComponentRegisterer::s_registerers)
+	for (auto& pComponentType : GameComponent::GetRegisteredTypes())
 	{
-		if (pComponentType->GetTypeName().compare(componentType) == 0)
+		if (pComponentType->GetName().compare(componentType) == 0)
 		{
 			GameComponentPtr pComponent = pComponentType->Create();
 			m_components.push_back(pComponent);

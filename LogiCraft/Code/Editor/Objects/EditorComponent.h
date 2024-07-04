@@ -34,76 +34,25 @@ SOFTWARE.
 
 #pragma once
 #include <Engine/Objects/GameComponent.h>
+#include <Engine/Utils/TypeDefinition.h>
 
 #include <memory>
 #include <string>
 
 namespace Logicraft
 {
-#define LOGI_DECLARE_EDITOR_COMPONENT(editorComponentType, gameComponentType)                                              \
-	inline static EditorComponentTypeRegisterer<editorComponentType> s_registerer{#editorComponentType, #gameComponentType}; \
-	EditorComponentRegisterer&                                       GetTypeClass() const override                           \
-	{                                                                                                                        \
-		return s_registerer;                                                                                                   \
-	}
-// How to declare a component class :
-//	class MyComponentClass : public EditorComponent
-//	{
-//		LOGI_DECLARE_EDITOR_COMPONENT(MyComponentClass)
-// 	public:
-// 		...
-//	};
-
-class EditorComponentRegisterer;
 class EditorComponent
 {
+	LOGI_TYPEDEF_LINKED_BASE_TYPE(EditorComponent, GameComponent)
+
 public:
 	const GameComponentPtr GetGameComponent() const { return m_pGameComponent; }
 	void                   SetGameComponent(GameComponentPtr pGameComponent) { m_pGameComponent = pGameComponent; }
 
 	virtual void DrawUI() const = 0;
 
-	virtual EditorComponentRegisterer& GetTypeClass() const = 0;
-
 protected:
 	GameComponentPtr m_pGameComponent;
 };
 using EditorComponentPtr = std::shared_ptr<EditorComponent>;
-
-class EditorComponentRegisterer
-{
-public:
-	inline static std::vector<EditorComponentRegisterer*> s_registerers;
-
-	EditorComponentRegisterer(const char* editorComponentType, const char* gameComponentType)
-	  : m_editorComponentType(editorComponentType)
-	  , m_gameComponentType(gameComponentType)
-	{
-		s_registerers.emplace_back(this);
-	}
-
-	const std::string& GetEditorTypeName() const { return m_editorComponentType; }
-	const std::string& GetGameTypeName() const { return m_gameComponentType; }
-
-protected:
-	friend class EditorObjectManager;
-	virtual EditorComponentPtr Create() = 0;
-
-private:
-	std::string m_editorComponentType;
-	std::string m_gameComponentType;
-};
-
-template<typename T>
-class EditorComponentTypeRegisterer : public EditorComponentRegisterer
-{
-public:
-	EditorComponentTypeRegisterer(const char* editorComponentType, const char* gameComponentType)
-	  : EditorComponentRegisterer(editorComponentType, gameComponentType)
-	{
-	}
-
-protected:
-	EditorComponentPtr Create() override { return std::make_shared<T>(); }
-};
 } // namespace Logicraft

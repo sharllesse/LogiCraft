@@ -36,27 +36,11 @@ SOFTWARE.
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
 
-#include <Engine/Core/Action.h>
-#include <Engine/Core/ActionManager.h>
-#include <Engine/Core/SmartPtr.h>
 #include <Engine/ResourceSystem/ResourceManager.h>
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-PanelContentBrowser::PanelContentBrowser()
-{
-	MenuPtr pMenuNew = make_shared(Menu, "New");
-	m_menuBar.AddChild(pMenuNew);
-
-	for (auto& pResourceType : ResourceRegisterer::s_registerers)
-	{
-		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
-		pMenuNew->AddChild(pItemNew);
-		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
-		pAction->SetCallback([pResourceType] { ResourceManager::Get().CreateResource(pResourceType->GetName().c_str()); });
-		pItemNew->SetAction(pAction);
-	}
-}
+PanelContentBrowser::PanelContentBrowser() {}
 
 void PanelContentBrowser::Draw() {}

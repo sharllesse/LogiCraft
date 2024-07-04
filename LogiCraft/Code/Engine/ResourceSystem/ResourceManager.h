@@ -46,6 +46,12 @@ namespace Logicraft
 {
 class LOGI_ENGINE_API ResourceManager : public Serializable
 {
+	enum EFileFormat
+	{
+		eJson,
+		eBinary
+	};
+
 public:
 	static ResourceManager& Get();
 
@@ -63,17 +69,19 @@ public:
 
 	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
+	void SetFileFormat(EFileFormat format) { m_fileFormat = format; }
+
 protected:
 	void Load() override;
 
 private:
-	std::vector<ResourcePtr> m_loadedResources;
-	std::vector<GUID>        m_resourcesToLoad;
-
 	struct GUIDComparer
 	{
 		bool operator()(REFGUID left, REFGUID right) const { return memcmp(&left, &right, sizeof(GUID)) < 0; }
 	};
 	std::map<GUID, std::string, GUIDComparer> m_resourcesToFiles;
+	std::vector<ResourcePtr>                  m_loadedResources;
+	std::vector<GUID>                         m_resourcesToLoad;
+	EFileFormat                               m_fileFormat{eBinary};
 };
 } // namespace Logicraft

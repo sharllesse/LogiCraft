@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "Action.h"
 
+#include "Core/Engine.h"
 #include "Core/Logger.h"
 #include "Serializer.h"
 #include "Utils/SfmlUtils.h"

@@ -39,7 +39,7 @@ namespace Logicraft
 {
 class LOGI_ENGINE_API ComponentSprite : public GameComponent
 {
-	LOGI_DECLARE_COMPONENT(ComponentSprite)
+	LOGI_TYPEDEF_DERIVED_TYPE(GameComponent, ComponentSprite, "Sprite")
 
 public:
 };

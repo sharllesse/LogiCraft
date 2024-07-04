@@ -46,7 +46,7 @@ namespace Logicraft
 class LOGI_ENGINE_API Action : public Serializable
 {
 public:
-	Action(const char* name);
+	explicit Action(const char* name);
 
 	void Execute();
 
