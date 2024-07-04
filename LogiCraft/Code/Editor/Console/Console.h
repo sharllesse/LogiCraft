@@ -10,11 +10,11 @@
 
 namespace Logicraft
 {
-
+class Console;
 static Console* sConsole = nullptr;
 class Console : public Panel
 {
-	LOGI_DECLARE_PANEL(Console)
+	LOGI_DECLARE_PANEL(Console, "Console")
 
 	struct OutputRow
 	{
@@ -23,20 +23,20 @@ class Console : public Panel
 	};
 
 public:
-	Console(const char* name);
+	Console();
 	~Console();
 
-	void        ClearLog();
-	static Console Get() { return sConsole; }
-	void        AddLog(Logger::ELogLevel level, const std::string& message);
-	static void ExecCommand(const std::string& command_line);
+	void            ClearLog();
+	static Console& Get() { return *sConsole; }
+	void            AddLog(Logger::ELogLevel level, const std::string& message);
+	static void     ExecCommand(const std::string& command_line);
 
 	static std::string Strtrim(std::string str);
 	int                TextEditCallback(ImGuiInputTextCallbackData* data);
 
 	const std::vector<std::string>& GetHistory() const;
 	const std::vector<std::string>& GetCommands() const;
-	ScrollZone&               GetScrollZone() { return m_scrollZone; }
+	ScrollZone&                     GetScrollZone() { return m_scrollZone; }
 
 	void Draw() override;
 

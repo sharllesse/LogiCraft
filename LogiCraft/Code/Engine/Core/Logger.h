@@ -40,6 +40,7 @@ SOFTWARE.
 
 namespace Logicraft
 {
+
 class LOGI_ENGINE_API Logger
 {
 public:
@@ -54,11 +55,26 @@ public:
 	Logger();
 	~Logger();
 
-	void Log(ELogLevel level, const std::string& message);
+	void         Log(ELogLevel level, const std::string& message);
 	EventSystem& GetEventSystem() { return m_eventSystem; }
 
 private:
 	std::mutex  m_mutex;
 	EventSystem m_eventSystem;
 };
+
+class EventLog
+{
+public:
+	EventLog(Logger::ELogLevel level, const std::string& message)
+	  : m_level(level)
+	  , m_message(message)
+	{
+	}
+
+	inline static int ID = 3;
+	std::string       m_message;
+	Logger::ELogLevel m_level;
+};
+
 } // namespace Logicraft

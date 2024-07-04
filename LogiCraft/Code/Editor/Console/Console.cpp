@@ -3,11 +3,10 @@
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
 
-
 using namespace Logicraft;
 
-Console::Console(const char* name)
-  : Panel(name)
+Console::Console()
+  : Panel()
   , m_historyPos(-1)
   , m_autoScroll(true)
   , m_scrollZone(ScrollZone("Output"))
@@ -20,9 +19,7 @@ Console::Console(const char* name)
 	MenuItemPtr pOption = std::make_shared<MenuItem>("Clear Console");
 	pMenuOptions->AddChild(pOption);
 	ActionPtr pAction = ActionManager::Get().AddAction("clear_console");
-	pAction->SetCallback([this] {
-		ClearLog();
-	});
+	pAction->SetCallback([this] { ClearLog(); });
 	pOption->SetAction(pAction);
 
 	pOption = std::make_shared<MenuItem>("Search Line");
@@ -46,9 +43,9 @@ Console::Console(const char* name)
 	pOption->SetAction(pAction);
 
 	// push back un objet complet (loglevel + message)
-	Logger::Get().GetEventSystem().AddListener("Log Info", [this](/*Logger::ELogLevel level, const std::string& message*/) {
+	Logger::Get().GetEventSystem().AddListener<EventLog>(this, [this](const EventLog& _event) {
 		// améliorer et utiliser AddLog()
-		AddLog(Logger::eInfo, "Hello World" /* level, message*/);
+		AddLog(_event.m_level, _event.m_message);
 	});
 
 	ClearLog();
@@ -59,6 +56,7 @@ Console::Console(const char* name)
 
 Console::~Console()
 {
+	Logger::Get().GetEventSystem().RemoveListener<EventLog>(this);
 	ClearLog();
 }
 
@@ -79,7 +77,7 @@ void Console::AddLog(Logger::ELogLevel level, const std::string& message)
 		finalMessage = "WARNING: " + message;
 	else if (level == Logger::eError)
 		finalMessage = "ERROR: " + message;
-	//m_items.push_back(std::make_pair("test", finalMessage));
+	// m_items.push_back(std::make_pair("test", finalMessage));
 	m_items.push_back(std::make_pair(level, finalMessage));
 }
 
@@ -91,33 +89,34 @@ void Console::ExecCommand(const std::string& command_line)
 	std::vector<std::string>::iterator it = std::find(m_history.begin(), m_history.end(), command_line);
 	if (it != m_history.end())
 	{
-		m_history.erase(it);
+	  m_history.erase(it);
 	}
 	m_history.push_back(command_line);*/
-	if (std::strcmp(command_line.c_str(), "CLEAR") == 0)
-	{
-		sConsole->ClearLog();
-	}
-	else if (std::strcmp(command_line.c_str(), "HELP") == 0)
-	{
-		sConsole->AddLog(Logger::eCommand, std::string("Commands:"));
-		for (const auto& cmd : sConsole->m_commands)
-		{
-			sConsole->AddLog(Logger::eCommand, std::string("- " + cmd));
-		}
-	}
-	else if (std::strcmp(command_line.c_str(), "HISTORY") == 0)
-	{
-		int first = static_cast<int>(sConsole->m_history.size()) - 10;
-		for (size_t i = first > 0 ? first : 0; i < sConsole->m_history.size(); ++i)
-		{
-			sConsole->AddLog(Logger::eCommand, std::string(std::to_string(i) + ": " + sConsole->m_history[i]));
-		}
-	}
-	else
-	{
-		sConsole->AddLog(Logger::eCommand, std::string("Unknown command: '" + command_line + "'"));
-	}
+
+	// if (std::strcmp(command_line.c_str(), "CLEAR") == 0)
+	//{
+	//	sConsole->ClearLog();
+	// }
+	// else if (std::strcmp(command_line.c_str(), "HELP") == 0)
+	//{
+	//	sConsole->AddLog(Logger::eCommand, std::string("Commands:"));
+	//	for (const auto& cmd : sConsole->m_commands)
+	//	{
+	//		sConsole->AddLog(Logger::eCommand, std::string("- " + cmd));
+	//	}
+	// }
+	// else if (std::strcmp(command_line.c_str(), "HISTORY") == 0)
+	//{
+	//	int first = static_cast<int>(sConsole->m_history.size()) - 10;
+	//	for (size_t i = first > 0 ? first : 0; i < sConsole->m_history.size(); ++i)
+	//	{
+	//		sConsole->AddLog(Logger::eCommand, std::string(std::to_string(i) + ": " + sConsole->m_history[i]));
+	//	}
+	// }
+	// else
+	//{
+	//	sConsole->AddLog(Logger::eCommand, std::string("Unknown command: '" + command_line + "'"));
+	// }
 }
 
 const std::vector<std::string>& Console::GetHistory() const
@@ -176,14 +175,11 @@ int Console::TextEditCallback(ImGuiInputTextCallbackData* data)
 
 void Console::Draw()
 {
-	if (m_visible)
+	m_menuBar.Draw();
+	for (auto& item : m_items)
 	{
-		if (ImGui::Begin(m_name.c_str(), &m_visible, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar))
-		{
-			m_menuBar.Draw();
-			m_scrollZone.Draw();
-			m_inputText.Draw();
-		}
-		ImGui::End();
+		ImGui::Text(item.second.c_str());
 	}
+	m_scrollZone.Draw();
+	m_inputText.Draw();
 }

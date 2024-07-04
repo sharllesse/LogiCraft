@@ -11,7 +11,7 @@ Logicraft::InputText::InputText(const std::string& name)
 
 InputText::~InputText() {}
 
-void Logicraft::InputText::Draw() 
+void Logicraft::InputText::Draw()
 {
 	ImGui::SetItemDefaultFocus();
 	if (ImGui::InputText(m_name.c_str(), m_buffer.data(), m_buffer.capacity(), ImGuiInputTextFlags_EnterReturnsTrue))
@@ -19,8 +19,8 @@ void Logicraft::InputText::Draw()
 		std::string command_line = Console::Strtrim(m_buffer);
 		if (command_line.empty())
 		{
-			Console::Get().GetScrollZone().AddChild(UnformatedText)
-			Console::ExecCommand(command_line);
+			// Console::Get().GetScrollZone().AddChild(UnformatedText)
+			// Console::ExecCommand(command_line);
 		}
 		m_buffer.clear();
 	}

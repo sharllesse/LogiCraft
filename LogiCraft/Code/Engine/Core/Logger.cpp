@@ -65,7 +65,6 @@ void Logger::Log(ELogLevel level, const std::string& message)
 	case ELogLevel::eInfo:
 		{
 			std::cout << "INFO: " << message << std::endl;
-			m_eventSystem.Invoke("Log Info");
 		}
 		break;
 	case ELogLevel::eWarning:
@@ -80,4 +79,5 @@ void Logger::Log(ELogLevel level, const std::string& message)
 		}
 		break;
 	}
+	m_eventSystem.SendEvent(EventLog(level, message));
 }
