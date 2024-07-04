@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Action.h"
 #include "DLLExport.h"
 #include "Serializable.h"
-#include "Utils/SmartPtr.h"
+#include "SmartPtr.h"
 
 #include <functional>
 #include <vector>

@@ -33,58 +33,14 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
-#include "Objects/EditorObjectManager.h"
-#include "Widgets/MainMenu.h"
-
-#include <Engine/Core/Engine.h>
-#include <Engine/Core/EventSystem.h>
-#include <Engine/Core/Profiler.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Time.hpp>
-
-#include <memory>
-#include <vector>
+#include "Objects/GameComponent.h"
 
 namespace Logicraft
 {
-class Editor
+class LOGI_ENGINE_API ComponentSprite : public GameComponent
 {
+	LOGI_DECLARE_COMPONENT(ComponentSprite)
+
 public:
-	enum EEvent
-	{
-		ePanelVisible = Engine::EEvent::eEventCount,
-		eEventCount
-	};
-	static Editor& Get();
-
-	Editor();
-	~Editor();
-	void Run();
-	void ProcessWindowEvents();
-	void ProcessEventSystem();
-	void Update();
-	void Render();
-	void InitImGui();
-	void CreatePanels();
-
-	void      RestartClock() { m_timer = m_clock.restart(); }
-	sf::Int32 GetDeltaTime() const { return m_timer.asMilliseconds(); }
-
-	EventSystem& GetEventSystem() { return *m_pEventSystem; }
-
-private:
-	sf::RenderWindow m_window;
-
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<EventSystem>         m_pEventSystem;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
-
-	std::vector<PanelPtr> m_panels;
-
-	sf::Time  m_timer;
-	sf::Clock m_clock;
 };
 } // namespace Logicraft

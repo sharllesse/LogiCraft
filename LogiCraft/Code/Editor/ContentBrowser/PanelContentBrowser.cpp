@@ -38,14 +38,13 @@ SOFTWARE.
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
+#include <Engine/Core/SmartPtr.h>
 #include <Engine/ResourceSystem/ResourceManager.h>
-#include <Engine/Utils/SmartPtr.h>
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-PanelContentBrowser::PanelContentBrowser(const char* name)
-  : Panel(name)
+PanelContentBrowser::PanelContentBrowser()
 {
 	MenuPtr pMenuNew = make_shared(Menu, "New");
 	m_menuBar.AddChild(pMenuNew);

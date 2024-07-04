@@ -36,14 +36,19 @@ SOFTWARE.
 #include "Widgets/MenuBar.h"
 
 #include <Engine/Core/Serializable.h>
-#include <Engine/Utils/SmartPtr.h>
+#include <Engine/Core/SmartPtr.h>
 
 #include <string>
 #include <vector>
 
 namespace Logicraft
 {
-#define LOGI_DECLARE_PANEL(type, name) inline static PanelTypeRegisterer<type> s_registerer{name};
+#define LOGI_DECLARE_PANEL(type, name)                                 \
+	inline static PanelTypeRegisterer<type> s_registerer{name};          \
+	const char*                             GetTypeName() const override \
+	{                                                                    \
+		return name;                                                       \
+	}
 // How to declare a panel class :
 //	class MyPanelClass : public Panel
 //	{
@@ -55,12 +60,10 @@ namespace Logicraft
 class Panel : public Serializable
 {
 public:
-	Panel(const char* name);
-
 	virtual void Update() {}
 	void         BaseDraw();
 
-	const std::string& GetName() const { return m_name; }
+	virtual const char* GetTypeName() const = 0;
 
 	void SetVisible(bool visible);
 	bool IsVisible() const { return m_visible; }
@@ -74,9 +77,8 @@ protected:
 	void Save() override;
 
 protected:
-	MenuBar     m_menuBar;
-	std::string m_name;
-	bool        m_visible{true};
+	MenuBar m_menuBar;
+	bool    m_visible{true};
 };
 using PanelPtr = std::shared_ptr<Panel>;
 
@@ -85,25 +87,26 @@ class PanelRegisterer
 public:
 	inline static std::vector<PanelRegisterer*> s_registerers;
 
-	PanelRegisterer(const char* panelName)
-	  : m_panelName(panelName)
+	PanelRegisterer(const char* _typename)
+	  : m_typename(_typename)
 	{
 		s_registerers.emplace_back(this);
 	}
 	virtual PanelPtr Create() = 0;
 
 protected:
-	std::string m_panelName;
+	std::string m_typename;
 };
 
-template<typename C>
+template<typename T>
 class PanelTypeRegisterer : public PanelRegisterer
 {
 public:
-	PanelTypeRegisterer(const char* panelName)
-	  : PanelRegisterer(panelName)
+	PanelTypeRegisterer(const char* _typename)
+	  : PanelRegisterer(_typename)
 	{
 	}
-	PanelPtr Create() override { return make_shared(C, m_panelName.c_str()); }
+
+	PanelPtr Create() override { return make_shared(T); }
 };
 } // namespace Logicraft

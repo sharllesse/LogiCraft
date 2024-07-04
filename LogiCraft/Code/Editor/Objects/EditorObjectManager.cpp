@@ -111,3 +111,21 @@ EditorObjectPtr EditorObjectManager::GetObject(REFGUID objectGUID)
 	}
 	return EditorObjectPtr();
 }
+
+void Logicraft::EditorObjectManager::CreateComponent(EditorObjectPtr pObject, const char* editorComponentType)
+{
+	for (auto& pComponentType : EditorComponentRegisterer::s_registerers)
+	{
+		if (pComponentType->GetEditorTypeName().compare(editorComponentType) == 0)
+		{
+			if (GameComponentPtr pGameComponent = GameObjectManager::Get().CreateComponent(pComponentType->GetGameTypeName().c_str()))
+			{
+				EditorComponentPtr pEditorComponent = pComponentType->Create();
+				pEditorComponent->SetGameComponent(pGameComponent);
+				pObject->AddComponent(pEditorComponent);
+			}
+		}
+	}
+	std::string message = "Component type " + std::string(editorComponentType) + " does not exist!";
+	Logger::Get().Log(Logger::eError, message);
+}

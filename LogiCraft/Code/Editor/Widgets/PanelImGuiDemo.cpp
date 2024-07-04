@@ -38,11 +38,6 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-PanelImGuiDemo::PanelImGuiDemo(const char* name)
-  : Panel(name)
-{
-}
-
 void PanelImGuiDemo::Draw()
 {
 	ImGui::ShowDemoWindow();

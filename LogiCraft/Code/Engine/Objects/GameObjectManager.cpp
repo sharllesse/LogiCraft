@@ -34,7 +34,7 @@ SOFTWARE.
 
 #include "GameObjectManager.h"
 #include "Engine/Core/Engine.h"
-#include "Engine/Utils/SmartPtr.h"
+#include "Engine/Core/SmartPtr.h"
 
 #include <assert.h>
 
@@ -76,6 +76,22 @@ GameObjectPtr GameObjectManager::CreateObject()
 	GameObjectPtr pNewObject = make_shared(GameObject);
 	m_objects.push_back(pNewObject);
 	return pNewObject;
+}
+
+GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
+{
+	for (auto& pComponentType : ComponentRegisterer::s_registerers)
+	{
+		if (pComponentType->GetTypeName().compare(componentType) == 0)
+		{
+			GameComponentPtr pComponent = pComponentType->Create();
+			m_components.push_back(pComponent);
+			return pComponent;
+		}
+	}
+	std::string message = "Component type " + std::string(componentType) + " does not exist!";
+	Logger::Get().Log(Logger::eError, message);
+	return nullptr;
 }
 
 void GameObjectManager::RemoveObject(REFGUID objectGUID)

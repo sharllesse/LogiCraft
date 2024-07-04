@@ -5,7 +5,6 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
-Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -34,30 +33,19 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "DLLExport.h"
-#include <functional>
-#include <iostream>
-#include <mutex>
-#include <unordered_map>
-#include <vector>
+#include "Objects/EditorComponent.h"
+
+#include <Engine/Objects/Components/ComponentSprite.h>
+#include <memory>
+#include <string>
 
 namespace Logicraft
 {
-class LOGI_ENGINE_API Event
+class EditorComponentSprite : public EditorComponent
 {
+	LOGI_DECLARE_EDITOR_COMPONENT(EditorComponentSprite, ComponentSprite)
+
 public:
-	Event();
-	~Event();
-
-	int  AddListener(std::function<void()> _func);
-	bool RemoveListener(int _id);
-
-	void Invoke();
-
-private:
-	std::unordered_map<int, std::function<void()>> m_listeners;
-
-	std::mutex m_mutex;
-	int        m_listenerID;
+	void DrawUI() const override;
 };
 } // namespace Logicraft

@@ -5,7 +5,6 @@ Copyright (c) 2024 CIRON Robin
 Copyright (c) 2024 GRALLAN Yann
 Copyright (c) 2024 LESAGE Charles
 Copyright (c) 2024 MENA-BOUR Samy
-Copyright (c) 2024 TORRES Theo
 
 This software utilizes code from the following GitHub repositories, which are also licensed under the MIT License:
 
@@ -33,35 +32,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Event.h"
-
-using namespace Logicraft;
-
-Event::Event()
-{
-	m_listenerID = 0;
-}
-
-Event::~Event() {}
-
-int Event::AddListener(std::function<void()> _func)
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-	m_listeners[m_listenerID] = _func;
-	return m_listenerID++;
-}
-
-bool Event::RemoveListener(int _id)
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_listeners.erase(_id);
-}
-
-void Event::Invoke()
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-	for (auto& func : m_listeners)
-	{
-		func.second();
-	}
-}
+#include "ComponentSprite.h"

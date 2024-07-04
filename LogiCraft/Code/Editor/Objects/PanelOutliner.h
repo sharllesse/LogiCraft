@@ -42,7 +42,7 @@ class PanelOutliner : public Panel
 	LOGI_DECLARE_PANEL(PanelOutliner, "Outliner")
 
 public:
-	PanelOutliner(const char* name);
+	PanelOutliner();
 
 protected:
 	void Draw() override;

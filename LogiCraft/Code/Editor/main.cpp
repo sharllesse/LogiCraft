@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Core/Editor.h"
 
 #include <Engine/Core/ActionManager.h>
-#include <Engine/Utils/SmartPtr.h>
+#include <Engine/Core/SmartPtr.h>
 #include <vector>
 
 int main(int argc, char* argv[])

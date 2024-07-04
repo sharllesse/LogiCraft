@@ -40,14 +40,13 @@ SOFTWARE.
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
-#include <Engine/Utils/SmartPtr.h>
+#include <Engine/Core/SmartPtr.h>
 
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-Logicraft::PanelOutliner::PanelOutliner(const char* name)
-  : Panel(name)
+Logicraft::PanelOutliner::PanelOutliner()
 {
 	MenuPtr pMenuNew = make_shared(Menu, "New Object");
 	m_menuBar.AddChild(pMenuNew);
