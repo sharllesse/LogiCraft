@@ -33,17 +33,46 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include <Engine/ResourceSystem/Resource.h>
+#include "EditorResource.h"
+
+#include <Engine/Core/Serializable.h>
+
+#include <string>
+#include <vector>
 
 namespace Logicraft
 {
-class EditorResource
+class EditorResourceManager : public Serializable
 {
-	LOGI_TYPEDEF_LINKED_BASE_TYPE(EditorResource, Resource)
-
 public:
+	static EditorResourceManager& Get();
+
+	EditorResourceManager();
+	~EditorResourceManager();
+
+	EditorResourcePtr CreateResource(const char* resourceType);
+
+	template<typename T>
+	std::shared_ptr<T> Find(const std::string& name)
+	{
+		for (auto& pResource : m_resources)
+		{
+			if (pResource->GetName() == name)
+			{
+				return pResource.get();
+			}
+		}
+		return nullptr;
+	}
+
+	const std::vector<EditorResourcePtr>& GetResources() const { return m_resources; }
+
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
-	std::string m_name;
+	void Load() override;
+
+private:
+	std::vector<EditorResourcePtr> m_resources;
 };
 } // namespace Logicraft

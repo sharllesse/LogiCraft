@@ -32,35 +32,62 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include <Engine/ResourceSystem/Resource.h>
+#include "EditorResourceManager.h"
 
-namespace Logicraft
+#include <Engine/Core/Logger.h>
+#include <Engine/ResourceSystem/ResourceManager.h>
+#include <assert.h>
+#include <format>
+
+using namespace Logicraft;
+
+EditorResourceManager* s_pEditorResourceManager = nullptr;
+
+EditorResourceManager& EditorResourceManager::Get()
 {
-#define LOGI_DECLARE_EDITOR_COMPONENT(editorComponentType, gameComponentType)                                              \
-	inline static EditorComponentTypeRegisterer<editorComponentType> s_registerer{#editorComponentType, #gameComponentType}; \
-	EditorComponentRegisterer&                                       GetTypeClass() const override                           \
-	{                                                                                                                        \
-		return s_registerer;                                                                                                   \
+	assert(s_pEditorResourceManager);
+	return *s_pEditorResourceManager;
+}
+
+EditorResourceManager::EditorResourceManager()
+{
+	assert(!s_pEditorResourceManager);
+	s_pEditorResourceManager = this;
+}
+
+EditorResourceManager::~EditorResourceManager()
+{
+	s_pEditorResourceManager = nullptr;
+}
+
+EditorResourcePtr EditorResourceManager::CreateResource(const char* resourceType)
+{
+	for (auto& pResourceType : EditorResource::GetRegisteredTypes())
+	{
+		if (pResourceType->GetName().compare(resourceType) == 0)
+		{
+			EditorResourcePtr pEditorResource = pResourceType->Create();
+			std::string       name            = std::format("{}_{}", resourceType, m_resources.size());
+			pEditorResource->SetName(name);
+			m_resources.push_back(pEditorResource);
+
+			ResourcePtr pGameResource = ResourceManager::Get().CreateResource(resourceType);
+			pEditorResource->SetResource(pGameResource);
+			return pEditorResource;
+		}
 	}
-// How to declare a component class :
-//	class MyComponentClass : public EditorComponent
-//	{
-//		LOGI_DECLARE_EDITOR_COMPONENT(MyComponentClass)
-// 	public:
-// 		...
-//	};
+	std::string message = "Resource type " + std::string(resourceType) + " does not exist!";
+	Logger::Get().Log(Logger::eError, message);
+	return nullptr;
+}
 
-class EditorResource
+void EditorResourceManager::Serialize(bool load, JsonObjectPtr pJsonObject)
+
 {
-	LOGI_DECLARE_RESOURCE(Texture)
+	if (load) {}
+	else // Save
+	{
+	}
+}
 
-public:
-	void         Serialize(bool load, JsonObjectPtr pJsonObject) override;
-	sf::Texture& GetTexture() { return m_texture; }
-
-protected:
-	sf::Texture m_texture;
-	std::string m_filePath;
-};
-} // namespace Logicraft
+void EditorResourceManager::Load() {}

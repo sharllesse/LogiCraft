@@ -31,3 +31,51 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
+#include "PanelResourceEditor.h"
+#include "Objects/EditorComponent.h"
+#include "ResourceSystem/EditorResource.h"
+#include "ResourceSystem/EditorResourceManager.h"
+#include "Widgets/Menu.h"
+
+#include <Engine/Core/Action.h>
+#include <Engine/Core/ActionManager.h>
+#include <Engine/Core/TaskManager.h>
+#include <imgui/imgui.h>
+
+using namespace Logicraft;
+
+Logicraft::PanelResourceEditor::PanelResourceEditor()
+{
+	MenuPtr pMenuNew = make_shared(Menu, "New");
+	m_menuBar.AddChild(pMenuNew);
+
+	for (auto& pResourceType : EditorResource::GetRegisteredTypes())
+	{
+		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
+		pMenuNew->AddChild(pItemNew);
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
+		pAction->SetCallback([this, pResourceType] {
+			m_createNewResource    = true;
+			m_resourceTypeToCreate = pResourceType->GetName();
+		});
+		pItemNew->SetAction(pAction);
+	}
+}
+
+void Logicraft::PanelResourceEditor::Update()
+{
+	// Don't create directly in the action (during rendering) as it can crash sfml
+	if (m_createNewResource && !m_resourceTypeToCreate.empty())
+	{
+		m_pEditedResource   = EditorResourceManager::Get().CreateResource(m_resourceTypeToCreate.c_str());
+		m_createNewResource = false;
+	}
+}
+
+void Logicraft::PanelResourceEditor::Draw()
+{
+	if (m_pEditedResource)
+	{
+		m_pEditedResource->DrawUI();
+	}
+}

@@ -32,15 +32,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "PanelContentBrowser.h"
-#include "Widgets/Menu.h"
-#include "Widgets/MenuItem.h"
+#pragma once
+#include "Core/Panel.h"
 
-#include <Engine/ResourceSystem/ResourceManager.h>
-#include <imgui/imgui.h>
+#include <SFML/Graphics/Texture.hpp>
 
-using namespace Logicraft;
+namespace Logicraft
+{
+class PanelContentBrowser : public Panel
+{
+	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelContentBrowser, "Content Browser")
 
-PanelContentBrowser::PanelContentBrowser() {}
+public:
+	PanelContentBrowser();
 
-void PanelContentBrowser::Draw() {}
+protected:
+	void Draw() override;
+
+private:
+	sf::Texture t;
+};
+} // namespace Logicraft

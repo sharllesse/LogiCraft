@@ -35,6 +35,7 @@ SOFTWARE.
 #pragma once
 #include "Core/Panel.h"
 #include "Objects/EditorObjectManager.h"
+#include "ResourceSystem/EditorResourceManager.h"
 #include "Widgets/MainMenu.h"
 
 #include <Engine/Core/Engine.h>
@@ -77,10 +78,11 @@ public:
 private:
 	sf::RenderWindow m_window;
 
-	std::unique_ptr<EditorObjectManager> m_pEditorObjectManager;
-	std::unique_ptr<Engine>              m_pEngine;
-	std::unique_ptr<EventSystem>         m_pEventSystem;
-	std::unique_ptr<MainMenu>            m_pMainMenu;
+	std::unique_ptr<EditorObjectManager>   m_pEditorObjectManager;
+	std::unique_ptr<EditorResourceManager> m_pEditorResourceManager;
+	std::unique_ptr<Engine>                m_pEngine;
+	std::unique_ptr<EventSystem>           m_pEventSystem;
+	std::unique_ptr<MainMenu>              m_pMainMenu;
 
 	std::vector<PanelPtr> m_panels;
 

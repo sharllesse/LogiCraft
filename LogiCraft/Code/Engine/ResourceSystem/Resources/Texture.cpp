@@ -36,6 +36,8 @@ SOFTWARE.
 
 using namespace Logicraft;
 
+Logicraft::Texture::Texture() {}
+
 void Texture::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
 	Resource::Serialize(load, pJsonObject);
@@ -44,7 +46,7 @@ void Texture::Serialize(bool load, JsonObjectPtr pJsonObject)
 	{
 		if (pJsonObject->GetString("FilePath", m_filePath))
 		{
-			m_texture.loadFromFile(m_filePath);
+			// m_texture.loadFromFile(m_filePath);
 		}
 	}
 	else

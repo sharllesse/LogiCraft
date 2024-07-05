@@ -52,6 +52,7 @@ public:
 	{
 		eObjectCreated = 0,
 		eObjectLoaded,
+		eProcessedEvents,
 		eActionExecuteRequested,
 		eEventCount
 	};
@@ -62,6 +63,7 @@ public:
 	~Engine();
 
 	void Init();
+	void ProcessEvents();
 	void Update();
 	void Render();
 	void Release();

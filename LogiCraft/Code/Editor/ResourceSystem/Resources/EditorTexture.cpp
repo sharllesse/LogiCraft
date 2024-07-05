@@ -1,3 +1,4 @@
+#include "EditorTexture.h"
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
@@ -31,3 +32,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
+#include "EditorTexture.h"
+
+#include <Engine/Core/ActionManager.h>
+#include <Engine/ResourceSystem/Resources/Texture.h>
+#include <imgui.h>
+
+Logicraft::EditorTexture::EditorTexture()
+{
+	m_pActionSelectPath = ActionManager::Get().AddAction("Select_Texture_Path");
+	m_pActionSelectPath->SetCallback([this] {
+		m_pTexture->SetFilePath("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
+		m_pTexture->GetTexture().loadFromFile("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
+	});
+}
+
+void Logicraft::EditorTexture::DrawUI()
+{
+	EditorResource::DrawUI();
+
+	if (m_pTexture)
+	{
+		if (ImGui::Button(m_pTexture->GetFilePath().empty() ? "<Select A File>" : m_pTexture->GetFilePath().c_str()))
+		{
+			m_pActionSelectPath->ExecuteLater();
+		}
+	}
+}

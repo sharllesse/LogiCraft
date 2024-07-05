@@ -59,7 +59,7 @@ void MenuItem::Draw()
 	if (ImGui::MenuItem(m_name.c_str(), shortcut, m_checkEnabled ? &m_checked : nullptr))
 	{
 		if (m_pAction)
-			m_pAction->Execute();
+			m_pAction->ExecuteLater();
 	}
 	for (MenuItemPtr& child : m_children)
 	{

@@ -33,28 +33,25 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
+#include "ResourceSystem/EditorResource.h"
 
-#include <Engine/ResourceSystem/Resource.h>
-#include <mutex>
+#include <Engine/Core/Action.h>
+#include <Engine/ResourceSystem/Resources/Texture.h>
 
 namespace Logicraft
 {
-class PanelResourceEditor : public Panel
+class EditorTexture : public EditorResource
 {
-	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelResourceEditor, "Resource Editor")
+	LOGI_TYPEDEF_LINKED_DERIVED_TYPE(EditorResource, EditorTexture, Texture, "Texture")
 
 public:
-	PanelResourceEditor();
+	EditorTexture();
 
-protected:
-	void        SetEditedResource(ResourcePtr pResource);
-	ResourcePtr GetEditedResource() const;
-
-	void Draw() override;
+	void DrawUI() override;
 
 private:
-	mutable std::mutex m_mutex;
-	ResourcePtr        m_pEditedResource;
+	TexturePtr m_pTexture;
+	ActionPtr  m_pActionSelectPath;
 };
+using EditorTexturePtr = std::shared_ptr<EditorTexture>;
 } // namespace Logicraft

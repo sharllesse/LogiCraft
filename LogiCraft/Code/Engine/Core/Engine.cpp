@@ -70,6 +70,12 @@ void Engine::Init()
 	m_pResourceManager->StartLoading();
 }
 
+void Logicraft::Engine::ProcessEvents()
+{
+	m_pEventSystem->QueueEvent(eProcessedEvents);
+	m_pEventSystem->ProcessEvents();
+}
+
 void Engine::Update()
 {
 	// PROFILE_FUNCTION

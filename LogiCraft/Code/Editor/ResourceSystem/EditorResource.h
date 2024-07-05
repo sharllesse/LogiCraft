@@ -33,18 +33,24 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Panel.h"
+#include <Engine/ResourceSystem/Resource.h>
 
 namespace Logicraft
 {
-class PanelContentBrowser : public Panel
+class EditorResource
 {
-	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelContentBrowser, "Content Browser")
+	LOGI_TYPEDEF_LINKED_BASE_TYPE(EditorResource, Resource)
 
 public:
-	PanelContentBrowser();
+	virtual void DrawUI();
+
+	void               SetResource(ResourcePtr pResource) { m_pResource = pResource; }
+	void               SetName(const std::string& name) { m_name = name; }
+	const std::string& GetName() const { return m_name; }
 
 protected:
-	void Draw() override;
+	ResourcePtr m_pResource;
+	std::string m_name;
 };
+using EditorResourcePtr = std::shared_ptr<EditorResource>;
 } // namespace Logicraft

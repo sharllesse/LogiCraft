@@ -49,7 +49,8 @@ public:
 	const GameComponentPtr GetGameComponent() const { return m_pGameComponent; }
 	void                   SetGameComponent(GameComponentPtr pGameComponent) { m_pGameComponent = pGameComponent; }
 
-	virtual void DrawUI() const = 0;
+	virtual void Update();
+	virtual void DrawUI();
 
 protected:
 	GameComponentPtr m_pGameComponent;

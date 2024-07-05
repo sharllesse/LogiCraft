@@ -1,3 +1,4 @@
+#include "EditorResource.h"
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
@@ -31,69 +32,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
+#include "EditorResource.h"
 
-#pragma once
-#include "Core/Serializable.h"
-#include "Core/SmartPtr.h"
-#include "DLLExport.h"
-#include "Resource.h"
-#include "Utils/GuidUtils.h"
+#include <imgui.h>
 
-#include <map>
-#include <string>
-#include <vector>
+using namespace Logicraft;
 
-namespace Logicraft
+void Logicraft::EditorResource::DrawUI()
 {
-class LOGI_ENGINE_API ResourceManager : public Serializable
-{
-	enum EFileFormat
+	std::string bufferName = m_name;
+	bufferName.reserve(256);
+	if (ImGui::InputText("Name", bufferName, sizeof(bufferName)))
 	{
-		eJson,
-		eBinary
-	};
-
-public:
-	static ResourceManager& Get();
-
-	ResourceManager();
-	~ResourceManager();
-
-	void SetFileFormat(EFileFormat format) { m_fileFormat = format; }
-
-	template<typename T>
-	ResourcePtr CreateResource()
-	{
-		ResourcePtr pResource = make_shared(T);
-		m_loadedResources.push_back(pResource);
-		return pResource;
+		SetName(bufferName);
 	}
-	ResourcePtr CreateResource(const char* resourceType);
-
-	template<typename T>
-	std::shared_ptr<T> Find(REFGUID guid)
-	{
-		for (auto& pResource : m_loadedResources)
-		{
-			if (pResource->GetGUID() == guid)
-			{
-				return pResource;
-			}
-		}
-		return nullptr;
-	}
-
-	const std::vector<ResourcePtr>& GetLoadedResources() const { return m_loadedResources; }
-
-	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
-
-protected:
-	void Load() override;
-
-private:
-	std::map<GUID, std::string, GuidUtils::GUIDComparer> m_resourcesToFiles;
-	std::vector<ResourcePtr>                             m_loadedResources;
-	std::vector<GUID>                                    m_resourcesToLoad;
-	EFileFormat                                          m_fileFormat{eBinary};
-};
-} // namespace Logicraft
+}

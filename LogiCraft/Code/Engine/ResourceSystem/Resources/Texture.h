@@ -47,11 +47,17 @@ class LOGI_ENGINE_API Texture : public Resource
 	LOGI_TYPEDEF_DERIVED_TYPE(Resource, Texture, "Texture")
 
 public:
-	void         Serialize(bool load, JsonObjectPtr pJsonObject) override;
-	sf::Texture& GetTexture() { return m_texture; }
+	Texture();
+
+	sf::Texture&       GetTexture() { return m_texture; }
+	const std::string& GetFilePath() const { return m_filePath; }
+	void               SetFilePath(const std::string& filePath) { m_filePath = filePath; }
+
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	sf::Texture m_texture;
 	std::string m_filePath;
 };
+using TexturePtr = std::shared_ptr<Texture>;
 } // namespace Logicraft

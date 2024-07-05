@@ -78,8 +78,7 @@ void Logicraft::PanelObject::Draw()
 
 		for (auto& pComponent : m_pSelectedObject->GetComponents())
 		{
-			// ImGui::Text(pComponent->GetTypeClass().GetGameTypeName().c_str());
-			// pComponent->DrawUI();
+			pComponent->DrawUI();
 		}
 	}
 }

@@ -63,6 +63,10 @@ public:                                                        \
 	{                                                            \
 		return s_typeDef;                                          \
 	}                                                            \
+	static TDef& GetTypeStatic()                                 \
+	{                                                            \
+		return s_typeDef;                                          \
+	}                                                            \
                                                                \
 private:                                                       \
 	inline static TDef s_typeDef{NAME};
@@ -81,7 +85,7 @@ public:                                                 \
                                                         \
 private:
 
-#define LOGI_TYPEDEF_LINKED_DERIVED_TYPE(BASETYPE, DERIVEDTYPE, LINKEDTYPE)                                          \
+#define LOGI_TYPEDEF_LINKED_DERIVED_TYPE(BASETYPE, DERIVEDTYPE, LINKEDTYPE, NAME)                                    \
                                                                                                                      \
 public:                                                                                                              \
 	using TDef = DerivedLinkedTypeDefinition<BASETYPE, DERIVEDTYPE, LINKEDTYPE::TDef::TDefParent::TClass, LINKEDTYPE>; \
@@ -90,9 +94,13 @@ public:                                                                         
 	{                                                                                                                  \
 		return s_typeDef;                                                                                                \
 	}                                                                                                                  \
+	static TDef& GetTypeStatic()                                                                                       \
+	{                                                                                                                  \
+		return s_typeDef;                                                                                                \
+	}                                                                                                                  \
                                                                                                                      \
 private:                                                                                                             \
-	inline static TDef s_typeDef{"p"};
+	inline static TDef s_typeDef{NAME};
 
 template<typename BaseType>
 class TypeDefinition
@@ -159,15 +167,17 @@ class DerivedLinkedTypeDefinition : public LinkedTypeDefinition<BaseType, BaseLi
 public:
 	using TClass     = DerivedType;
 	using TDefParent = LinkedTypeDefinition<BaseType, BaseLinkedType>;
+	using TLinkedDef = DerivedTypeDefinition<BaseLinkedType, DerivedLinkedType>;
 
 	explicit DerivedLinkedTypeDefinition(const char* typeName)
-	  : LinkedTypeDefinition<BaseType, BaseLinkedType>(typeName)
+	  : TDefParent(typeName)
 	{
+		m_linkedType = &DerivedLinkedType::GetTypeStatic();
 	}
-	std::shared_ptr<BaseType>                     Create() const override { return make_shared(DerivedType); }
-	virtual const TypeDefinition<BaseLinkedType>* GetLinkedType() const { return &m_linkedType; }
+	std::shared_ptr<BaseType> Create() const override { return make_shared(DerivedType); }
+	virtual const TLinkedDef* GetLinkedType() const { return m_linkedType; }
 
 private:
-	DerivedTypeDefinition<BaseLinkedType, DerivedLinkedType> m_linkedType{""};
+	TLinkedDef* m_linkedType{nullptr};
 };
 } // namespace Logicraft

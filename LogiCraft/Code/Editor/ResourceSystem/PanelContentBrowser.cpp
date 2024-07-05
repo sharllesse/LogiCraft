@@ -32,68 +32,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#pragma once
-#include "Core/Serializable.h"
-#include "Core/SmartPtr.h"
-#include "DLLExport.h"
-#include "Resource.h"
-#include "Utils/GuidUtils.h"
+#include "PanelContentBrowser.h"
+#include "Widgets/Menu.h"
+#include "Widgets/MenuItem.h"
 
-#include <map>
-#include <string>
-#include <vector>
+#include <Engine/ResourceSystem/ResourceManager.h>
+#include <imgui/imgui-SFML.h>
+#include <imgui/imgui.h>
 
-namespace Logicraft
+using namespace Logicraft;
+
+PanelContentBrowser::PanelContentBrowser()
 {
-class LOGI_ENGINE_API ResourceManager : public Serializable
+	t.create(200, 200);
+}
+
+void PanelContentBrowser::Draw()
 {
-	enum EFileFormat
+	for (auto& resource : ResourceManager::Get().GetLoadedResources())
 	{
-		eJson,
-		eBinary
-	};
-
-public:
-	static ResourceManager& Get();
-
-	ResourceManager();
-	~ResourceManager();
-
-	void SetFileFormat(EFileFormat format) { m_fileFormat = format; }
-
-	template<typename T>
-	ResourcePtr CreateResource()
-	{
-		ResourcePtr pResource = make_shared(T);
-		m_loadedResources.push_back(pResource);
-		return pResource;
+		ImGui::Image(t, sf::Color::Red, sf::Color::White);
+		//  if (ImGui::TreeNode(resource->GetType().GetName().c_str()))
+		//{
+		//	ImGui::TreePop();
+		//  }
 	}
-	ResourcePtr CreateResource(const char* resourceType);
-
-	template<typename T>
-	std::shared_ptr<T> Find(REFGUID guid)
-	{
-		for (auto& pResource : m_loadedResources)
-		{
-			if (pResource->GetGUID() == guid)
-			{
-				return pResource;
-			}
-		}
-		return nullptr;
-	}
-
-	const std::vector<ResourcePtr>& GetLoadedResources() const { return m_loadedResources; }
-
-	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
-
-protected:
-	void Load() override;
-
-private:
-	std::map<GUID, std::string, GuidUtils::GUIDComparer> m_resourcesToFiles;
-	std::vector<ResourcePtr>                             m_loadedResources;
-	std::vector<GUID>                                    m_resourcesToLoad;
-	EFileFormat                                          m_fileFormat{eBinary};
-};
-} // namespace Logicraft
+}

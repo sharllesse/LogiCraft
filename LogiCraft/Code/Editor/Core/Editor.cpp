@@ -58,10 +58,11 @@ Editor::Editor()
 	s_pEditor = this;
 
 	// alphabetical order, no dependencies
-	m_pEditorObjectManager = std::make_unique<EditorObjectManager>();
-	m_pEngine              = std::make_unique<Engine>();
-	m_pEventSystem         = std::make_unique<EventSystem>();
-	m_pMainMenu            = std::make_unique<MainMenu>();
+	m_pEditorObjectManager   = std::make_unique<EditorObjectManager>();
+	m_pEditorResourceManager = std::make_unique<EditorResourceManager>();
+	m_pEngine                = std::make_unique<Engine>();
+	m_pEventSystem           = std::make_unique<EventSystem>();
+	m_pMainMenu              = std::make_unique<MainMenu>();
 }
 
 Editor::~Editor()
@@ -124,6 +125,7 @@ void Editor::ProcessWindowEvents()
 
 void Editor::ProcessEventSystem()
 {
+	m_pEngine->ProcessEvents();
 	GetEventSystem().ProcessEvents();
 }
 

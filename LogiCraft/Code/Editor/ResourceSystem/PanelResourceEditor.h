@@ -31,53 +31,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
-#include "PanelResourceEditor.h"
-#include "Objects/EditorComponent.h"
-#include "Widgets/Menu.h"
 
-#include <Engine/Core/Action.h>
-#include <Engine/Core/ActionManager.h>
-#include <Engine/Core/TaskManager.h>
-#include <Engine/ResourceSystem/Resource.h>
-#include <Engine/ResourceSystem/ResourceManager.h>
-#include <imgui/imgui.h>
+#pragma once
+#include "Core/Panel.h"
+#include "ResourceSystem/EditorResource.h"
 
-using namespace Logicraft;
+#include <mutex>
 
-Logicraft::PanelResourceEditor::PanelResourceEditor()
+namespace Logicraft
 {
-	MenuPtr pMenuNew = make_shared(Menu, "New");
-	m_menuBar.AddChild(pMenuNew);
-
-	for (auto& pResourceType : Resource::GetRegisteredTypes())
-	{
-		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
-		pMenuNew->AddChild(pItemNew);
-		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
-		pAction->SetCallback([this, pResourceType] {
-			TaskManager::Get().AddTask(
-			  [this, pResourceType] { SetEditedResource(ResourceManager::Get().CreateResource(pResourceType->GetName().c_str())); });
-		});
-		pItemNew->SetAction(pAction);
-	}
-}
-
-void Logicraft::PanelResourceEditor::SetEditedResource(ResourcePtr pResource)
+class PanelResourceEditor : public Panel
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
-	m_pEditedResource = pResource;
-}
+	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelResourceEditor, "Resource Editor")
 
-ResourcePtr Logicraft::PanelResourceEditor::GetEditedResource() const
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_pEditedResource;
-}
+public:
+	PanelResourceEditor();
 
-void Logicraft::PanelResourceEditor::Draw()
-{
-	if (m_pEditedResource)
-	{
-		// m_pEditedResource->Draw();
-	}
-}
+	void Update() override;
+
+protected:
+	void Draw() override;
+
+private:
+	bool              m_createNewResource{false};
+	std::string       m_resourceTypeToCreate;
+	EditorResourcePtr m_pEditedResource;
+};
+} // namespace Logicraft

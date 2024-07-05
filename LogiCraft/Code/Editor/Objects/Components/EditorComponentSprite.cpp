@@ -33,7 +33,34 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "EditorComponentSprite.h"
+#include "ResourceSystem/EditorResourceManager.h"
+
+#include <imgui.h>
 
 using namespace Logicraft;
 
-void Logicraft::EditorComponentSprite::DrawUI() const {}
+void Logicraft::EditorComponentSprite::Update() {}
+
+void Logicraft::EditorComponentSprite::DrawUI()
+{
+	EditorComponent::DrawUI();
+	if (ImGui::BeginCombo("Texture", m_pTexture ? m_pTexture->GetName().c_str() : "<Select A Texture>", ImGuiComboFlags_HeightLargest))
+	{
+		for (auto& pResource : EditorResourceManager::Get().GetResources())
+		{
+			if (&pResource->GetType() == &EditorTexture::GetTypeStatic())
+			{
+				const bool isSelected = (m_pTexture == pResource);
+				if (ImGui::Selectable(pResource->GetName().c_str(), isSelected))
+				{
+					m_pTexture = std::dynamic_pointer_cast<EditorTexture>(pResource);
+				}
+				if (isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+		}
+		ImGui::EndCombo();
+	}
+}
