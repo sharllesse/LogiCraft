@@ -189,7 +189,7 @@ void Editor::CreatePanels()
 		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
 		pItem->SetAction(pAction);
 
-		GetEventSystem().AddListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
+		GetEventSystem().AddQueuedEventCallback(this, ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
 
 	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return strcmp(a->GetTypeName(), b->GetTypeName()) < 0; });

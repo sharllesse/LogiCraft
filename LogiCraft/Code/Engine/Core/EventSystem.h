@@ -33,39 +33,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-// namespace Logicraft
-//{
-// class LOGI_ENGINE_API EventSystem
-//{
-// public:
-//	EventSystem();
-//	~EventSystem();
-//
-//	EventSystem(EventSystem&&)      = delete;
-//	EventSystem(const EventSystem&) = delete;
-//
-//	EventSystem& operator=(EventSystem&&)      = delete;
-//	EventSystem& operator=(const EventSystem&) = delete;
-//
-//	struct CallBack
-//	{
-//		void* listenerAdress;
-//		int   eventID;
-//	};
-//
-//	int  AddListener(int eventID, std::function<void()> _func);
-//	bool RemoveListener(int eventID, int _listenerID);
-//	void QueueEvent(int eventID);
-//	void ProcessEvents();
-//
-// private:
-//	std::unordered_map<int, Event> m_events;
-//
-//	std::queue<int> m_queueEvents;
-//	std::mutex      m_mutex;
-// };
-// } // namespace Logicraft
-
 #pragma once
 #include "DLLExport.h"
 
@@ -80,32 +47,57 @@ namespace Logicraft
 {
 class LOGI_ENGINE_API Event
 {
+	using CallBackPair = std::pair<void*, std::function<void()>>;
+
 public:
-	Event();
-	~Event();
+	Event()  = default;
+	~Event() = default;
 
-	int  AddListener(std::function<void()> _func);
-	bool RemoveListener(int _id);
+	Event(Event&&)                 = delete;
+	Event(const Event&)            = delete;
+	Event& operator=(Event&&)      = delete;
+	Event& operator=(const Event&) = delete;
 
+	// To add a call back in the event using the adress of the call back owner and the void() function
+	template<typename TCallBackOwner>
+	void AddCallBack(TCallBackOwner* pCallBackOwner, std::function<void()> func)
+	{
+		CallBackPair cb = {(void*)pCallBackOwner, func};
+		m_callBacks.push_back(std::move(cb));
+	}
+
+	// To remove a call back in the event using the adress of the call back owner
+	template<typename TCallBackOwner>
+	void RemoveCallBack(TCallBackOwner* pCallBackOwner)
+	{
+		m_callBacks.erase(
+		  std::remove_if(m_callBacks.begin(), m_callBacks.end(), [pCallBackOwner](CallBackPair& pair) { return (pair.first == pCallBackOwner); }),
+		  m_callBacks.end());
+	}
+	// To invoke all call backs in this event
 	void Invoke();
 
 private:
-	std::unordered_map<int, std::function<void()>> m_listeners;
-
-	std::mutex m_mutex;
-	int        m_listenerID;
+	std::vector<CallBackPair> m_callBacks;
+	std::mutex                m_mutex;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+// To use to create an unique id for call back in class
+#define GET_UNIQUE_CALL_BACK_ID inline static int ID = EventSystem::s_callBackID++;
 
 class LOGI_ENGINE_API EventSystem
 {
 	struct CallBack
 	{
-		void* listenerAdress;
-		int   eventID;
+		void* callBackOwnerAdress;
+		int   eventID; // Unique ID for each Event
 	};
 	using CallBackPair = std::pair<CallBack, std::function<void(void*)>>;
 
 public:
+	inline static int s_callBackID = 0;
+
 	EventSystem()  = default;
 	~EventSystem() = default;
 
@@ -114,38 +106,57 @@ public:
 	EventSystem& operator=(EventSystem&&)      = delete;
 	EventSystem& operator=(const EventSystem&) = delete;
 
-	int  AddAsyncListener(int eventID, std::function<void()> _func);
-	bool RemoveAsyncListener(int eventID, int _listenerID);
+	// To add a call back in the event using the adress of the call back owner, the enum of the event and a void() function
+	template<typename TCallBackOwner>
+	void AddQueuedEventCallback(TCallBackOwner* pCallBackOwner, int eventID, std::function<void()> func)
+	{
+		m_queuedCallBacks[eventID].AddCallBack(pCallBackOwner, func);
+	}
+
+	// To remove a call back in the event using the adress of the call back owner and the enum of the event
+	template<typename TCallBackOwner>
+	void RemoveQueuedEventCallBack(TCallBackOwner* pCallBackOwner, int eventID)
+	{
+		auto it = m_queuedCallBacks.find(eventID);
+		if (it != m_queuedCallBacks.end())
+		{
+			m_queuedCallBacks[eventID].RemoveCallBack(pCallBackOwner);
+		}
+	}
+
+	// To put an event in the queue to be proccess
 	void QueueEvent(int eventID);
+
+	// Proccess events wich there are in queue
 	void ProcessEvents();
 
-	template<typename TEvent, typename TListener>
-	void AddListener(TListener* listener, std::function<void(const TEvent&)>&& func)
+	// To add a call back in the event system using the adress of the call back owner and a function with args
+	template<typename TEvent, typename TCallBackOwner>
+	void AddCallBack(TCallBackOwner* pCallBackOwner, std::function<void(const TEvent&)>&& func)
 	{
-		CallBack cb = {(void*)listener, TEvent::ID};
+		CallBack cb = {(void*)pCallBackOwner, TEvent::ID};
 
 		CallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
 
-		m_listeners.push_back(std::move(pair));
+		m_callBacks.push_back(std::move(pair));
 	}
 
-	template<typename TEvent, typename TListener>
-	void RemoveListener(TListener* pListener)
+	// To remove a call back in the event system using the adress of the call back owner
+	template<typename TEvent, typename TCallBackOwner>
+	void RemoveCallBack(TCallBackOwner* pCallBackOwner)
 	{
-		m_listeners.erase(std::remove_if(m_listeners.begin(),
-		                    m_listeners.end(),
-		                    [pListener](CallBackPair& pair) {
-			                    bool tmp = (pair.first.eventID == TEvent::ID && pair.first.listenerAdress == pListener);
-			                    std::cout << tmp;
-			                    return tmp;
-		                    }),
-		  m_listeners.end());
+		m_callBacks.erase(
+		  std::remove_if(m_callBacks.begin(),
+		    m_callBacks.end(),
+		    [pCallBackOwner](CallBackPair& pair) { return (pair.first.eventID == TEvent::ID && pair.first.callBackOwnerAdress == pCallBackOwner); }),
+		  m_callBacks.end());
 	}
 
+	// To call an event
 	template<typename TEvent>
 	void SendEvent(const TEvent& typeEvent)
 	{
-		for (auto& cb : m_listeners)
+		for (auto& cb : m_callBacks)
 		{
 			if (cb.first.eventID == TEvent::ID)
 			{
@@ -155,10 +166,10 @@ public:
 	}
 
 private:
-	std::vector<CallBackPair> m_listeners;
+	std::vector<CallBackPair> m_callBacks;
 
-	std::unordered_map<int, Event> m_asyncListeners; // TODO avec l'adresse du listener
-	std::queue<int>                m_queuedEvents;
+	std::unordered_map<int, Event> m_queuedCallBacks;
+	std::vector<int>               m_queuedEvents;
 	std::mutex                     m_mutex;
 };
 } // namespace Logicraft
