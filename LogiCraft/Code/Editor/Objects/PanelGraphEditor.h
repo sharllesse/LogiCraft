@@ -50,8 +50,7 @@ public:
 	template<typename Func>
 	void SetEditorPropertyPanel(Func&& editorPanel)
 	{
-		std::function<void()> task = std::bind(std::forward<Func>(editorPanel));
-		m_editorPropertyPanel      = std::move(task);
+		m_editorPropertyPanel = editorPanel;
 	}
 
 protected:

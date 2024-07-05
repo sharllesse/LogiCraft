@@ -34,6 +34,9 @@ SOFTWARE.
 
 #include "GuidUtils.h"
 
+#include <assert.h>
+#include <combaseapi.h>
+
 using namespace Logicraft;
 
 std::string Logicraft::GuidUtils::GuidToString(const GUID& guid)
@@ -44,4 +47,12 @@ std::string Logicraft::GuidUtils::GuidToString(const GUID& guid)
 GUID Logicraft::GuidUtils::StringToGuid(const std::string& str)
 {
 	return GUID();
+}
+
+GUID Logicraft::GuidUtils::CreateGUID()
+{
+	GUID    id;
+	HRESULT res = CoCreateGuid(&id);
+	assert(res == S_OK);
+	return id;
 }

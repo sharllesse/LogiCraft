@@ -33,6 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "Editor.h"
+#include "Objects/PanelGraphEditor.h"
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/SmartPtr.h>
@@ -193,6 +194,23 @@ void Editor::CreatePanels()
 		pItem->SetAction(pAction);
 
 		GetEventSystem().AddAsyncListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
+
+		if (PanelGraphEditor* pGraphPanel = dynamic_cast<Logicraft::PanelGraphEditor*>(pPanel.get()))
+		{
+			pGraphPanel->SetEditorPropertyPanel([](GraphEditor* pGraphEditor) {
+				if (ImGui::Button("Add"))
+				{
+					const std::string nodeName = std::string("Node_____") + std::to_string(pGraphEditor->GetNodeSize());
+					GUID              node     = pGraphEditor->AddNode(nodeName.c_str());
+					pGraphEditor->AddNodeInputAttribute(node, [] { ImGui::TextUnformatted("Test"); });
+					pGraphEditor->AddNodeInputAttribute(node, [] { ImGui::TextUnformatted("Test_2"); });
+					pGraphEditor->AddNodeOutputAttribute(node, [] {
+						ImGui::SameLine();
+						ImGui::Text("Test_3");
+					});
+				}
+			});
+		}
 	}
 
 	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return strcmp(a->GetTypeName(), b->GetTypeName()) < 0; });

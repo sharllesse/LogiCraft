@@ -44,5 +44,6 @@ namespace GuidUtils
 {
 LOGI_ENGINE_API std::string GuidToString(const GUID& guid);
 LOGI_ENGINE_API GUID        StringToGuid(const std::string& str);
+LOGI_ENGINE_API GUID        CreateGUID();
 } // namespace GuidUtils
 } // namespace Logicraft

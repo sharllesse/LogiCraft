@@ -32,28 +32,104 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 #include "GraphEditor.h"
-
-#include "imgui/imgui.h"
-#include "imgui/imnodes.h"
+#include "SFML/Window/Keyboard.hpp"
 
 using namespace Logicraft;
 
-void GraphEditor::AddNode(const char* name)
+GUID Logicraft::GraphEditor::AddNode(const char* name)
 {
 	Node node;
 	node.m_name = name;
+	node.m_id   = Logicraft::GuidUtils::CreateGUID();
 	m_nodes.emplace_back(std::move(node));
+	return node.m_id;
 }
+
+void Logicraft::GraphEditor::Update() {}
 
 void GraphEditor::Draw()
 {
 	ImNodes::BeginNodeEditor();
 	for (auto& node : m_nodes)
 	{
-		ImNodes::BeginNode(node.m_id.Data2);
+		ImNodes::BeginNode(node.m_id.Data1);
+		ImNodes::BeginNodeTitleBar();
+		ImGui::TextUnformatted(node.m_name.c_str());
+		ImNodes::EndNodeTitleBar();
+
+		for (auto& inputAttribute : node.m_inputAttributes)
+		{
+			ImNodes::BeginInputAttribute(inputAttribute.first.Data1);
+			inputAttribute.second();
+			ImNodes::EndInputAttribute();
+		}
+
+		for (auto& outputAttribute : node.m_outputAttributes)
+		{
+			ImNodes::BeginOutputAttribute(outputAttribute.first.Data1);
+			outputAttribute.second();
+			ImNodes::EndOutputAttribute();
+		}
 
 		ImNodes::EndNode();
 	}
-
+	DrawLinks();
+	ImNodes::MiniMap(0.1f, ImNodesMiniMapLocation_BottomLeft);
 	ImNodes::EndNodeEditor();
+	CreateLink();
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Delete))
+		DeleteLink(m_links.empty() ? GUID() : m_links.back().m_id);
+}
+
+size_t Logicraft::GraphEditor::GetNodeSize()
+{
+	return m_nodes.size();
+}
+
+std::vector<GraphEditor::Node>::iterator Logicraft::GraphEditor::GetNode(REFGUID id)
+{
+	std::vector<Node>::iterator it =
+	  std::find_if(m_nodes.begin(), m_nodes.end(), [id](const Node& nodeCompare) { return IsEqualGUID(nodeCompare.m_id, id); });
+	if (it != m_nodes.end())
+		return it;
+	return std::vector<GraphEditor::Node>::iterator{};
+}
+
+std::vector<GraphEditor::Link>::iterator Logicraft::GraphEditor::GetLink(REFGUID id)
+{
+	std::vector<Link>::iterator it =
+	  std::find_if(m_links.begin(), m_links.end(), [id](const Link& nodeCompare) { return IsEqualGUID(nodeCompare.m_id, id); });
+	if (it != m_links.end())
+		return it;
+	return std::vector<GraphEditor::Link>::iterator{};
+}
+
+void Logicraft::GraphEditor::CreateLink()
+{
+	int start_attr, end_attr;
+
+	if (ImNodes::IsLinkCreated(&start_attr, &end_attr))
+	{
+		Link link = {Logicraft::GuidUtils::CreateGUID(), std::make_pair(start_attr, end_attr)};
+		m_links.emplace_back(std::move(link));
+	}
+}
+
+void Logicraft::GraphEditor::DrawLinks()
+{
+	for (auto& link : m_links)
+		ImNodes::Link(link.m_id.Data1, link.m_nodeLinked.first, link.m_nodeLinked.second);
+}
+
+void Logicraft::GraphEditor::DeleteLink(REFGUID id)
+{
+	std::vector<Link>::iterator it = GetLink(id);
+	if (it._Unwrapped())
+	{
+		if (it != m_links.end())
+		{
+			m_links.erase(it);
+		}
+	}
 }
