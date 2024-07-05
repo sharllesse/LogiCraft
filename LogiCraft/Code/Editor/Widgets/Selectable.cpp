@@ -9,7 +9,6 @@ Selectable::Selectable(const char* name)
 }
 void Selectable::Update() 
 {
-
 }
 void Selectable::Draw() 
 {

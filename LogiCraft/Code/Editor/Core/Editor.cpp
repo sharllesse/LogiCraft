@@ -59,6 +59,7 @@ Editor::Editor()
 
 	// alphabetical order, no dependencies
 	m_pEditorObjectManager = std::make_unique<EditorObjectManager>();
+	m_pSelectionManager	   = std::make_unique<SelectionManager>();
 	m_pEngine              = std::make_unique<Engine>();
 	m_pEventSystem         = std::make_unique<EventSystem>();
 	m_pMainMenu            = std::make_unique<MainMenu>();

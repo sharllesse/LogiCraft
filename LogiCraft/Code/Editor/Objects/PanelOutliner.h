@@ -60,6 +60,6 @@ private:
 
 	std::vector<std::pair<Selectable, EditorObjectPtr>> m_objects;
 
-	bool m_refreshObjectList{true};
+	bool m_refreshObjectList{false};
 };
 } // namespace Logicraft

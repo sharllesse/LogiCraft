@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "EditorObjectManager.h"
 #include "Core/Editor.h"
+#include "Widgets/SelectionManager.h"
 
 #include <Engine/Core/ActionManager.h>
 #include <Engine/Core/Engine.h>
@@ -95,7 +96,9 @@ void EditorObjectManager::CreateObject()
 	GameObjectPtr pGameObject = GameObjectManager::Get().CreateObject();
 	pNewObject->SetGameObject(pGameObject);
 
+	SelectionManager::Get().SelectGameObject(pNewObject);
 	Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectChanged);
+	Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectSelectedChanged);
 }
 
 void EditorObjectManager::RemoveObject(REFGUID objectGUID)
@@ -103,6 +106,7 @@ void EditorObjectManager::RemoveObject(REFGUID objectGUID)
 	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
 	{
 		Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectChanged);
+		Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectSelectedChanged);
 		m_objects.erase(it);
 	}
 }

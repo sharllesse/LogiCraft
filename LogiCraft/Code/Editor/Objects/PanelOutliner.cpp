@@ -38,6 +38,7 @@ SOFTWARE.
 #include "EditorObjectManager.h"
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
+#include "Widgets/SelectionManager.h"
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
@@ -55,7 +56,7 @@ Logicraft::PanelOutliner::PanelOutliner()
 	Editor::Get().GetEventSystem().AddAsyncListener(Editor::eObjectChanged, [this]() { m_refreshObjectList = true; });
 }
 
-Logicraft::PanelOutliner::~PanelOutliner() 
+Logicraft::PanelOutliner::~PanelOutliner()
 {
 	m_objects.clear();
 }
@@ -71,42 +72,61 @@ void Logicraft::PanelOutliner::Update()
 	for (auto& selectable : m_objects)
 	{
 		selectable.first.Update();
+		if (selectable.first.IsSelected()) 
+		{
+			SelectionManager::Get().SelectGameObject(selectable.second);
+			Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectSelectedChanged);
+		}
 	}
 }
 
 void Logicraft::PanelOutliner::Draw()
 {
-	for (auto& selectable : m_objects) 
+	for (auto& selectable : m_objects)
 	{
 		selectable.first.Draw();
 	}
 }
 
-void Logicraft::PanelOutliner::RefrectObjectList() 
+void Logicraft::PanelOutliner::RefrectObjectList()
 {
 	const std::vector<EditorObjectPtr>& managerObjects = EditorObjectManager::Get().GetObjects();
 	if (m_objects.size() > managerObjects.size())
 	{
-		for (auto outlinerObject = m_objects.begin(); outlinerObject != m_objects.end();)
-		{
-			const auto objectIt = std::find(managerObjects.begin(), managerObjects.end(), (*outlinerObject).second);
+		const EditorObjectPtr& newGameObject = SelectionManager::Get().SelectedGameObject();
 
-			if (objectIt == managerObjects.end())
-				outlinerObject = m_objects.erase(outlinerObject);
-			else
-				outlinerObject++;
+		if (newGameObject) 
+		{
+			const auto objectIt = std::remove_if(m_objects.begin(),
+			  m_objects.end(),
+			  [&newGameObject](const std::pair<Selectable, EditorObjectPtr>& outlinerObject) { return outlinerObject.second == newGameObject; });
+
+			m_objects.erase(objectIt);
 		}
+
+		// for (auto outlinerObject = m_objects.begin(); outlinerObject != m_objects.end();)
+		//{
+		//	const auto objectIt = std::find(managerObjects.begin(), managerObjects.end(), (*outlinerObject).second);
+
+		//	if (objectIt == managerObjects.end())
+		//		outlinerObject = m_objects.erase(outlinerObject);
+		//	else
+		//		outlinerObject++;
+		//}
 	}
 	else
 	{
-		for (auto& managerObject : managerObjects)
+		const EditorObjectPtr& newGameObject = SelectionManager::Get().SelectedGameObject();
+		if (newGameObject)
+			m_objects.emplace_back(std::make_pair(Selectable(newGameObject->GetName().c_str()), newGameObject));
+		/*for (auto& managerObject : managerObjects)
 		{
-			const auto objectIt = std::find_if(m_objects.begin(), m_objects.end(), [&managerObject](const std::pair<Selectable, EditorObjectPtr>& outlinerObject) {
-				return outlinerObject.second == managerObject;
-			});
+		  const auto objectIt = std::find_if(m_objects.begin(), m_objects.end(), [&managerObject](const std::pair<Selectable, EditorObjectPtr>&
+		outlinerObject) { return outlinerObject.second == managerObject;
+		  });
 
-			if (objectIt == m_objects.end())
-				m_objects.emplace_back(std::make_pair(Selectable(managerObject->GetName().c_str()), managerObject));
-		}
+		  if (objectIt == m_objects.end())
+		    m_objects.emplace_back(std::make_pair(Selectable(managerObject->GetName().c_str()), managerObject));
+		}*/
 	}
 }
