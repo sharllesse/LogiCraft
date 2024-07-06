@@ -156,9 +156,8 @@ void Editor::Render()
 		pPanel->BaseDraw();
 	}
 
-	m_pEngine->Render();
-
 	m_window.clear();
+	m_pEngine->Render(m_window);
 	ImGui::SFML::Render(m_window);
 	m_window.display();
 }
