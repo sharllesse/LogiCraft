@@ -17,11 +17,12 @@ target_include_directories(Logi_Engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAK
 
 install(TARGETS Logi_Engine RUNTIME DESTINATION bin)
 
-# Link SFML statically
-target_link_libraries(Logi_Engine PUBLIC sfml-system sfml-window sfml-graphics)
+# Link SFML
+target_link_libraries(Logi_Engine PUBLIC sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
+include_directories(${SFML_INCLUDE_DIR})
 
-# Link ImGui statically
+# Link ImGui
 target_link_libraries(Logi_Engine PUBLIC ImGui)
 
-# Link Json statically
+# Link Json
 target_link_libraries(Logi_Engine PUBLIC Json)

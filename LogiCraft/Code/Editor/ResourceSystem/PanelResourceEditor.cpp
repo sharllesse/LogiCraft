@@ -31,70 +31,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
+#include "PanelResourceEditor.h"
+#include "Objects/EditorComponent.h"
+#include "ResourceSystem/EditorResource.h"
+#include "ResourceSystem/EditorResourceManager.h"
+#include "Widgets/Menu.h"
 
-#include "Engine.h"
-#include "Objects/GameObject.h"
-#include "Profiler.h"
-
-#include <assert.h>
+#include <Engine/Core/Action.h>
+#include <Engine/Core/ActionManager.h>
+#include <Engine/Core/TaskManager.h>
+#include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-Engine* s_pEngine = nullptr;
-
-Engine& Engine::Get()
+Logicraft::PanelResourceEditor::PanelResourceEditor()
 {
-	assert(s_pEngine);
-	return *s_pEngine;
-}
+	MenuPtr pMenuNew = make_shared(Menu, "New");
+	m_menuBar.AddChild(pMenuNew);
 
-Engine::Engine()
-{
-	assert(!s_pEngine);
-	s_pEngine            = this;
-	m_pActionManager     = std::make_unique<ActionManager>();
-	m_pEventSystem       = std::make_unique<EventSystem>();
-	m_pGameObjectManager = std::make_unique<GameObjectManager>();
-	m_pLogger            = std::make_unique<Logger>();
-	m_pResourceManager   = std::make_unique<ResourceManager>();
-	m_pTaskManager       = std::make_unique<TaskManager>();
-}
-
-Engine::~Engine()
-{
-	s_pEngine = nullptr;
-}
-
-void Engine::Init()
-{
-	m_pResourceManager->StartLoading();
-}
-
-void Logicraft::Engine::ProcessEvents()
-{
-	m_pEventSystem->QueueEvent(eProcessedEvents);
-	m_pEventSystem->ProcessEvents();
-}
-
-void Engine::Update()
-{
-	// PROFILE_FUNCTION
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
+	for (auto& pResourceType : EditorResource::GetRegisteredTypes())
 	{
-		pObject->Update();
+		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
+		pMenuNew->AddChild(pItemNew);
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
+		pAction->SetCallback([this, pResourceType] { CreateNewResource(pResourceType->GetName()); });
+		pItemNew->SetAction(pAction);
 	}
 }
 
-void Engine::Render(sf::RenderWindow& target)
+void Logicraft::PanelResourceEditor::Update() {}
+
+void Logicraft::PanelResourceEditor::CreateNewResource(const std::string& resourceType)
 {
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Render(target);
-	}
+	TaskManager::Get().AddTask([this, resourceType] { m_pEditedResource = EditorResourceManager::Get().CreateResource(resourceType.c_str()); });
 }
 
-void Engine::Release()
+void Logicraft::PanelResourceEditor::Draw()
 {
-	m_pResourceManager->StartSaving();
-	m_pActionManager->StartSaving();
+	if (m_pEditedResource)
+	{
+		m_pEditedResource->DrawUI();
+	}
 }

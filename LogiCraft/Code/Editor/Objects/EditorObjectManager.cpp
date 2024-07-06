@@ -122,15 +122,19 @@ EditorObjectPtr EditorObjectManager::GetObject(REFGUID objectGUID)
 
 void Logicraft::EditorObjectManager::CreateComponent(EditorObjectPtr pObject, const char* editorComponentType)
 {
-	for (auto& pComponentType : EditorComponentRegisterer::s_registerers)
+	for (auto& pComponentType : EditorComponent::GetRegisteredTypes())
 	{
-		if (pComponentType->GetEditorTypeName().compare(editorComponentType) == 0)
+		if (pComponentType->GetName().compare(editorComponentType) == 0)
 		{
-			if (GameComponentPtr pGameComponent = GameObjectManager::Get().CreateComponent(pComponentType->GetGameTypeName().c_str()))
+			if (GameComponentPtr pGameComponent = GameObjectManager::Get().CreateComponent(pComponentType->GetName().c_str()))
 			{
 				EditorComponentPtr pEditorComponent = pComponentType->Create();
 				pEditorComponent->SetGameComponent(pGameComponent);
 				pObject->AddComponent(pEditorComponent);
+
+				std::string message = "Component type " + std::string(editorComponentType) + " created.";
+				Logger::Get().Log(Logger::eInfo, message);
+				return;
 			}
 		}
 	}

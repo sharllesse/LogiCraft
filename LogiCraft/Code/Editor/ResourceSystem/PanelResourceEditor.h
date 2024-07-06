@@ -34,17 +34,27 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Panel.h"
+#include "ResourceSystem/EditorResource.h"
+
+#include <mutex>
 
 namespace Logicraft
 {
-class PanelContentBrowser : public Panel
+class PanelResourceEditor : public Panel
 {
-	LOGI_DECLARE_PANEL(PanelContentBrowser, "Content Browser")
+	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelResourceEditor, "Resource Editor")
 
 public:
-	PanelContentBrowser();
+	PanelResourceEditor();
+
+	void Update() override;
 
 protected:
+	void CreateNewResource(const std::string& resourceType);
+
 	void Draw() override;
+
+private:
+	EditorResourcePtr m_pEditedResource;
 };
 } // namespace Logicraft

@@ -13,7 +13,8 @@ add_library(ImGui STATIC ${sources})
 target_include_directories(ImGui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(ImGui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SFML-2.6.1/include/)
 
-# Link SFML statically
+# Link SFML
 target_link_libraries(ImGui PUBLIC sfml-graphics)
+include_directories(${SFML_INCLUDE_DIR})
 
 install(TARGETS ImGui ARCHIVE DESTINATION lib)

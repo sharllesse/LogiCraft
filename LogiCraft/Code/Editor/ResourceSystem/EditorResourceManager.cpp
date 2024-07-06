@@ -32,31 +32,62 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "PanelContentBrowser.h"
-#include "Widgets/Menu.h"
-#include "Widgets/MenuItem.h"
+#include "EditorResourceManager.h"
 
-#include <Engine/Core/Action.h>
-#include <Engine/Core/ActionManager.h>
-#include <Engine/Core/SmartPtr.h>
+#include <Engine/Core/Logger.h>
 #include <Engine/ResourceSystem/ResourceManager.h>
-#include <imgui/imgui.h>
+#include <assert.h>
+#include <format>
 
 using namespace Logicraft;
 
-PanelContentBrowser::PanelContentBrowser()
-{
-	MenuPtr pMenuNew = make_shared(Menu, "New");
-	m_menuBar.AddChild(pMenuNew);
+EditorResourceManager* s_pEditorResourceManager = nullptr;
 
-	for (auto& pResourceType : ResourceRegisterer::s_registerers)
+EditorResourceManager& EditorResourceManager::Get()
+{
+	assert(s_pEditorResourceManager);
+	return *s_pEditorResourceManager;
+}
+
+EditorResourceManager::EditorResourceManager()
+{
+	assert(!s_pEditorResourceManager);
+	s_pEditorResourceManager = this;
+}
+
+EditorResourceManager::~EditorResourceManager()
+{
+	s_pEditorResourceManager = nullptr;
+}
+
+EditorResourcePtr EditorResourceManager::CreateResource(const char* resourceType)
+{
+	for (auto& pResourceType : EditorResource::GetRegisteredTypes())
 	{
-		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
-		pMenuNew->AddChild(pItemNew);
-		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
-		pAction->SetCallback([pResourceType] { ResourceManager::Get().CreateResource(pResourceType->GetName().c_str()); });
-		pItemNew->SetAction(pAction);
+		if (pResourceType->GetName().compare(resourceType) == 0)
+		{
+			EditorResourcePtr pEditorResource = pResourceType->Create();
+			std::string       name            = std::format("{}_{}", resourceType, m_resources.size());
+			pEditorResource->SetName(name);
+			m_resources.push_back(pEditorResource);
+
+			ResourcePtr pGameResource = ResourceManager::Get().CreateResource(resourceType);
+			pEditorResource->SetResource(pGameResource);
+			return pEditorResource;
+		}
+	}
+	std::string message = "Resource type " + std::string(resourceType) + " does not exist!";
+	Logger::Get().Log(Logger::eError, message);
+	return nullptr;
+}
+
+void EditorResourceManager::Serialize(bool load, JsonObjectPtr pJsonObject)
+
+{
+	if (load) {}
+	else // Save
+	{
 	}
 }
 
-void PanelContentBrowser::Draw() {}
+void EditorResourceManager::Load() {}
