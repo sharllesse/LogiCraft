@@ -2,11 +2,6 @@
 
 project(Logi_Engine)
 
-# SFML
-set(SFML_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../SFML-2.6.1/lib/cmake/SFML")
-set(SFML_STATIC_LIBRARIES TRUE)
-find_package(SFML 2.6.1 COMPONENTS system window graphics network audio REQUIRED)
-
 # Logi_Engine
 file(GLOB_RECURSE engine_sources *.h *.cpp)
 add_library(Logi_Engine SHARED ${engine_sources})
@@ -19,7 +14,6 @@ install(TARGETS Logi_Engine RUNTIME DESTINATION bin)
 
 # Link SFML
 target_link_libraries(Logi_Engine PUBLIC sfml-system sfml-window sfml-graphics sfml-network sfml-audio)
-include_directories(${SFML_INCLUDE_DIR})
 
 # Link ImGui
 target_link_libraries(Logi_Engine PUBLIC ImGui)

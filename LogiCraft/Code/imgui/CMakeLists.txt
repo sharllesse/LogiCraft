@@ -2,11 +2,6 @@
 
 project(ImGui)
 
-# SFML
-set(SFML_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../SFML-2.6.1/lib/cmake/SFML")
-set(SFML_STATIC_LIBRARIES TRUE)
-find_package(SFML 2.6.1 COMPONENTS graphics REQUIRED)
-
 file(GLOB_RECURSE sources *.cpp)
 add_library(ImGui STATIC ${sources})
 
@@ -15,6 +10,5 @@ target_include_directories(ImGui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../SFML-2.6.
 
 # Link SFML
 target_link_libraries(ImGui PUBLIC sfml-graphics)
-include_directories(${SFML_INCLUDE_DIR})
 
 install(TARGETS ImGui ARCHIVE DESTINATION lib)
