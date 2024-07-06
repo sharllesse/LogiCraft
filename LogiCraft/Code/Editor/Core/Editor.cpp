@@ -146,7 +146,7 @@ void Editor::Render()
 	// PROFILE_FUNCTION
 	// PROFILE_SCOPE("Window Render");
 	ImGui::SFML::Update(m_window, m_timer);
-	ImGui::DockSpaceOverViewport();
+	ImGui::DockSpaceOverViewport(0, 0, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	m_pMainMenu->Draw();
 
