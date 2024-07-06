@@ -1,3 +1,4 @@
+#include "EditorTexture.h"
 /*------------------------------------LICENSE------------------------------------
 MIT License
 
@@ -31,24 +32,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
+#include "EditorTexture.h"
 
-#pragma once
-#include "DLLExport.h"
-#include "Resource.h"
+#include <Engine/Core/ActionManager.h>
+#include <Engine/ResourceSystem/Resources/Texture.h>
+#include <imgui.h>
 
-#include <SFML/Graphics/Texture.hpp>
+using namespace Logicraft;
 
-namespace Logicraft
+Logicraft::EditorTexture::EditorTexture() {}
+
+void Logicraft::EditorTexture::DrawUI()
 {
-class LOGI_ENGINE_API Texture : public Resource
+	EditorResource::DrawUI();
+
+	if (TexturePtr pTexture = std::dynamic_pointer_cast<Texture>(m_pResource))
+	{
+		if (ImGui::Button(pTexture->GetFilePath().empty() ? "<Select A File>" : pTexture->GetFilePath().c_str()))
+		{
+			pTexture->SetFilePath("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
+			pTexture->GetTexture().loadFromFile("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
+		}
+	}
+}
+
+TexturePtr Logicraft::EditorTexture::GetTexture()
 {
-	LOGI_DECLARE_RESOURCE(Texture)
-
-public:
-	void         Serialize(bool load, JsonObjectPtr pJsonObject) override;
-	sf::Texture& GetTexture() { return m_texture; }
-
-protected:
-	sf::Texture m_texture;
-};
-} // namespace Logicraft
+	return std::dynamic_pointer_cast<Texture>(m_pResource);
+}

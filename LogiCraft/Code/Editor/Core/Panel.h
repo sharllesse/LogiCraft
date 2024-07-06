@@ -37,33 +37,19 @@ SOFTWARE.
 
 #include <Engine/Core/Serializable.h>
 #include <Engine/Core/SmartPtr.h>
-
+#include <Engine/Utils/TypeDefinition.h>
 #include <string>
 #include <vector>
 
 namespace Logicraft
 {
-#define LOGI_DECLARE_PANEL(type, name)                                 \
-	inline static PanelTypeRegisterer<type> s_registerer{name};          \
-	const char*                             GetTypeName() const override \
-	{                                                                    \
-		return name;                                                       \
-	}
-// How to declare a panel class :
-//	class MyPanelClass : public Panel
-//	{
-//		LOGI_DECLARE_PANEL(MyPanelClass)
-// 	public:
-// 		...
-//	};
-
 class Panel : public Serializable
 {
+	LOGI_TYPEDEF_BASE_TYPE(Panel)
+
 public:
 	virtual void Update() {}
 	void         BaseDraw();
-
-	virtual const char* GetTypeName() const = 0;
 
 	void SetVisible(bool visible);
 	bool IsVisible() const { return m_visible; }
@@ -82,31 +68,4 @@ protected:
 };
 using PanelPtr = std::shared_ptr<Panel>;
 
-class PanelRegisterer
-{
-public:
-	inline static std::vector<PanelRegisterer*> s_registerers;
-
-	PanelRegisterer(const char* _typename)
-	  : m_typename(_typename)
-	{
-		s_registerers.emplace_back(this);
-	}
-	virtual PanelPtr Create() = 0;
-
-protected:
-	std::string m_typename;
-};
-
-template<typename T>
-class PanelTypeRegisterer : public PanelRegisterer
-{
-public:
-	PanelTypeRegisterer(const char* _typename)
-	  : PanelRegisterer(_typename)
-	{
-	}
-
-	PanelPtr Create() override { return make_shared(T); }
-};
 } // namespace Logicraft

@@ -58,10 +58,11 @@ Editor::Editor()
 	s_pEditor = this;
 
 	// alphabetical order, no dependencies
-	m_pEditorObjectManager = std::make_unique<EditorObjectManager>();
-	m_pEngine              = std::make_unique<Engine>();
-	m_pEventSystem         = std::make_unique<EventSystem>();
-	m_pMainMenu            = std::make_unique<MainMenu>();
+	m_pEditorObjectManager   = std::make_unique<EditorObjectManager>();
+	m_pEditorResourceManager = std::make_unique<EditorResourceManager>();
+	m_pEngine                = std::make_unique<Engine>();
+	m_pEventSystem           = std::make_unique<EventSystem>();
+	m_pMainMenu              = std::make_unique<MainMenu>();
 }
 
 Editor::~Editor()
@@ -124,6 +125,7 @@ void Editor::ProcessWindowEvents()
 
 void Editor::ProcessEventSystem()
 {
+	m_pEngine->ProcessEvents();
 	GetEventSystem().ProcessEvents();
 }
 
@@ -154,9 +156,8 @@ void Editor::Render()
 		pPanel->BaseDraw();
 	}
 
-	m_pEngine->Render();
-
 	m_window.clear();
+	m_pEngine->Render(m_window);
 	ImGui::SFML::Render(m_window);
 	m_window.display();
 }
@@ -171,20 +172,20 @@ void Editor::InitImGui()
 void Editor::CreatePanels()
 {
 	MenuPtr pPanelsMenu = m_pMainMenu->AddMenu("Panels");
-	for (PanelRegisterer* pRegisterer : PanelRegisterer::s_registerers)
+	for (auto pType : Panel::GetRegisteredTypes())
 	{
 		// Create panel and start loading it
-		m_panels.push_back(pRegisterer->Create());
+		m_panels.push_back(pType->Create());
 		PanelPtr pPanel = m_panels.back();
 		pPanel->StartLoading();
 
 		// Add panel to the menu with action to toggle its visibility
-		MenuItemPtr pItem = make_shared(MenuItem, pPanel->GetTypeName());
+		MenuItemPtr pItem = make_shared(MenuItem, pPanel->GetType().GetName().c_str());
 		pItem->SetCheckEnabled(true);
 		pItem->SetChecked(pPanel->IsVisible());
 		pPanelsMenu->AddChild(pItem);
 
-		const std::string actionName = std::string("toggle_") + pPanel->GetTypeName();
+		const std::string actionName = std::string("toggle_") + pPanel->GetType().GetName();
 		ActionPtr         pAction    = ActionManager::Get().AddAction(actionName.c_str());
 		pAction->SetCallback([pPanel] { pPanel->SetVisible(!pPanel->IsVisible()); });
 		pItem->SetAction(pAction);
@@ -192,5 +193,5 @@ void Editor::CreatePanels()
 		GetEventSystem().AddAsyncListener(ePanelVisible, [pItem, pPanel] { pItem->SetChecked(pPanel->IsVisible()); });
 	}
 
-	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return strcmp(a->GetTypeName(), b->GetTypeName()) < 0; });
+	std::sort(m_panels.begin(), m_panels.end(), [](const PanelPtr& a, const PanelPtr& b) { return a->GetType().GetName() < b->GetType().GetName(); });
 }

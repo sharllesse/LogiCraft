@@ -33,61 +33,34 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "ResourceSystem/Resource.h"
+#include "Core/Serializable.h"
+#include "Utils/TypeDefinition.h"
 
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <guiddef.h>
 #include <memory>
 
 namespace Logicraft
 {
-#define LOGI_DECLARE_COMPONENT(type) inline static ComponentTypeRegisterer<type> s_registerer{#type};
-
-// How to declare a component class :
-//	class MyComponentClass : public Component
-//	{
-//		LOGI_DECLARE_COMPONENT(MyComponentClass)
-// 	public:
-// 		...
-//	};
-
-class LOGI_ENGINE_API GameComponent : public Resource
+class LOGI_ENGINE_API GameComponent : public Serializable
 {
+	LOGI_TYPEDEF_BASE_TYPE(GameComponent)
+
 public:
+	GameComponent();
+
 	virtual void Update() {}
-	virtual void Render() {}
-};
-using GameComponentPtr = std::shared_ptr<GameComponent>;
+	virtual void Render(sf::RenderWindow& target) {}
 
-class ComponentRegisterer
-{
-public:
-	inline static std::vector<ComponentRegisterer*> s_registerers;
+	GUID GetGUID() const { return m_GUID; }
 
-	ComponentRegisterer(const char* _typename)
-	  : m_typename(_typename)
-	{
-		s_registerers.emplace_back(this);
-	}
-
-	const std::string& GetTypeName() const { return m_typename; }
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
-	friend class GameObjectManager;
-	virtual GameComponentPtr Create() = 0;
+	void Load() override;
 
 private:
-	std::string m_typename;
+	GUID m_GUID{0};
 };
-
-template<typename T>
-class ComponentTypeRegisterer : public ComponentRegisterer
-{
-public:
-	ComponentTypeRegisterer(const char* _typename)
-	  : ComponentRegisterer(_typename)
-	{
-	}
-
-protected:
-	GameComponentPtr Create() override { return std::make_shared<T>(); }
-};
+using GameComponentPtr = std::shared_ptr<GameComponent>;
 } // namespace Logicraft

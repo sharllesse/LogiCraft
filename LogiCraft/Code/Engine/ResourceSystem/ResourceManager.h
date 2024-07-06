@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/SmartPtr.h"
 #include "DLLExport.h"
 #include "Resource.h"
+#include "Utils/GuidUtils.h"
 
 #include <map>
 #include <string>
@@ -46,11 +47,19 @@ namespace Logicraft
 {
 class LOGI_ENGINE_API ResourceManager : public Serializable
 {
+	enum EFileFormat
+	{
+		eJson,
+		eBinary
+	};
+
 public:
 	static ResourceManager& Get();
 
 	ResourceManager();
 	~ResourceManager();
+
+	void SetFileFormat(EFileFormat format) { m_fileFormat = format; }
 
 	template<typename T>
 	ResourcePtr CreateResource()
@@ -61,19 +70,30 @@ public:
 	}
 	ResourcePtr CreateResource(const char* resourceType);
 
+	template<typename T>
+	std::shared_ptr<T> Find(REFGUID guid)
+	{
+		for (auto& pResource : m_loadedResources)
+		{
+			if (pResource->GetGUID() == guid)
+			{
+				return pResource;
+			}
+		}
+		return nullptr;
+	}
+
+	const std::vector<ResourcePtr>& GetLoadedResources() const { return m_loadedResources; }
+
 	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
 protected:
 	void Load() override;
 
 private:
-	std::vector<ResourcePtr> m_loadedResources;
-	std::vector<GUID>        m_resourcesToLoad;
-
-	struct GUIDComparer
-	{
-		bool operator()(REFGUID left, REFGUID right) const { return memcmp(&left, &right, sizeof(GUID)) < 0; }
-	};
-	std::map<GUID, std::string, GUIDComparer> m_resourcesToFiles;
+	std::map<GUID, std::string, GuidUtils::GUIDComparer> m_resourcesToFiles;
+	std::vector<ResourcePtr>                             m_loadedResources;
+	std::vector<GUID>                                    m_resourcesToLoad;
+	EFileFormat                                          m_fileFormat{eBinary};
 };
 } // namespace Logicraft

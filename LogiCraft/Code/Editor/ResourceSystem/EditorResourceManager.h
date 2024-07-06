@@ -32,69 +32,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Engine.h"
-#include "Objects/GameObject.h"
-#include "Profiler.h"
+#pragma once
+#include "EditorResource.h"
 
-#include <assert.h>
+#include <Engine/Core/Serializable.h>
 
-using namespace Logicraft;
+#include <string>
+#include <vector>
 
-Engine* s_pEngine = nullptr;
-
-Engine& Engine::Get()
+namespace Logicraft
 {
-	assert(s_pEngine);
-	return *s_pEngine;
-}
-
-Engine::Engine()
+class EditorResourceManager : public Serializable
 {
-	assert(!s_pEngine);
-	s_pEngine            = this;
-	m_pActionManager     = std::make_unique<ActionManager>();
-	m_pEventSystem       = std::make_unique<EventSystem>();
-	m_pGameObjectManager = std::make_unique<GameObjectManager>();
-	m_pLogger            = std::make_unique<Logger>();
-	m_pResourceManager   = std::make_unique<ResourceManager>();
-	m_pTaskManager       = std::make_unique<TaskManager>();
-}
+public:
+	static EditorResourceManager& Get();
 
-Engine::~Engine()
-{
-	s_pEngine = nullptr;
-}
+	EditorResourceManager();
+	~EditorResourceManager();
 
-void Engine::Init()
-{
-	m_pResourceManager->StartLoading();
-}
+	EditorResourcePtr CreateResource(const char* resourceType);
 
-void Logicraft::Engine::ProcessEvents()
-{
-	m_pEventSystem->QueueEvent(eProcessedEvents);
-	m_pEventSystem->ProcessEvents();
-}
-
-void Engine::Update()
-{
-	// PROFILE_FUNCTION
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
+	template<typename T>
+	std::shared_ptr<T> Find(const std::string& name)
 	{
-		pObject->Update();
+		for (auto& pResource : m_resources)
+		{
+			if (pResource->GetName() == name)
+			{
+				return pResource.get();
+			}
+		}
+		return nullptr;
 	}
-}
 
-void Engine::Render(sf::RenderWindow& target)
-{
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Render(target);
-	}
-}
+	const std::vector<EditorResourcePtr>& GetResources() const { return m_resources; }
 
-void Engine::Release()
-{
-	m_pResourceManager->StartSaving();
-	m_pActionManager->StartSaving();
-}
+	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
+
+protected:
+	void Load() override;
+
+private:
+	std::vector<EditorResourcePtr> m_resources;
+};
+} // namespace Logicraft

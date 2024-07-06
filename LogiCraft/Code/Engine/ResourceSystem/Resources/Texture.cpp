@@ -32,69 +32,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Engine.h"
-#include "Objects/GameObject.h"
-#include "Profiler.h"
-
-#include <assert.h>
+#include "Texture.h"
 
 using namespace Logicraft;
 
-Engine* s_pEngine = nullptr;
+Logicraft::Texture::Texture() {}
 
-Engine& Engine::Get()
+void Texture::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
-	assert(s_pEngine);
-	return *s_pEngine;
-}
+	Resource::Serialize(load, pJsonObject);
 
-Engine::Engine()
-{
-	assert(!s_pEngine);
-	s_pEngine            = this;
-	m_pActionManager     = std::make_unique<ActionManager>();
-	m_pEventSystem       = std::make_unique<EventSystem>();
-	m_pGameObjectManager = std::make_unique<GameObjectManager>();
-	m_pLogger            = std::make_unique<Logger>();
-	m_pResourceManager   = std::make_unique<ResourceManager>();
-	m_pTaskManager       = std::make_unique<TaskManager>();
-}
-
-Engine::~Engine()
-{
-	s_pEngine = nullptr;
-}
-
-void Engine::Init()
-{
-	m_pResourceManager->StartLoading();
-}
-
-void Logicraft::Engine::ProcessEvents()
-{
-	m_pEventSystem->QueueEvent(eProcessedEvents);
-	m_pEventSystem->ProcessEvents();
-}
-
-void Engine::Update()
-{
-	// PROFILE_FUNCTION
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
+	if (load)
 	{
-		pObject->Update();
+		if (pJsonObject->GetString("FilePath", m_filePath))
+		{
+			// m_texture.loadFromFile(m_filePath);
+		}
 	}
-}
-
-void Engine::Render(sf::RenderWindow& target)
-{
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
+	else
 	{
-		pObject->Render(target);
+		pJsonObject->AddString("FilePath", m_filePath);
 	}
-}
-
-void Engine::Release()
-{
-	m_pResourceManager->StartSaving();
-	m_pActionManager->StartSaving();
 }

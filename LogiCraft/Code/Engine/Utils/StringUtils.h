@@ -32,69 +32,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Engine.h"
-#include "Objects/GameObject.h"
-#include "Profiler.h"
+#pragma once
+#include "DLLExport.h"
 
-#include <assert.h>
+#include <guiddef.h>
+#include <string>
 
-using namespace Logicraft;
-
-Engine* s_pEngine = nullptr;
-
-Engine& Engine::Get()
+namespace Logicraft
 {
-	assert(s_pEngine);
-	return *s_pEngine;
-}
-
-Engine::Engine()
+namespace StringUtils
 {
-	assert(!s_pEngine);
-	s_pEngine            = this;
-	m_pActionManager     = std::make_unique<ActionManager>();
-	m_pEventSystem       = std::make_unique<EventSystem>();
-	m_pGameObjectManager = std::make_unique<GameObjectManager>();
-	m_pLogger            = std::make_unique<Logger>();
-	m_pResourceManager   = std::make_unique<ResourceManager>();
-	m_pTaskManager       = std::make_unique<TaskManager>();
-}
 
-Engine::~Engine()
-{
-	s_pEngine = nullptr;
-}
-
-void Engine::Init()
-{
-	m_pResourceManager->StartLoading();
-}
-
-void Logicraft::Engine::ProcessEvents()
-{
-	m_pEventSystem->QueueEvent(eProcessedEvents);
-	m_pEventSystem->ProcessEvents();
-}
-
-void Engine::Update()
-{
-	// PROFILE_FUNCTION
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Update();
-	}
-}
-
-void Engine::Render(sf::RenderWindow& target)
-{
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Render(target);
-	}
-}
-
-void Engine::Release()
-{
-	m_pResourceManager->StartSaving();
-	m_pActionManager->StartSaving();
-}
+} // namespace StringUtils
+} // namespace Logicraft

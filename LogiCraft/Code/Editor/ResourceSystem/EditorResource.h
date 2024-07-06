@@ -32,69 +32,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-#include "Engine.h"
-#include "Objects/GameObject.h"
-#include "Profiler.h"
+#pragma once
+#include <Engine/ResourceSystem/Resource.h>
 
-#include <assert.h>
-
-using namespace Logicraft;
-
-Engine* s_pEngine = nullptr;
-
-Engine& Engine::Get()
+namespace Logicraft
 {
-	assert(s_pEngine);
-	return *s_pEngine;
-}
-
-Engine::Engine()
+class EditorResource
 {
-	assert(!s_pEngine);
-	s_pEngine            = this;
-	m_pActionManager     = std::make_unique<ActionManager>();
-	m_pEventSystem       = std::make_unique<EventSystem>();
-	m_pGameObjectManager = std::make_unique<GameObjectManager>();
-	m_pLogger            = std::make_unique<Logger>();
-	m_pResourceManager   = std::make_unique<ResourceManager>();
-	m_pTaskManager       = std::make_unique<TaskManager>();
-}
+	LOGI_TYPEDEF_LINKED_BASE_TYPE(EditorResource, Resource)
 
-Engine::~Engine()
-{
-	s_pEngine = nullptr;
-}
+public:
+	virtual void DrawUI();
 
-void Engine::Init()
-{
-	m_pResourceManager->StartLoading();
-}
+	void               SetResource(ResourcePtr pResource) { m_pResource = pResource; }
+	void               SetName(const std::string& name) { m_name = name; }
+	const std::string& GetName() const { return m_name; }
 
-void Logicraft::Engine::ProcessEvents()
-{
-	m_pEventSystem->QueueEvent(eProcessedEvents);
-	m_pEventSystem->ProcessEvents();
-}
-
-void Engine::Update()
-{
-	// PROFILE_FUNCTION
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Update();
-	}
-}
-
-void Engine::Render(sf::RenderWindow& target)
-{
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Render(target);
-	}
-}
-
-void Engine::Release()
-{
-	m_pResourceManager->StartSaving();
-	m_pActionManager->StartSaving();
-}
+protected:
+	ResourcePtr m_pResource;
+	std::string m_name;
+};
+using EditorResourcePtr = std::shared_ptr<EditorResource>;
+} // namespace Logicraft
