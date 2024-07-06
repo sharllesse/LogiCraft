@@ -64,7 +64,7 @@ Logicraft::PanelObject::PanelObject()
 		pItemNew->SetAction(pAction);
 	}
 
-	Editor::Get().GetEventSystem().AddAsyncListener(Editor::eObjectChanged, [this]() { m_refreshSelectedObject = true; });
+	Editor::Get().GetEventSystem().AddAsyncListener(Editor::eObjectSelectedChanged, [this]() { m_refreshSelectedObject = true; });
 }
 
 void Logicraft::PanelObject::Update()
@@ -72,6 +72,7 @@ void Logicraft::PanelObject::Update()
 	if (m_refreshSelectedObject) 
 	{
 		m_pSelectedObject = SelectionManager::Get().SelectedGameObject();
+		m_refreshSelectedObject = false;
 	}
 	//auto objects = EditorObjectManager::Get().GetObjects();
 	//if (objects.size() > 0)

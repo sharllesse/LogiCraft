@@ -8,17 +8,17 @@ SelectionManager* s_pSelectionManager = nullptr;
 
 SelectionManager& SelectionManager::Get()
 {
-  assert(s_pSelectionManager);
+	assert(s_pSelectionManager);
 	return *s_pSelectionManager;
 }
 
-SelectionManager::SelectionManager() 
+SelectionManager::SelectionManager()
 {
 	assert(!s_pSelectionManager);
 	s_pSelectionManager = this;
 }
 
-SelectionManager::~SelectionManager() 
+SelectionManager::~SelectionManager()
 {
 	m_pSelectedObject = nullptr;
 }

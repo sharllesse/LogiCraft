@@ -74,6 +74,11 @@ void Logicraft::PanelOutliner::Update()
 		selectable.first.Update();
 		if (selectable.first.IsSelected()) 
 		{
+			if (m_pSelectedObject)
+				if (m_pSelectedObject != &selectable && m_pSelectedObject->first.IsSelected()) 
+					m_pSelectedObject->first.Selected(false);
+
+			m_pSelectedObject = &selectable;
 			SelectionManager::Get().SelectGameObject(selectable.second);
 			Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectSelectedChanged);
 		}

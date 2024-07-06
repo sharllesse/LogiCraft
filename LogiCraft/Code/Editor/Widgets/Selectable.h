@@ -14,6 +14,7 @@ public:
 	void Draw() override;
 
 	const bool& IsSelected() const { return m_isSelected; }
+	void Selected(const bool& selected) { m_isSelected = selected; }
 private:
 	bool m_isSelected{false};
 };

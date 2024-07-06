@@ -59,6 +59,7 @@ private:
 	void RefrectObjectList();
 
 	std::vector<std::pair<Selectable, EditorObjectPtr>> m_objects;
+	std::pair<Selectable, EditorObjectPtr>* m_pSelectedObject{nullptr};
 
 	bool m_refreshObjectList{false};
 };

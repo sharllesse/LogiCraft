@@ -11,8 +11,9 @@ public:
 	SelectionManager();
 	~SelectionManager();
 
-	void SelectGameObject(const EditorObjectPtr& pObject);
+	void                   SelectGameObject(const EditorObjectPtr& pObject);
 	const EditorObjectPtr& SelectedGameObject() const { return m_pSelectedObject; }
+
 private:
 	EditorObjectPtr m_pSelectedObject;
 };
