@@ -59,8 +59,12 @@ bool Event::RemoveListener(int _id)
 
 void Event::Invoke()
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
-	for (auto& func : m_listeners)
+	std::unordered_map<int, std::function<void()>> listeners;
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
+		listeners = m_listeners;
+	}
+	for (auto& func : listeners)
 	{
 		func.second();
 	}

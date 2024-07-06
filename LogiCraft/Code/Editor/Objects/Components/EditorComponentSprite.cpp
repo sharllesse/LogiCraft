@@ -53,7 +53,7 @@ void Logicraft::EditorComponentSprite::DrawUI()
 				const bool isSelected = (m_pTexture == pResource);
 				if (ImGui::Selectable(pResource->GetName().c_str(), isSelected))
 				{
-					m_pTexture = std::dynamic_pointer_cast<EditorTexture>(pResource);
+					SetTexture(std::dynamic_pointer_cast<EditorTexture>(pResource));
 				}
 				if (isSelected)
 				{
@@ -62,5 +62,14 @@ void Logicraft::EditorComponentSprite::DrawUI()
 			}
 		}
 		ImGui::EndCombo();
+	}
+}
+
+void Logicraft::EditorComponentSprite::SetTexture(EditorTexturePtr pTexture)
+{
+	m_pTexture = pTexture;
+	if (ComponentSpritePtr pGameComponent = std::dynamic_pointer_cast<ComponentSprite>(m_pGameComponent))
+	{
+		pGameComponent->SetTexture(pTexture->GetTexture());
 	}
 }

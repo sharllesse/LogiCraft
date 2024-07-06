@@ -41,6 +41,7 @@ SOFTWARE.
 #include "ResourceSystem/ResourceManager.h"
 #include "TaskManager.h"
 
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <memory>
 
 namespace Logicraft
@@ -65,7 +66,7 @@ public:
 	void Init();
 	void ProcessEvents();
 	void Update();
-	void Render();
+	void Render(sf::RenderWindow& target);
 	void Release();
 
 	EventSystem& GetEventSystem() { return *m_pEventSystem; }

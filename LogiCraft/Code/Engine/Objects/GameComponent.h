@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Serializable.h"
 #include "Utils/TypeDefinition.h"
 
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <guiddef.h>
 #include <memory>
 
@@ -49,7 +50,7 @@ public:
 	GameComponent();
 
 	virtual void Update() {}
-	virtual void Render() {}
+	virtual void Render(sf::RenderWindow& target) {}
 
 	GUID GetGUID() const { return m_GUID; }
 

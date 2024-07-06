@@ -53,11 +53,11 @@ void GameObject::Update()
 	}
 }
 
-void Logicraft::GameObject::Render()
+void Logicraft::GameObject::Render(sf::RenderWindow& target)
 {
 	for (GameComponentPtr component : m_components)
 	{
-		component->Render();
+		component->Render(target);
 	}
 }
 

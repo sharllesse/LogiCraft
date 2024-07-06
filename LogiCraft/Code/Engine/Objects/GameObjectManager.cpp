@@ -86,6 +86,10 @@ GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
 		{
 			GameComponentPtr pComponent = pComponentType->Create();
 			m_components.push_back(pComponent);
+
+			std::string message = "Component type " + std::string(componentType) + " created.";
+			Logger::Get().Log(Logger::eInfo, message);
+
 			return pComponent;
 		}
 	}

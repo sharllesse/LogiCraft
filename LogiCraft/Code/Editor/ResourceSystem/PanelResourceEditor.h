@@ -50,11 +50,11 @@ public:
 	void Update() override;
 
 protected:
+	void CreateNewResource(const std::string& resourceType);
+
 	void Draw() override;
 
 private:
-	bool              m_createNewResource{false};
-	std::string       m_resourceTypeToCreate;
 	EditorResourcePtr m_pEditedResource;
 };
 } // namespace Logicraft

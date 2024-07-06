@@ -50,6 +50,8 @@ public:
 	void Update() override;
 	void DrawUI() override;
 
+	void SetTexture(EditorTexturePtr pTexture);
+
 private:
 	EditorTexturePtr m_pTexture;
 };

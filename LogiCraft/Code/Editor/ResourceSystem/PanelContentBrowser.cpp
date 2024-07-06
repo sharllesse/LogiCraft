@@ -33,10 +33,11 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "PanelContentBrowser.h"
+#include "ResourceSystem/EditorResourceManager.h"
+#include "ResourceSystem/Resources/EditorTexture.h"
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
 
-#include <Engine/ResourceSystem/ResourceManager.h>
 #include <imgui/imgui-SFML.h>
 #include <imgui/imgui.h>
 
@@ -49,12 +50,18 @@ PanelContentBrowser::PanelContentBrowser()
 
 void PanelContentBrowser::Draw()
 {
-	for (auto& resource : ResourceManager::Get().GetLoadedResources())
+	for (auto& pResource : EditorResourceManager::Get().GetResources())
 	{
-		ImGui::Image(t, sf::Color::Red, sf::Color::White);
-		//  if (ImGui::TreeNode(resource->GetType().GetName().c_str()))
-		//{
-		//	ImGui::TreePop();
-		//  }
+		if (EditorTexturePtr pTexture = std::dynamic_pointer_cast<EditorTexture>(pResource))
+		{
+			if (TexturePtr pGameTexture = pTexture->GetTexture())
+			{
+				ImGui::Image(pGameTexture->GetTexture(), sf::Color::White, sf::Color::White);
+			}
+		}
+		else
+		{
+			ImGui::Image(t, sf::Color::White, sf::Color::White);
+		}
 	}
 }

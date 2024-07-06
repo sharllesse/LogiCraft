@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Serializable.h"
 #include "GameComponent.h"
 
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <memory>
 #include <vector>
 
@@ -47,7 +48,7 @@ public:
 	GameObject();
 
 	void Update();
-	void Render();
+	void Render(sf::RenderWindow& target);
 
 	void AddComponent(GameComponentPtr component);
 	void RemoveComponent(GameComponentPtr component);

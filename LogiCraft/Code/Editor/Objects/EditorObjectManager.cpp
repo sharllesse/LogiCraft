@@ -123,6 +123,10 @@ void Logicraft::EditorObjectManager::CreateComponent(EditorObjectPtr pObject, co
 				EditorComponentPtr pEditorComponent = pComponentType->Create();
 				pEditorComponent->SetGameComponent(pGameComponent);
 				pObject->AddComponent(pEditorComponent);
+
+				std::string message = "Component type " + std::string(editorComponentType) + " created.";
+				Logger::Get().Log(Logger::eInfo, message);
+				return;
 			}
 		}
 	}

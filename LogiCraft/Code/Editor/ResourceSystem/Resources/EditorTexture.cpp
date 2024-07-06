@@ -38,24 +38,25 @@ SOFTWARE.
 #include <Engine/ResourceSystem/Resources/Texture.h>
 #include <imgui.h>
 
-Logicraft::EditorTexture::EditorTexture()
-{
-	m_pActionSelectPath = ActionManager::Get().AddAction("Select_Texture_Path");
-	m_pActionSelectPath->SetCallback([this] {
-		m_pTexture->SetFilePath("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
-		m_pTexture->GetTexture().loadFromFile("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
-	});
-}
+using namespace Logicraft;
+
+Logicraft::EditorTexture::EditorTexture() {}
 
 void Logicraft::EditorTexture::DrawUI()
 {
 	EditorResource::DrawUI();
 
-	if (m_pTexture)
+	if (TexturePtr pTexture = std::dynamic_pointer_cast<Texture>(m_pResource))
 	{
-		if (ImGui::Button(m_pTexture->GetFilePath().empty() ? "<Select A File>" : m_pTexture->GetFilePath().c_str()))
+		if (ImGui::Button(pTexture->GetFilePath().empty() ? "<Select A File>" : pTexture->GetFilePath().c_str()))
 		{
-			m_pActionSelectPath->ExecuteLater();
+			pTexture->SetFilePath("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
+			pTexture->GetTexture().loadFromFile("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
 		}
 	}
+}
+
+TexturePtr Logicraft::EditorTexture::GetTexture()
+{
+	return std::dynamic_pointer_cast<Texture>(m_pResource);
 }

@@ -85,11 +85,11 @@ void Engine::Update()
 	}
 }
 
-void Engine::Render()
+void Engine::Render(sf::RenderWindow& target)
 {
 	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
 	{
-		pObject->Render();
+		pObject->Render(target);
 	}
 }
 

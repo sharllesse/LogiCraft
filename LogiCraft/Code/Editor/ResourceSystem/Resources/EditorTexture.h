@@ -49,9 +49,9 @@ public:
 
 	void DrawUI() override;
 
+	TexturePtr GetTexture();
+
 private:
-	TexturePtr m_pTexture;
-	ActionPtr  m_pActionSelectPath;
 };
 using EditorTexturePtr = std::shared_ptr<EditorTexture>;
 } // namespace Logicraft

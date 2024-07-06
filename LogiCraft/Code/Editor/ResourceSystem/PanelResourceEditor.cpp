@@ -54,22 +54,16 @@ Logicraft::PanelResourceEditor::PanelResourceEditor()
 		MenuItemPtr pItemNew = make_shared(MenuItem, pResourceType->GetName().c_str());
 		pMenuNew->AddChild(pItemNew);
 		ActionPtr pAction = ActionManager::Get().AddAction((std::string("new_") + pResourceType->GetName()).c_str());
-		pAction->SetCallback([this, pResourceType] {
-			m_createNewResource    = true;
-			m_resourceTypeToCreate = pResourceType->GetName();
-		});
+		pAction->SetCallback([this, pResourceType] { CreateNewResource(pResourceType->GetName()); });
 		pItemNew->SetAction(pAction);
 	}
 }
 
-void Logicraft::PanelResourceEditor::Update()
+void Logicraft::PanelResourceEditor::Update() {}
+
+void Logicraft::PanelResourceEditor::CreateNewResource(const std::string& resourceType)
 {
-	// Don't create directly in the action (during rendering) as it can crash sfml
-	if (m_createNewResource && !m_resourceTypeToCreate.empty())
-	{
-		m_pEditedResource   = EditorResourceManager::Get().CreateResource(m_resourceTypeToCreate.c_str());
-		m_createNewResource = false;
-	}
+	TaskManager::Get().AddTask([this, resourceType] { m_pEditedResource = EditorResourceManager::Get().CreateResource(resourceType.c_str()); });
 }
 
 void Logicraft::PanelResourceEditor::Draw()
