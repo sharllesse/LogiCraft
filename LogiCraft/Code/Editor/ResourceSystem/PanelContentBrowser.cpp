@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
 
-#include <imgui/imgui-SFML.h>
+#include <imgui-SFML/imgui-SFML.h>
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
@@ -57,6 +57,10 @@ void PanelContentBrowser::Draw()
 			if (TexturePtr pGameTexture = pTexture->GetTexture())
 			{
 				ImGui::Image(pGameTexture->GetTexture(), sf::Color::White, sf::Color::White);
+			}
+			else
+			{
+				ImGui::Image(t, sf::Color::White, sf::Color::White);
 			}
 		}
 		else

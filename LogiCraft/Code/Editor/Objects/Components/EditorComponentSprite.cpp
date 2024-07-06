@@ -35,7 +35,7 @@ SOFTWARE.
 #include "EditorComponentSprite.h"
 #include "ResourceSystem/EditorResourceManager.h"
 
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 using namespace Logicraft;
 
