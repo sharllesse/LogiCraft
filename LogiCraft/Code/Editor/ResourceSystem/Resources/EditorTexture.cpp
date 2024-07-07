@@ -36,7 +36,7 @@ SOFTWARE.
 
 #include <Engine/Core/ActionManager.h>
 #include <Engine/ResourceSystem/Resources/Texture.h>
-#include <imgui.h>
+#include <imgui/imgui.h>
 
 using namespace Logicraft;
 

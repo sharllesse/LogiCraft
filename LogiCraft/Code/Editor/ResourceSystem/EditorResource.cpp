@@ -34,7 +34,8 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 #include "EditorResource.h"
 
-#include <imgui.h>
+#include <imgui/imgui.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 
 using namespace Logicraft;
 
@@ -42,7 +43,7 @@ void Logicraft::EditorResource::DrawUI()
 {
 	std::string bufferName = m_name;
 	bufferName.reserve(256);
-	if (ImGui::InputText("Name", bufferName, sizeof(bufferName)))
+	if (ImGui::InputText("Name", &bufferName))
 	{
 		SetName(bufferName);
 	}

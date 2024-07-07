@@ -39,7 +39,7 @@ SOFTWARE.
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <assert.h>
-#include <imgui/imgui-SFML.h>
+#include <imgui-SFML/imgui-SFML.h>
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
@@ -146,7 +146,7 @@ void Editor::Render()
 	// PROFILE_FUNCTION
 	// PROFILE_SCOPE("Window Render");
 	ImGui::SFML::Update(m_window, m_timer);
-	ImGui::DockSpaceOverViewport(nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::DockSpaceOverViewport(0, 0, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	m_pMainMenu->Draw();
 
