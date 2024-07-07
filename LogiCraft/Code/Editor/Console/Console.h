@@ -14,7 +14,7 @@ class Console;
 static Console* sConsole = nullptr;
 class Console : public Panel
 {
-	LOGI_DECLARE_PANEL(Console, "Console")
+	LOGI_TYPEDEF_DERIVED_TYPE(Panel, Console, "Console")
 
 	struct OutputRow
 	{

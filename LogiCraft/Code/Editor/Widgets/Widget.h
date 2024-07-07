@@ -13,8 +13,8 @@ class Widget
 {
 public:
 	Widget() = default;
-	Widget(const std::string& name);
-	void         AddChild(WidgetPtr pChild);
+	explicit Widget(const std::string& name);
+
 	virtual void Update();
 	virtual void Draw();
 

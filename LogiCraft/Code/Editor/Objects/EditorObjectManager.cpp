@@ -33,8 +33,9 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "EditorObjectManager.h"
+#include "SelectionManager.h"
+
 #include "Core/Editor.h"
-#include "Widgets/SelectionManager.h"
 
 #include <Engine/Core/ActionManager.h>
 #include <Engine/Core/Engine.h>

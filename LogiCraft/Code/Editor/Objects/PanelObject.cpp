@@ -36,10 +36,13 @@ SOFTWARE.
 
 #include "Core/ActionManager.h"
 #include "Core/Editor.h"
+
 #include "EditorObjectManager.h"
+
+#include "SelectionManager.h"
+
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
-#include "Widgets/SelectionManager.h"
 
 #include <imgui/imgui.h>
 

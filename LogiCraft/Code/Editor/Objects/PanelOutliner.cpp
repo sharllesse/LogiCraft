@@ -34,11 +34,14 @@ SOFTWARE.
 #include "PanelOutliner.h"
 
 #include "Core/Editor.h"
+
 #include "EditorComponent.h"
 #include "EditorObjectManager.h"
+
+#include "SelectionManager.h"
+
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
-#include "Widgets/SelectionManager.h"
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
@@ -76,7 +79,7 @@ void Logicraft::PanelOutliner::Update()
 		{
 			if (m_pSelectedObject)
 				if (m_pSelectedObject != &selectable && m_pSelectedObject->first.IsSelected()) 
-					m_pSelectedObject->first.Selected(false);
+					m_pSelectedObject->first.Select(false);
 
 			m_pSelectedObject = &selectable;
 			SelectionManager::Get().SelectGameObject(selectable.second);
@@ -104,9 +107,11 @@ void Logicraft::PanelOutliner::RefrectObjectList()
 		{
 			const auto objectIt = std::remove_if(m_objects.begin(),
 			  m_objects.end(),
-			  [&newGameObject](const std::pair<Selectable, EditorObjectPtr>& outlinerObject) { return outlinerObject.second == newGameObject; });
+			  [&newGameObject](const std::pair<WidgetSelectableText, EditorObjectPtr>& outlinerObject) { return outlinerObject.second == newGameObject; });
 
 			m_objects.erase(objectIt);
+
+			SelectionManager::Get().SelectGameObject(nullptr);
 		}
 
 		// for (auto outlinerObject = m_objects.begin(); outlinerObject != m_objects.end();)
@@ -123,7 +128,7 @@ void Logicraft::PanelOutliner::RefrectObjectList()
 	{
 		const EditorObjectPtr& newGameObject = SelectionManager::Get().SelectedGameObject();
 		if (newGameObject)
-			m_objects.emplace_back(std::make_pair(Selectable(newGameObject->GetName().c_str()), newGameObject));
+			m_objects.emplace_back(std::make_pair(WidgetSelectableText(newGameObject->GetName().c_str()), newGameObject));
 		/*for (auto& managerObject : managerObjects)
 		{
 		  const auto objectIt = std::find_if(m_objects.begin(), m_objects.end(), [&managerObject](const std::pair<Selectable, EditorObjectPtr>&

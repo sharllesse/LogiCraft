@@ -4,12 +4,12 @@
 
 namespace Logicraft
 {
-Selectable::Selectable(const char* name)
+WidgetSelectableText::WidgetSelectableText(const char* name)
   : Widget(name)
 {
 }
-void Selectable::Update() {}
-void Selectable::Draw()
+void WidgetSelectableText::Update() {}
+void WidgetSelectableText::Draw()
 {
 	if (ImGui::Selectable(m_name.c_str(), m_isSelected))
 	{
