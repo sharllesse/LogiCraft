@@ -52,12 +52,11 @@ public:
 
 	void Update() override;
 
+	void Release() override;
 protected:
 	void Draw() override;
 
 private:
-	void RefrectObjectList();
-
 	std::vector<std::pair<WidgetSelectableText, EditorObjectPtr>> m_objects;
 	std::pair<WidgetSelectableText, EditorObjectPtr>*             m_pSelectedObject{nullptr};
 

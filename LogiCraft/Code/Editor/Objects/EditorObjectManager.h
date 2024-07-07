@@ -44,6 +44,17 @@ namespace Logicraft
 class EditorObjectManager
 {
 public:
+	struct EventObjectCreated
+	{
+		explicit EventObjectCreated(EditorObject* pObject)
+		  :	pObject(pObject)
+		{
+		}
+
+		inline static int ID = 1;
+		EditorObject* pObject;
+	};
+
 	static EditorObjectManager& Get();
 
 	EditorObjectManager();

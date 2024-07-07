@@ -1,5 +1,7 @@
 #include "Selectable.h"
 
+#include "Core/Editor.h"
+
 #include <imgui.h>
 
 namespace Logicraft
@@ -14,6 +16,7 @@ void WidgetSelectableText::Draw()
 	if (ImGui::Selectable(m_name.c_str(), m_isSelected))
 	{
 		m_isSelected = !m_isSelected;
+		m_eventSystem.QueueEvent(Editor::eSelectable);
 	}
 }	
 } // namespace Logicraft

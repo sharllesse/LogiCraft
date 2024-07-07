@@ -1,5 +1,7 @@
 #include "SelectionManager.h"
 
+#include "Core/Editor.h"
+
 #include <assert.h>
 
 using namespace Logicraft;
@@ -23,7 +25,14 @@ SelectionManager::~SelectionManager()
 	m_pSelectedObject = nullptr;
 }
 
-void Logicraft::SelectionManager::SelectGameObject(const EditorObjectPtr& pObject)
+void Logicraft::SelectionManager::UnSelectObject(EditorObjectPtr pObject)
+{
+	m_pSelectedObject = nullptr;
+	Editor::Get().GetEventSystem().SendEvent(EventObjectSelected(pObject, false));
+}
+
+void Logicraft::SelectionManager::SelectObject(EditorObjectPtr pObject)
 {
 	m_pSelectedObject = pObject;
+	Editor::Get().GetEventSystem().SendEvent(EventObjectSelected(pObject, true));
 }

@@ -75,7 +75,7 @@ void Logger::Log(ELogLevel level, const std::string& message)
 	case ELogLevel::eError:
 		{
 			std::cout << "ERROR: " << message << std::endl;
-			// écrire dans un fichier les erreurs.
+			// Ã©crire dans un fichier les erreurs.
 		}
 		break;
 	}

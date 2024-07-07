@@ -2,6 +2,8 @@
 
 #include "Widgets/Widget.h"
 
+#include <Engine/Core/EventSystem.h>
+
 namespace Logicraft
 {
 class WidgetSelectableText : public Widget
@@ -17,5 +19,7 @@ public:
 	void Select(const bool& selected) { m_isSelected = selected; }
 private:
 	bool m_isSelected{false};
+
+	EventSystem m_eventSystem;
 };
 } // namespace Logicraft

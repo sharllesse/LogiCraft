@@ -67,19 +67,26 @@ Logicraft::PanelObject::PanelObject()
 		pItemNew->SetAction(pAction);
 	}
 
-	Editor::Get().GetEventSystem().AddAsyncListener(Editor::eObjectSelectedChanged, [this]() { m_refreshSelectedObject = true; });
+	Editor::Get().GetEventSystem().AddListener<SelectionManager::EventObjectSelected>(this, [this](const SelectionManager::EventObjectSelected& event) {
+		if (!event.selected)
+		{
+			if (m_pSelectedObject == event.pObject)
+			{
+				m_pSelectedObject = nullptr;
+			}
+		}
+		else
+		{
+			m_pSelectedObject = event.pObject;
+		}
+	});
 }
 
-void Logicraft::PanelObject::Update()
+void Logicraft::PanelObject::Update() {}
+
+void Logicraft::PanelObject::Release()
 {
-	if (m_refreshSelectedObject) 
-	{
-		m_pSelectedObject = SelectionManager::Get().SelectedGameObject();
-		m_refreshSelectedObject = false;
-	}
-	//auto objects = EditorObjectManager::Get().GetObjects();
-	//if (objects.size() > 0)
-	//	m_pSelectedObject = objects[objects.size() - 1];
+	Editor::Get().GetEventSystem().RemoveListener<SelectionManager::EventObjectSelected>(this);
 }
 
 void Logicraft::PanelObject::Draw()

@@ -56,36 +56,39 @@ Logicraft::PanelOutliner::PanelOutliner()
 	m_menuBar.AddChild(pMenuNew);
 	pMenuNew->SetAction(EditorObjectManager::Get().GetActionCreateObject());
 
-	Editor::Get().GetEventSystem().AddAsyncListener(Editor::eObjectChanged, [this]() { m_refreshObjectList = true; });
+	Editor::Get().GetEventSystem().AddListener<SelectionManager::EventObjectSelected>(this, [this](const SelectionManager::EventObjectSelected& event) {
+
+	});
+
+	Editor::Get().GetEventSystem().AddListener<EditorObjectManager::EventObjectCreated>(this,
+	  [this](const EditorObjectManager::EventObjectCreated& event) {
+			m_objects.emplace_back(std::make_pair(WidgetSelectableText(event.pObject->GetName().c_str()), event.pObject));
+	});
 }
 
-Logicraft::PanelOutliner::~PanelOutliner()
-{
-	m_objects.clear();
-}
+Logicraft::PanelOutliner::~PanelOutliner() {}
 
 void Logicraft::PanelOutliner::Update()
 {
-	if (m_refreshObjectList)
-	{
-		RefrectObjectList();
-		m_refreshObjectList = false;
-	}
-
 	for (auto& selectable : m_objects)
 	{
 		selectable.first.Update();
 		if (selectable.first.IsSelected()) 
 		{
-			if (m_pSelectedObject)
+			/*if (m_pSelectedObject)
 				if (m_pSelectedObject != &selectable && m_pSelectedObject->first.IsSelected()) 
-					m_pSelectedObject->first.Select(false);
+					m_pSelectedObject->first.Select(false);*/
 
-			m_pSelectedObject = &selectable;
-			SelectionManager::Get().SelectGameObject(selectable.second);
-			Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectSelectedChanged);
+			//m_pSelectedObject = &selectable;
+			SelectionManager::Get().SelectObject(selectable.second);
 		}
 	}
+}
+
+void Logicraft::PanelOutliner::Release() 
+{
+	Editor::Get().GetEventSystem().RemoveListener<SelectionManager::EventObjectSelected>(this);
+	Editor::Get().GetEventSystem().RemoveListener<EditorObjectManager::EventObjectCreated>(this);
 }
 
 void Logicraft::PanelOutliner::Draw()
@@ -93,50 +96,5 @@ void Logicraft::PanelOutliner::Draw()
 	for (auto& selectable : m_objects)
 	{
 		selectable.first.Draw();
-	}
-}
-
-void Logicraft::PanelOutliner::RefrectObjectList()
-{
-	const std::vector<EditorObjectPtr>& managerObjects = EditorObjectManager::Get().GetObjects();
-	if (m_objects.size() > managerObjects.size())
-	{
-		const EditorObjectPtr& newGameObject = SelectionManager::Get().SelectedGameObject();
-
-		if (newGameObject) 
-		{
-			const auto objectIt = std::remove_if(m_objects.begin(),
-			  m_objects.end(),
-			  [&newGameObject](const std::pair<WidgetSelectableText, EditorObjectPtr>& outlinerObject) { return outlinerObject.second == newGameObject; });
-
-			m_objects.erase(objectIt);
-
-			SelectionManager::Get().SelectGameObject(nullptr);
-		}
-
-		// for (auto outlinerObject = m_objects.begin(); outlinerObject != m_objects.end();)
-		//{
-		//	const auto objectIt = std::find(managerObjects.begin(), managerObjects.end(), (*outlinerObject).second);
-
-		//	if (objectIt == managerObjects.end())
-		//		outlinerObject = m_objects.erase(outlinerObject);
-		//	else
-		//		outlinerObject++;
-		//}
-	}
-	else
-	{
-		const EditorObjectPtr& newGameObject = SelectionManager::Get().SelectedGameObject();
-		if (newGameObject)
-			m_objects.emplace_back(std::make_pair(WidgetSelectableText(newGameObject->GetName().c_str()), newGameObject));
-		/*for (auto& managerObject : managerObjects)
-		{
-		  const auto objectIt = std::find_if(m_objects.begin(), m_objects.end(), [&managerObject](const std::pair<Selectable, EditorObjectPtr>&
-		outlinerObject) { return outlinerObject.second == managerObject;
-		  });
-
-		  if (objectIt == m_objects.end())
-		    m_objects.emplace_back(std::make_pair(Selectable(managerObject->GetName().c_str()), managerObject));
-		}*/
 	}
 }

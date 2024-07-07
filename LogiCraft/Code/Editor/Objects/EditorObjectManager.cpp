@@ -97,17 +97,13 @@ void EditorObjectManager::CreateObject()
 	GameObjectPtr pGameObject = GameObjectManager::Get().CreateObject();
 	pNewObject->SetGameObject(pGameObject);
 
-	SelectionManager::Get().SelectGameObject(pNewObject);
-	Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectChanged);
-	Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectSelectedChanged);
+	Editor::Get().GetEventSystem().SendEvent(EventObjectCreated(pNewObject.get()));
 }
 
 void EditorObjectManager::RemoveObject(REFGUID objectGUID)
 {
 	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
 	{
-		Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectChanged);
-		Editor::Get().GetEventSystem().QueueEvent(Editor::eObjectSelectedChanged);
 		m_objects.erase(it);
 	}
 }

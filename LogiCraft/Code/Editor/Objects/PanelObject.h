@@ -47,6 +47,7 @@ public:
 
 	void Update() override;
 
+	void Release() override;
 protected:
 	void Draw() override;
 
