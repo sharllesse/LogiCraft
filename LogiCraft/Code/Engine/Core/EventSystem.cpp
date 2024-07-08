@@ -39,7 +39,7 @@ using namespace Logicraft;
 
 void Event::Invoke()
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	std::shared_lock<std::shared_mutex> lock(m_mutex);
 	for (auto& func : m_callbacks)
 	{
 		func.second();
@@ -50,24 +50,30 @@ void EventSystem::ProcessEvents()
 {
 	while (!m_queuedEvents.empty())
 	{
-		int eventID;
-		{
-			std::lock_guard<std::mutex> lock(m_mutex);
+		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 
-			eventID = m_queuedEvents.front();
-			m_queuedEvents.pop();
-		}
+		int eventID = m_queuedEvents.front();
+		m_queuedEvents.pop();
+
 		m_queuedEventsCallbacks[eventID].Invoke();
 	}
 }
 
 void EventSystem::QueueEvent(int eventID)
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 
 	auto it = m_queuedEventsCallbacks.find(eventID);
 	if (it != m_queuedEventsCallbacks.end())
 	{
+		std::queue<int> tempQueue = m_queuedEvents;
+		while (!tempQueue.empty())
+		{
+			if (tempQueue.front() == eventID)
+				return;
+			tempQueue.pop();
+		}
+
 		m_queuedEvents.emplace(it->first);
 	}
 }

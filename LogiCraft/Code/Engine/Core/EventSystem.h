@@ -40,15 +40,15 @@ SOFTWARE.
 #include <iostream>
 #include <mutex>
 #include <queue>
+#include <shared_mutex>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
 namespace Logicraft
 {
 class Event
 {
-	using CallBackPair = std::pair<void*, std::function<void()>>;
+	using TCallBackPair = std::pair<void*, std::function<void()>>;
 
 public:
 	Event()  = default;
@@ -62,30 +62,34 @@ public:
 	template<typename TCallBackOwner>
 	void AddCallback(TCallBackOwner* pCallBackOwner, std::function<void()> func)
 	{
-		CallBackPair cb = {(void*)pCallBackOwner, func};
+		std::lock_guard<std::shared_mutex> lock(m_mutex);
+
+		TCallBackPair cb = {(void*)pCallBackOwner, func};
 		m_callbacks.push_back(std::move(cb));
 	}
 
 	template<typename TCallBackOwner>
 	void RemoveCallback(TCallBackOwner* pCallBackOwner)
 	{
+		std::lock_guard<std::shared_mutex> lock(m_mutex);
+
 		m_callbacks.erase(
-		  std::remove_if(m_callbacks.begin(), m_callbacks.end(), [pCallBackOwner](CallBackPair& pair) { return (pair.first == pCallBackOwner); }),
+		  std::remove_if(m_callbacks.begin(), m_callbacks.end(), [pCallBackOwner](TCallBackPair& pair) { return (pair.first == pCallBackOwner); }),
 		  m_callbacks.end());
 	}
 	void Invoke();
 
 private:
-	std::vector<CallBackPair> m_callbacks;
-	std::mutex                m_mutex;
+	std::vector<TCallBackPair> m_callbacks;
+	std::shared_mutex          m_mutex;
 };
 
-#define GET_UNIQUE_CALL_BACK_ID inline static int ID = EventSystem::s_callBackID++;
+#define UNIQUE_EVENT_ID inline static int ID = EventSystem::s_callBackID++;
 // How to declare an unique ID for each callbacks with args:
 //	class NewEvent
 //	{
 // 	public:
-//		GET_UNIQUE_CALL_BACK_ID
+//		UNIQUE_EVENT_ID
 // 		...
 //	};
 
@@ -112,12 +116,16 @@ public:
 	template<typename TCallBackOwner>
 	void AddQueuedEventCallback(TCallBackOwner* pCallBackOwner, int eventID, std::function<void()> func)
 	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
+
 		m_queuedEventsCallbacks[eventID].AddCallback(pCallBackOwner, func);
 	}
 
 	template<typename TCallBackOwner>
 	void RemoveQueuedEventCallback(TCallBackOwner* pCallBackOwner, int eventID)
 	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
+
 		auto it = m_queuedEventsCallbacks.find(eventID);
 		if (it != m_queuedEventsCallbacks.end())
 		{
@@ -128,13 +136,15 @@ public:
 	// Push an event to the queue that will be processed later
 	void QueueEvent(int eventID);
 
-	// Proccess events wich there are in queue
+	// Process events in queue
 	void ProcessEvents();
 
 	// To add a call back in the event system using the adress of the call back owner and a function with args
 	template<typename TEvent, typename TCallBackOwner>
 	void AddCallback(TCallBackOwner* pCallBackOwner, std::function<void(const TEvent&)>&& func)
 	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexEventsCallback);
+
 		Callback cb = {(void*)pCallBackOwner, TEvent::ID};
 
 		TCallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
@@ -146,6 +156,8 @@ public:
 	template<typename TEvent, typename TCallBackOwner>
 	void RemoveCallback(TCallBackOwner* pCallBackOwner)
 	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexEventsCallback);
+
 		m_eventsCallback.erase(
 		  std::remove_if(m_eventsCallback.begin(),
 		    m_eventsCallback.end(),
@@ -157,6 +169,8 @@ public:
 	template<typename TEvent>
 	void SendEvent(const TEvent& typeEvent)
 	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexEventsCallback);
+
 		for (auto& cb : m_eventsCallback)
 		{
 			if (cb.first.eventID == TEvent::ID)
@@ -167,10 +181,11 @@ public:
 	}
 
 private:
-	std::vector<TCallBackPair> m_eventsCallback;
-
+	std::vector<TCallBackPair>     m_eventsCallback;
 	std::unordered_map<int, Event> m_queuedEventsCallbacks;
 	std::queue<int>                m_queuedEvents;
-	std::mutex                     m_mutex;
+
+	std::shared_mutex m_mutexEventsCallback;
+	std::shared_mutex m_mutexQueuedEventsCallbacks;
 };
 } // namespace Logicraft
