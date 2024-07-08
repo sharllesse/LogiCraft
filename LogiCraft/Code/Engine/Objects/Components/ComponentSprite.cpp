@@ -33,23 +33,3 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ComponentSprite.h"
-#include "Core/Engine.h"
-
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Texture.hpp>
-
-Logicraft::ComponentSprite::ComponentSprite() {}
-
-void Logicraft::ComponentSprite::Render(sf::RenderWindow& target)
-{
-	if (m_sprite.getTexture())
-	{
-		target.draw(m_sprite);
-	}
-}
-
-void Logicraft::ComponentSprite::SetTexture(TexturePtr pTexture)
-{
-	m_pTexture = pTexture;
-	m_sprite.setTexture(m_pTexture->GetTexture());
-}

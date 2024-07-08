@@ -33,15 +33,9 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "ResourceManager.h"
-
-#include "Core/ActionManager.h"
 #include "Core/Logger.h"
-#include "Core/Serializer.h"
-#include "Resource.h"
-#include "Utils/GuidUtils.h"
 
 #include <assert.h>
-#include <map>
 
 using namespace Logicraft;
 
@@ -57,12 +51,6 @@ ResourceManager::ResourceManager()
 {
 	assert(!s_pResourceManager);
 	s_pResourceManager = this;
-
-	ActionPtr pSetBinaryFormatAction = ActionManager::Get().AddAction("set_resource_binary_format");
-	pSetBinaryFormatAction->SetCallback([]() { ResourceManager::Get().SetFileFormat(EFileFormat::eBinary); });
-
-	ActionPtr pSetJsonFormatAction = ActionManager::Get().AddAction("set_resource_json_format");
-	pSetJsonFormatAction->SetCallback([]() { ResourceManager::Get().SetFileFormat(EFileFormat::eJson); });
 }
 
 ResourceManager::~ResourceManager()
@@ -72,7 +60,7 @@ ResourceManager::~ResourceManager()
 
 ResourcePtr ResourceManager::CreateResource(const char* resourceType)
 {
-	for (auto& pResourceType : Resource::GetRegisteredTypes())
+	for (auto& pResourceType : ResourceRegisterer::s_registerers)
 	{
 		if (pResourceType->GetName().compare(resourceType) == 0)
 		{
@@ -89,7 +77,20 @@ ResourcePtr ResourceManager::CreateResource(const char* resourceType)
 void ResourceManager::Serialize(bool load, JsonObjectPtr pJsonObject)
 
 {
-	if (load) {}
+	if (load)
+	{
+		for (GUID& resourceGUID : m_resourcesToLoad)
+		{
+			if (auto it = m_resourcesToFiles.find(resourceGUID); it != m_resourcesToFiles.end())
+			{
+				std::string file = it->second;
+			}
+			else
+			{
+				// Error
+			}
+		}
+	}
 	else // Save
 	{
 		for (ResourcePtr& pResource : m_loadedResources)
@@ -99,22 +100,4 @@ void ResourceManager::Serialize(bool load, JsonObjectPtr pJsonObject)
 	}
 }
 
-void ResourceManager::Load()
-{
-	if (m_fileFormat == EFileFormat::eJson)
-	{
-		for (GUID& resourceGUID : m_resourcesToLoad)
-		{
-			if (auto it = m_resourcesToFiles.find(resourceGUID); it != m_resourcesToFiles.end())
-			{
-				std::string file = it->second;
-
-				// Serialize(true, );
-			}
-			else
-			{
-				Logger::Get().Log(Logger::eWarning, "Resource file not found for " + GuidUtils::GuidToString(resourceGUID));
-			}
-		}
-	}
-}
+void ResourceManager::Load() {}

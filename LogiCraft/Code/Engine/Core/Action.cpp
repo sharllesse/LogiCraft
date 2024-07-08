@@ -34,7 +34,6 @@ SOFTWARE.
 
 #include "Action.h"
 
-#include "Core/Engine.h"
 #include "Core/Logger.h"
 #include "Serializer.h"
 #include "Utils/SfmlUtils.h"
@@ -49,8 +48,6 @@ Action::Action(const char* name)
 {
 	std::for_each(m_name.begin(), m_name.end(), ::tolower);
 	SfmlUtils::ClearKeyEvent(m_shortcut);
-	Engine::Get().GetEventSystem().AddAsyncListener(Engine::eProcessedEvents, [this] { m_eventSystem.ProcessEvents(); });
-	m_eventSystem.AddAsyncListener(Engine::eActionExecuteRequested, [this] { Execute(); });
 }
 
 void Action::Execute()
@@ -64,11 +61,6 @@ void Action::Execute()
 	{
 		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
 	}
-}
-
-void Logicraft::Action::ExecuteLater()
-{
-	m_eventSystem.QueueEvent(Engine::eActionExecuteRequested);
 }
 
 void Action::SetCallback(std::function<void()>&& callback)

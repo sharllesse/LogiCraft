@@ -47,14 +47,7 @@ using MenuItemPtr = std::shared_ptr<MenuItem>;
 class MenuItem
 {
 public:
-	explicit MenuItem(const char* name);
-	virtual ~MenuItem() = default;
-
-	MenuItem(const MenuItem&)            = delete;
-	MenuItem& operator=(const MenuItem&) = delete;
-	MenuItem(MenuItem&&)                 = delete;
-	MenuItem& operator=(MenuItem&&)      = delete;
-
+	MenuItem(const char* name);
 	void         AddChild(MenuItemPtr pChild);
 	void         SetAction(ActionPtr pAction);
 	virtual void Draw();

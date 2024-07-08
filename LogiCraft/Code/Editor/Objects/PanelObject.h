@@ -40,7 +40,7 @@ namespace Logicraft
 {
 class PanelObject : public Panel
 {
-	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelObject, "Object")
+	LOGI_DECLARE_PANEL(PanelObject, "Object")
 
 public:
 	PanelObject();

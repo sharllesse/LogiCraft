@@ -42,10 +42,6 @@ namespace Logicraft
 {
 namespace GuidUtils
 {
-struct LOGI_ENGINE_API GUIDComparer
-{
-	bool operator()(REFGUID left, REFGUID right) const { return memcmp(&left, &right, sizeof(GUID)) < 0; }
-};
 LOGI_ENGINE_API std::string GuidToString(const GUID& guid);
 LOGI_ENGINE_API GUID        StringToGuid(const std::string& str);
 } // namespace GuidUtils

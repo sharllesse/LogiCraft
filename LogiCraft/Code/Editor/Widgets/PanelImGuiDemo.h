@@ -39,7 +39,7 @@ namespace Logicraft
 {
 class PanelImGuiDemo : public Panel
 {
-	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelImGuiDemo, "ImGui Demo")
+	LOGI_DECLARE_PANEL(PanelImGuiDemo, "ImGui Demo")
 
 public:
 

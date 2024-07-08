@@ -39,7 +39,7 @@ namespace Logicraft
 {
 class PanelOutliner : public Panel
 {
-	LOGI_TYPEDEF_DERIVED_TYPE(Panel, PanelOutliner, "Outliner")
+	LOGI_DECLARE_PANEL(PanelOutliner, "Outliner")
 
 public:
 	PanelOutliner();

@@ -70,12 +70,6 @@ void Engine::Init()
 	m_pResourceManager->StartLoading();
 }
 
-void Logicraft::Engine::ProcessEvents()
-{
-	m_pEventSystem->QueueEvent(eProcessedEvents);
-	m_pEventSystem->ProcessEvents();
-}
-
 void Engine::Update()
 {
 	// PROFILE_FUNCTION
@@ -85,11 +79,11 @@ void Engine::Update()
 	}
 }
 
-void Engine::Render(sf::RenderWindow& target)
+void Engine::Render()
 {
 	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
 	{
-		pObject->Render(target);
+		pObject->Render();
 	}
 }
 

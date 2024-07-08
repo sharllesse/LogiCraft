@@ -34,7 +34,6 @@ SOFTWARE.
 
 #pragma once
 #include "DLLExport.h"
-#include "EventSystem.h"
 #include "Serializable.h"
 
 #include <SFML/Window/Event.hpp>
@@ -47,10 +46,9 @@ namespace Logicraft
 class LOGI_ENGINE_API Action : public Serializable
 {
 public:
-	explicit Action(const char* name);
+	Action(const char* name);
 
 	void Execute();
-	void ExecuteLater();
 
 	void               SetCallback(std::function<void()>&& callback);
 	void               SetShortcut(const std::string& shortcut);
@@ -70,7 +68,6 @@ private:
 	sf::Event::KeyEvent   m_shortcut;
 	std::string           m_shortcutStr;
 	std::string           m_description;
-	EventSystem           m_eventSystem;
 
 	inline static std::vector<std::string> s_actionsToExecute;
 };

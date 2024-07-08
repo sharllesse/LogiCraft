@@ -34,28 +34,13 @@ SOFTWARE.
 
 #pragma once
 #include "Objects/GameComponent.h"
-#include "ResourceSystem/Resources/Texture.h"
-#include "Utils/TypeDefinition.h"
-
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 
 namespace Logicraft
 {
 class LOGI_ENGINE_API ComponentSprite : public GameComponent
 {
-	LOGI_TYPEDEF_DERIVED_TYPE(GameComponent, ComponentSprite, "Sprite")
+	LOGI_DECLARE_COMPONENT(ComponentSprite)
 
 public:
-	ComponentSprite();
-
-	void Render(sf::RenderWindow& target) override;
-
-	void SetTexture(TexturePtr pTexture);
-
-private:
-	sf::Sprite m_sprite;
-	TexturePtr m_pTexture;
 };
-using ComponentSpritePtr = std::shared_ptr<ComponentSprite>;
 } // namespace Logicraft

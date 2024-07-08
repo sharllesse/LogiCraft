@@ -33,27 +33,22 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
-#include "Core/Serializable.h"
 #include "GameComponent.h"
+#include "ResourceSystem/Resource.h"
 
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <memory>
 #include <vector>
 
 namespace Logicraft
 {
-class LOGI_ENGINE_API GameObject : public Serializable
+class LOGI_ENGINE_API GameObject : public Resource
 {
 public:
-	GameObject();
-
 	void Update();
-	void Render(sf::RenderWindow& target);
+	void Render();
 
 	void AddComponent(GameComponentPtr component);
 	void RemoveComponent(GameComponentPtr component);
-
-	GUID GetGUID() const { return m_GUID; }
 
 	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
@@ -61,7 +56,6 @@ protected:
 	void Load() override;
 
 private:
-	GUID                          m_GUID{0};
 	std::vector<GameComponentPtr> m_components;
 };
 using GameObjectPtr = std::shared_ptr<GameObject>;
