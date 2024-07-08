@@ -45,18 +45,18 @@ using namespace Logicraft;
 
 Logicraft::PanelObject::PanelObject()
 {
-	MenuPtr pMenuNew = std::make_shared<Menu>("Add Component");
+	MenuPtr pMenuNew = make_shared(Menu, "Add Component");
 	m_menuBar.AddChild(pMenuNew);
 
-	for (auto& pComponentType : EditorComponentRegisterer::s_registerers)
+	for (auto& pComponentType : EditorComponent::GetRegisteredTypes())
 	{
-		MenuItemPtr pItemNew = std::make_shared<MenuItem>(pComponentType->GetGameTypeName().c_str());
+		MenuItemPtr pItemNew = make_shared(MenuItem, pComponentType->GetName().c_str());
 		pMenuNew->AddChild(pItemNew);
-		ActionPtr pAction = ActionManager::Get().AddAction((std::string("add_component_") + pComponentType->GetGameTypeName()).c_str());
+		ActionPtr pAction = ActionManager::Get().AddAction((std::string("add_component_") + pComponentType->GetName()).c_str());
 		pAction->SetCallback([this, pComponentType] {
 			if (m_pSelectedObject)
 			{
-				EditorObjectManager::Get().CreateComponent(m_pSelectedObject, pComponentType->GetEditorTypeName().c_str());
+				EditorObjectManager::Get().CreateComponent(m_pSelectedObject, pComponentType->GetName().c_str());
 			}
 		});
 		pItemNew->SetAction(pAction);
@@ -78,7 +78,6 @@ void Logicraft::PanelObject::Draw()
 
 		for (auto& pComponent : m_pSelectedObject->GetComponents())
 		{
-			ImGui::Text(pComponent->GetTypeClass().GetGameTypeName().c_str());
 			pComponent->DrawUI();
 		}
 	}

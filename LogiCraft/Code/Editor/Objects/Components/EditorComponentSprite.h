@@ -34,6 +34,7 @@ SOFTWARE.
 
 #pragma once
 #include "Objects/EditorComponent.h"
+#include "ResourceSystem/Resources/EditorTexture.h"
 
 #include <Engine/Objects/Components/ComponentSprite.h>
 #include <memory>
@@ -43,9 +44,15 @@ namespace Logicraft
 {
 class EditorComponentSprite : public EditorComponent
 {
-	LOGI_DECLARE_EDITOR_COMPONENT(EditorComponentSprite, ComponentSprite)
+	LOGI_TYPEDEF_LINKED_DERIVED_TYPE(EditorComponent, EditorComponentSprite, ComponentSprite, "Sprite")
 
 public:
-	void DrawUI() const override;
+	void Update() override;
+	void DrawUI() override;
+
+	void SetTexture(EditorTexturePtr pTexture);
+
+private:
+	EditorTexturePtr m_pTexture;
 };
 } // namespace Logicraft

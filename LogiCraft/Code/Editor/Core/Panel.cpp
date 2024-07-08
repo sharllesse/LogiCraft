@@ -44,7 +44,7 @@ void Logicraft::Panel::BaseDraw()
 {
 	if (m_visible)
 	{
-		if (ImGui::Begin(GetTypeName(), &m_visible, ImGuiWindowFlags_MenuBar))
+		if (ImGui::Begin(GetType().GetName().c_str(), &m_visible, ImGuiWindowFlags_MenuBar))
 		{
 			ImGui::SetWindowSize(ImVec2(1920.f, 500.f), ImGuiCond_FirstUseEver);
 			ImGui::SetWindowPos(ImVec2(0.f, 580.f), ImGuiCond_FirstUseEver);

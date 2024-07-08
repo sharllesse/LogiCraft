@@ -37,13 +37,56 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-void Event::Invoke()
+Event::Event()
+{
+	m_listenerID = 0;
+}
+
+Event::~Event() {}
+
+int Event::AddListener(std::function<void()> _func)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	for (auto& func : m_callbacks)
+	m_listeners[m_listenerID] = _func;
+	return m_listenerID++;
+}
+
+bool Event::RemoveListener(int _id)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_listeners.erase(_id);
+}
+
+void Event::Invoke()
+{
+	std::unordered_map<int, std::function<void()>> listeners;
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
+		listeners = m_listeners;
+	}
+	for (auto& func : listeners)
 	{
 		func.second();
 	}
+}
+
+int EventSystem::AddAsyncListener(int eventID, std::function<void()> _func)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return m_asyncListeners[eventID].AddListener(_func);
+}
+
+bool EventSystem::RemoveAsyncListener(int eventID, int _listenerID)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+
+	auto it = m_asyncListeners.find(eventID);
+	if (it != m_asyncListeners.end())
+	{
+		return it->second.RemoveListener(_listenerID);
+	}
+
+	return false;
 }
 
 void EventSystem::ProcessEvents()
@@ -57,7 +100,7 @@ void EventSystem::ProcessEvents()
 			eventID = m_queuedEvents.front();
 			m_queuedEvents.pop();
 		}
-		m_queuedEventsCallbacks[eventID].Invoke();
+		m_asyncListeners[eventID].Invoke();
 	}
 }
 
@@ -65,8 +108,8 @@ void EventSystem::QueueEvent(int eventID)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	auto it = m_queuedEventsCallbacks.find(eventID);
-	if (it != m_queuedEventsCallbacks.end())
+	auto it = m_asyncListeners.find(eventID);
+	if (it != m_asyncListeners.end())
 	{
 		m_queuedEvents.emplace(it->first);
 	}
