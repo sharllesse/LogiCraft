@@ -34,4 +34,16 @@ SOFTWARE.
 
 #include "EditorComponent.h"
 
+#include <imgui/imgui.h>
+
 using namespace Logicraft;
+
+void Logicraft::EditorComponent::Update() {}
+
+void Logicraft::EditorComponent::DrawUI()
+{
+	if (ImGui::TreeNode("Component: %s", GetType().GetName().c_str()))
+	{
+		ImGui::TreePop();
+	}
+}

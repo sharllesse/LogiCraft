@@ -33,7 +33,43 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "EditorComponentSprite.h"
+#include "ResourceSystem/EditorResourceManager.h"
+
+#include <imgui/imgui.h>
 
 using namespace Logicraft;
 
-void Logicraft::EditorComponentSprite::DrawUI() const {}
+void Logicraft::EditorComponentSprite::Update() {}
+
+void Logicraft::EditorComponentSprite::DrawUI()
+{
+	EditorComponent::DrawUI();
+	if (ImGui::BeginCombo("Texture", m_pTexture ? m_pTexture->GetName().c_str() : "<Select A Texture>", ImGuiComboFlags_HeightLargest))
+	{
+		for (auto& pResource : EditorResourceManager::Get().GetResources())
+		{
+			if (&pResource->GetType() == &EditorTexture::GetTypeStatic())
+			{
+				const bool isSelected = (m_pTexture == pResource);
+				if (ImGui::Selectable(pResource->GetName().c_str(), isSelected))
+				{
+					SetTexture(std::dynamic_pointer_cast<EditorTexture>(pResource));
+				}
+				if (isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+		}
+		ImGui::EndCombo();
+	}
+}
+
+void Logicraft::EditorComponentSprite::SetTexture(EditorTexturePtr pTexture)
+{
+	m_pTexture = pTexture;
+	if (ComponentSpritePtr pGameComponent = std::dynamic_pointer_cast<ComponentSprite>(m_pGameComponent))
+	{
+		pGameComponent->SetTexture(pTexture->GetTexture());
+	}
+}

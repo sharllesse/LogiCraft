@@ -33,3 +33,16 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "GameComponent.h"
+
+#include <assert.h>
+#include <combaseapi.h>
+
+Logicraft::GameComponent::GameComponent()
+{
+	HRESULT res = CoCreateGuid(&m_GUID);
+	assert(res == S_OK);
+}
+
+void Logicraft::GameComponent::Serialize(bool load, JsonObjectPtr pJsonObject) {}
+
+void Logicraft::GameComponent::Load() {}

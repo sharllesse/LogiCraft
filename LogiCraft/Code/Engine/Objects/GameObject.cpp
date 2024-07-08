@@ -34,7 +34,16 @@ SOFTWARE.
 
 #include "GameObject.h"
 
+#include <assert.h>
+#include <combaseapi.h>
+
 using namespace Logicraft;
+
+Logicraft::GameObject::GameObject()
+{
+	HRESULT res = CoCreateGuid(&m_GUID);
+	assert(res == S_OK);
+}
 
 void GameObject::Update()
 {
@@ -44,11 +53,11 @@ void GameObject::Update()
 	}
 }
 
-void Logicraft::GameObject::Render()
+void Logicraft::GameObject::Render(sf::RenderWindow& target)
 {
 	for (GameComponentPtr component : m_components)
 	{
-		component->Render();
+		component->Render(target);
 	}
 }
 
