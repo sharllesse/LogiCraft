@@ -49,8 +49,8 @@ Action::Action(const char* name)
 {
 	std::for_each(m_name.begin(), m_name.end(), ::tolower);
 	SfmlUtils::ClearKeyEvent(m_shortcut);
-	Engine::Get().GetEventSystem().AddAsyncListener(Engine::eProcessedEvents, [this] { m_eventSystem.ProcessEvents(); });
-	m_eventSystem.AddAsyncListener(Engine::eActionExecuteRequested, [this] { Execute(); });
+	Engine::Get().GetEventSystem().AddQueuedEventCallback(this, Engine::eProcessedEvents, [this] { m_eventSystem.ProcessEvents(); });
+	m_eventSystem.AddQueuedEventCallback(this, Engine::eActionExecuteRequested, [this] { Execute(); });
 }
 
 void Action::Execute()
