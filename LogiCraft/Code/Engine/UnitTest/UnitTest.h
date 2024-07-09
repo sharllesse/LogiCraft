@@ -13,12 +13,12 @@ public:
 
 	void Start()
 	{
-		if (!m_enableUnit)
+		if (!m_enable)
 			return;
 
 		// EventSystem
 		{
-			std::srand(4);
+			std::srand(3);
 
 			for (int i = 0; i < 100; i++)
 			{
@@ -57,5 +57,5 @@ public:
 
 private:
 	EventSystem m_eventSystem;
-	bool        m_enableUnit{false};
+	bool        m_enable{false};
 };

@@ -40,7 +40,6 @@ SOFTWARE.
 #include "Objects/GameObjectManager.h"
 #include "ResourceSystem/ResourceManager.h"
 #include "TaskManager.h"
-
 #include "UnitTest/UnitTest.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -80,7 +79,6 @@ private:
 	std::unique_ptr<Logger>            m_pLogger;
 	std::unique_ptr<ResourceManager>   m_pResourceManager;
 	std::unique_ptr<TaskManager>       m_pTaskManager;
-
-	UnitTest m_unitTest;
+	std::unique_ptr<UnitTest>          m_pUnitTest;
 };
 } // namespace Logicraft

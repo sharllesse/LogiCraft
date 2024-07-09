@@ -51,14 +51,18 @@ void EventSystem::ProcessEvents()
 	std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEvents);
 	while (!m_queuedEvents.empty())
 	{
-		int eventID;
-		{
-			eventID = m_queuedEvents.front();
-			m_queuedEvents.erase(m_queuedEvents.begin());
-		}
+		int eventID = m_queuedEvents.front();
+		m_queuedEvents.erase(m_queuedEvents.begin());
 
 		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 		m_queuedEventsCallbacks[eventID].Invoke();
+
+		if (m_logActivated)
+		{
+			Logger::Get().Log(Logger::eInfo,
+			  "[EventSystem] Event ID = " + std::to_string(eventID) + " invoked (" + std::to_string(m_queuedEventsCallbacks[eventID].m_callbacks.size())
+			    + " callbacks invoked)");
+		}
 	}
 }
 
@@ -67,15 +71,25 @@ void EventSystem::QueueEvent(int eventID)
 	std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 
 	auto it = m_queuedEventsCallbacks.find(eventID);
+
 	if (it != m_queuedEventsCallbacks.end())
 	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEvents);
 		for (int i : m_queuedEvents)
 		{
 			if (i == eventID)
 				return;
 		}
-
-		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEvents);
 		m_queuedEvents.push_back(it->first);
+
+		if (m_logActivated)
+		{
+			Logger::Get().Log(Logger::eInfo, "[EventSystem] Event ID = " + std::to_string(eventID) + " added in queue");
+		}
 	}
+}
+
+void EventSystem::ActivateLog(bool value)
+{
+	m_logActivated = value;
 }

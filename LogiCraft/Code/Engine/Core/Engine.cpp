@@ -70,7 +70,7 @@ void Engine::Init()
 	m_pResourceManager->StartLoading();
 
 	ActionPtr pAction = ActionManager::Get().AddAction("start_unit_tests");
-	pAction->SetCallback([this] { m_unitTest.Start(); });
+	pAction->SetCallback([this] { m_pUnitTest->Start(); });
 }
 
 void Logicraft::Engine::ProcessEvents()
