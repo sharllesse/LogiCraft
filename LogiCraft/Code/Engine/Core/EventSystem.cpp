@@ -57,7 +57,7 @@ void EventSystem::ProcessEvents()
 		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 		m_queuedEventsCallbacks[eventID].Invoke();
 
-		if (m_logActivated)
+		if (m_logEnabled)
 		{
 			Logger::Get().Log(Logger::eInfo,
 			  "[EventSystem] Event ID = " + std::to_string(eventID) + " invoked (" + std::to_string(m_queuedEventsCallbacks[eventID].m_callbacks.size())
@@ -82,14 +82,14 @@ void EventSystem::QueueEvent(int eventID)
 		}
 		m_queuedEvents.push_back(it->first);
 
-		if (m_logActivated)
+		if (m_logEnabled)
 		{
 			Logger::Get().Log(Logger::eInfo, "[EventSystem] Event ID = " + std::to_string(eventID) + " added in queue");
 		}
 	}
 }
 
-void EventSystem::ActivateLog(bool value)
+void EventSystem::EnableLog(bool value)
 {
-	m_logActivated = value;
+	m_logEnabled = value;
 }

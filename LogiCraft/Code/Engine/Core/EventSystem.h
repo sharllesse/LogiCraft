@@ -110,9 +110,9 @@ class LOGI_ENGINE_API EventSystem
 public:
 	inline static int s_callBackID = 0;
 
-	EventSystem() { m_logActivated = true; }
+	EventSystem() { m_logEnabled = true; }
 	EventSystem(bool logActivated)
-	  : m_logActivated(logActivated)
+	  : m_logEnabled(logActivated)
 	{
 	}
 	~EventSystem() = default;
@@ -129,7 +129,7 @@ public:
 
 		m_queuedEventsCallbacks[eventID].AddCallback(pCallBackOwner, func);
 
-		if (m_logActivated)
+		if (m_logEnabled)
 		{
 			Logger::Get().Log(Logger::eInfo,
 			  "[EventSystem] Queued event callback added in the " + std::to_string(eventID) + " eventID by " + typeid(TCallBackOwner).name());
@@ -144,12 +144,12 @@ public:
 		auto it = m_queuedEventsCallbacks.find(eventID);
 		if (it != m_queuedEventsCallbacks.end())
 		{
-			if (m_queuedEventsCallbacks[eventID].RemoveCallback(pCallBackOwner) && m_logActivated)
+			if (m_queuedEventsCallbacks[eventID].RemoveCallback(pCallBackOwner) && m_logEnabled)
 			{
 				Logger::Get().Log(Logger::eInfo,
 				  "[EventSystem] Queued event callback remove in the " + std::to_string(eventID) + " eventID by" + typeid(TCallBackOwner).name());
 			}
-			else if (m_logActivated)
+			else if (m_logEnabled)
 			{
 				Logger::Get().Log(Logger::eError,
 				  std::string("[EventSystem] No event callback found from ") + typeid(TCallBackOwner).name() + " in the " + std::to_string(eventID)
@@ -175,7 +175,7 @@ public:
 		TCallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
 
 		m_eventsCallback.push_back(std::move(pair));
-		if (m_logActivated)
+		if (m_logEnabled)
 		{
 			Logger::Get().Log(Logger::eInfo,
 			  std::string("[EventSystem] Callback added by ") + typeid(TCallBackOwner).name() + " with ID " + std::to_string(TEvent::ID));
@@ -204,7 +204,7 @@ public:
 		                         }),
 		  m_eventsCallback.end());
 
-		if (m_logActivated)
+		if (m_logEnabled)
 		{
 			if (m_eventsCallback.size() < initialSize)
 			{
@@ -229,7 +229,7 @@ public:
 			if (cb.first.eventID == TEvent::ID)
 			{
 				cb.second((void*)&typeEvent);
-				if (m_logActivated)
+				if (m_logEnabled)
 				{
 					Logger::Get().Log(Logger::eInfo,
 					  std::string("[EventSystem] Event invoked by ") + typeid(typeEvent).name() + " with ID " + std::to_string(TEvent::ID));
@@ -239,7 +239,7 @@ public:
 	}
 
 	// To active log
-	void ActivateLog(bool value);
+	void EnableLog(bool value);
 
 private:
 	std::vector<TCallBackPair>     m_eventsCallback;
@@ -250,6 +250,6 @@ private:
 	std::shared_mutex m_mutexQueuedEventsCallbacks;
 	std::shared_mutex m_mutexQueuedEvents;
 
-	bool m_logActivated;
+	bool m_logEnabled;
 };
 } // namespace Logicraft

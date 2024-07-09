@@ -18,7 +18,7 @@ public:
 
 		// EventSystem
 		{
-			std::srand(3);
+			std::srand(time(NULL));
 
 			for (int i = 0; i < 100; i++)
 			{
