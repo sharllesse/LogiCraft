@@ -10,8 +10,7 @@ public:
 	{
 		explicit EventObjectSelected(EditorObjectPtr pObject, bool selected)
 		  : pObject(pObject), selected(selected)
-		{
-		}
+		{}
 	
 		inline static int ID = 5;
 		EditorObjectPtr pObject;

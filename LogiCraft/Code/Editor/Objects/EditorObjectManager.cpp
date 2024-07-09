@@ -97,7 +97,7 @@ void EditorObjectManager::CreateObject()
 	GameObjectPtr pGameObject = GameObjectManager::Get().CreateObject();
 	pNewObject->SetGameObject(pGameObject);
 
-	Editor::Get().GetEventSystem().SendEvent(EventObjectCreated(pNewObject.get()));
+	Editor::Get().GetEventSystem().SendEvent(EventObjectCreated(pNewObject));
 }
 
 void EditorObjectManager::RemoveObject(REFGUID objectGUID)

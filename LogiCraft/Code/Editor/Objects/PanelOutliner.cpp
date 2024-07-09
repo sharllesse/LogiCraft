@@ -62,30 +62,31 @@ Logicraft::PanelOutliner::PanelOutliner()
 
 	Editor::Get().GetEventSystem().AddListener<EditorObjectManager::EventObjectCreated>(this,
 	  [this](const EditorObjectManager::EventObjectCreated& event) {
-			m_objects.emplace_back(std::make_pair(WidgetSelectableText(event.pObject->GetName().c_str()), event.pObject));
-	});
+		  WidgetSelectableTextPtr             pSelectable     = make_shared(WidgetSelectableText, event.pObject->GetName().c_str());
+		  std::weak_ptr<WidgetSelectableText> pSelectableWeak = pSelectable;
+		  EditorObjectPtr                     pEditorObject   = event.pObject;
+		  m_objects.emplace_back(std::make_pair(pSelectable, pEditorObject));
+		  pSelectable->GetEventSystem().AddAsyncListener(Editor::eSelectable, [this, pSelectableWeak, pEditorObject]() {
+			  if (!pSelectableWeak.expired())
+			  {
+				  if (pSelectableWeak.lock()->IsSelected())
+				  {
+					  SelectionManager::Get().SelectObject(pEditorObject);
+				  }
+				  else
+				  {
+					  SelectionManager::Get().UnSelectObject(pEditorObject);
+				  }
+			  }
+		  });
+	  });
 }
 
 Logicraft::PanelOutliner::~PanelOutliner() {}
 
-void Logicraft::PanelOutliner::Update()
-{
-	for (auto& selectable : m_objects)
-	{
-		selectable.first.Update();
-		if (selectable.first.IsSelected()) 
-		{
-			/*if (m_pSelectedObject)
-				if (m_pSelectedObject != &selectable && m_pSelectedObject->first.IsSelected()) 
-					m_pSelectedObject->first.Select(false);*/
+void Logicraft::PanelOutliner::Update() {}	//Need to the Multi Select and fix the selectable that are not unselected when another one is selected.
 
-			//m_pSelectedObject = &selectable;
-			SelectionManager::Get().SelectObject(selectable.second);
-		}
-	}
-}
-
-void Logicraft::PanelOutliner::Release() 
+void Logicraft::PanelOutliner::Release()
 {
 	Editor::Get().GetEventSystem().RemoveListener<SelectionManager::EventObjectSelected>(this);
 	Editor::Get().GetEventSystem().RemoveListener<EditorObjectManager::EventObjectCreated>(this);
@@ -95,6 +96,6 @@ void Logicraft::PanelOutliner::Draw()
 {
 	for (auto& selectable : m_objects)
 	{
-		selectable.first.Draw();
+		selectable.first->Draw();
 	}
 }

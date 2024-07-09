@@ -46,13 +46,12 @@ class EditorObjectManager
 public:
 	struct EventObjectCreated
 	{
-		explicit EventObjectCreated(EditorObject* pObject)
+		explicit EventObjectCreated(EditorObjectPtr pObject)
 		  :	pObject(pObject)
-		{
-		}
+		{}
 
 		inline static int ID = 1;
-		EditorObject* pObject;
+		EditorObjectPtr pObject;
 	};
 
 	static EditorObjectManager& Get();

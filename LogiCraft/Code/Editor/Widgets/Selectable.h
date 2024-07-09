@@ -12,14 +12,16 @@ public:
 	WidgetSelectableText() = default;
 	explicit WidgetSelectableText(const char* name);
 
-	void Update() override;
 	void Draw() override;
 
-	const bool& IsSelected() const { return m_isSelected; }
-	void Select(const bool& selected) { m_isSelected = selected; }
+	bool IsSelected() const { return m_isSelected; }
+
+	EventSystem& GetEventSystem() { return m_eventSystem; }
 private:
 	bool m_isSelected{false};
 
 	EventSystem m_eventSystem;
 };
+
+using WidgetSelectableTextPtr = std::shared_ptr<WidgetSelectableText>;
 } // namespace Logicraft

@@ -57,8 +57,8 @@ protected:
 	void Draw() override;
 
 private:
-	std::vector<std::pair<WidgetSelectableText, EditorObjectPtr>> m_objects;
-	std::pair<WidgetSelectableText, EditorObjectPtr>*             m_pSelectedObject{nullptr};
+	std::vector<std::pair<WidgetSelectableTextPtr, EditorObjectPtr>> m_objects;
+	//std::pair<WidgetSelectableText, EditorObjectPtr>*             m_pSelectedObject{nullptr};
 
 	bool m_refreshObjectList{false};
 };
