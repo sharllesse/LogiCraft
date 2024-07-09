@@ -34,16 +34,17 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #pragma once
+#include "Core/Logger.h"
 #include "DLLExport.h"
 
+#include <deque>
 #include <functional>
 #include <iostream>
-#include <mutex>
-#include <queue>
 #include <shared_mutex>
+#include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
+
 namespace Logicraft
 {
 class Event
@@ -116,20 +117,24 @@ public:
 	template<typename TCallBackOwner>
 	void AddQueuedEventCallback(TCallBackOwner* pCallBackOwner, int eventID, std::function<void()> func)
 	{
-		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
+		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 
 		m_queuedEventsCallbacks[eventID].AddCallback(pCallBackOwner, func);
+
+		Logger::Get().Log(Logger::eInfo, "Queued event callback added in the " + std::to_string(eventID) + " eventID");
 	}
 
 	template<typename TCallBackOwner>
 	void RemoveQueuedEventCallback(TCallBackOwner* pCallBackOwner, int eventID)
 	{
-		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
+		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 
 		auto it = m_queuedEventsCallbacks.find(eventID);
 		if (it != m_queuedEventsCallbacks.end())
 		{
 			m_queuedEventsCallbacks[eventID].RemoveCallback(pCallBackOwner);
+
+			Logger::Get().Log(Logger::eInfo, "Queued event callback remove in the " + std::to_string(eventID) + " eventID");
 		}
 	}
 
@@ -150,6 +155,8 @@ public:
 		TCallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
 
 		m_eventsCallback.push_back(std::move(pair));
+
+		Logger::Get().Log(Logger::eInfo, "Callback added");
 	}
 
 	// To remove a call back in the event system using the adress of the call back owner
@@ -163,6 +170,8 @@ public:
 		    m_eventsCallback.end(),
 		    [pCallBackOwner](TCallBackPair& pair) { return (pair.first.eventID == TEvent::ID && pair.first.pOwnerAdress == pCallBackOwner); }),
 		  m_eventsCallback.end());
+
+		Logger::Get().Log(Logger::eInfo, "Callback removed");
 	}
 
 	// To call an event
@@ -183,9 +192,10 @@ public:
 private:
 	std::vector<TCallBackPair>     m_eventsCallback;
 	std::unordered_map<int, Event> m_queuedEventsCallbacks;
-	std::queue<int>                m_queuedEvents;
+	std::deque<int>                m_queuedEvents;
 
 	std::shared_mutex m_mutexEventsCallback;
 	std::shared_mutex m_mutexQueuedEventsCallbacks;
+	std::shared_mutex m_mutexQueuedEvents;
 };
 } // namespace Logicraft

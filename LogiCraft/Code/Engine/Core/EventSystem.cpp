@@ -48,13 +48,16 @@ void Event::Invoke()
 
 void EventSystem::ProcessEvents()
 {
+	std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEvents);
 	while (!m_queuedEvents.empty())
 	{
+		int eventID;
+		{
+			eventID = m_queuedEvents.front();
+			m_queuedEvents.erase(m_queuedEvents.begin());
+		}
+
 		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
-
-		int eventID = m_queuedEvents.front();
-		m_queuedEvents.pop();
-
 		m_queuedEventsCallbacks[eventID].Invoke();
 	}
 }
@@ -66,14 +69,13 @@ void EventSystem::QueueEvent(int eventID)
 	auto it = m_queuedEventsCallbacks.find(eventID);
 	if (it != m_queuedEventsCallbacks.end())
 	{
-		std::queue<int> tempQueue = m_queuedEvents;
-		while (!tempQueue.empty())
+		for (int i : m_queuedEvents)
 		{
-			if (tempQueue.front() == eventID)
+			if (i == eventID)
 				return;
-			tempQueue.pop();
 		}
 
-		m_queuedEvents.emplace(it->first);
+		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEvents);
+		m_queuedEvents.push_back(it->first);
 	}
 }
