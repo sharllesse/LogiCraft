@@ -33,80 +33,88 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
-// namespace Logicraft
-//{
-// class LOGI_ENGINE_API EventSystem
-//{
-// public:
-//	EventSystem();
-//	~EventSystem();
-//
-//	EventSystem(EventSystem&&)      = delete;
-//	EventSystem(const EventSystem&) = delete;
-//
-//	EventSystem& operator=(EventSystem&&)      = delete;
-//	EventSystem& operator=(const EventSystem&) = delete;
-//
-//	struct CallBack
-//	{
-//		void* listenerAdress;
-//		int   eventID;
-//	};
-//
-//	int  AddListener(int eventID, std::function<void()> _func);
-//	bool RemoveListener(int eventID, int _listenerID);
-//	void QueueEvent(int eventID);
-//	void ProcessEvents();
-//
-// private:
-//	std::unordered_map<int, Event> m_events;
-//
-//	std::queue<int> m_queueEvents;
-//	std::mutex      m_mutex;
-// };
-// } // namespace Logicraft
-
 #pragma once
+#include "Core/Logger.h"
 #include "DLLExport.h"
 
+#include <deque>
 #include <functional>
 #include <iostream>
-#include <mutex>
-#include <queue>
+#include <shared_mutex>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace Logicraft
 {
-class LOGI_ENGINE_API Event
+class Event
 {
-public:
-	Event();
-	~Event();
+	using TCallBackPair = std::pair<void*, std::function<void()>>;
 
-	int  AddListener(std::function<void()> _func);
-	bool RemoveListener(int _id);
+public:
+	Event()  = default;
+	~Event() = default;
+
+	Event(Event&&)                 = delete;
+	Event(const Event&)            = delete;
+	Event& operator=(Event&&)      = delete;
+	Event& operator=(const Event&) = delete;
+
+	template<typename TCallBackOwner>
+	void AddCallback(TCallBackOwner* pCallBackOwner, std::function<void()> func)
+	{
+		std::lock_guard<std::shared_mutex> lock(m_mutex);
+
+		TCallBackPair cb = {(void*)pCallBackOwner, func};
+		m_callbacks.push_back(std::move(cb));
+	}
+
+	template<typename TCallBackOwner>
+	bool RemoveCallback(TCallBackOwner* pCallBackOwner)
+	{
+		std::lock_guard<std::shared_mutex> lock(m_mutex);
+
+		size_t initialSize = m_callbacks.size();
+
+		m_callbacks.erase(
+		  std::remove_if(m_callbacks.begin(), m_callbacks.end(), [pCallBackOwner](TCallBackPair& pair) { return (pair.first == pCallBackOwner); }),
+		  m_callbacks.end());
+
+		return m_callbacks.size() < initialSize;
+	}
 
 	void Invoke();
 
-private:
-	std::unordered_map<int, std::function<void()>> m_listeners;
-
-	std::mutex m_mutex;
-	int        m_listenerID;
+	std::vector<TCallBackPair> m_callbacks;
+	std::shared_mutex          m_mutex;
 };
+
+#define UNIQUE_EVENT_ID inline static int ID = EventSystem::s_callBackID++;
+// How to declare an unique ID for each callbacks with args:
+//	class NewEvent
+//	{
+// 	public:
+//		UNIQUE_EVENT_ID
+// 		...
+//	};
 
 class LOGI_ENGINE_API EventSystem
 {
-	struct CallBack
+	struct Callback
 	{
-		void* listenerAdress;
-		int   eventID;
+		void* pOwnerAdress;
+		int   eventID; // Unique ID for each Event
 	};
-	using CallBackPair = std::pair<CallBack, std::function<void(void*)>>;
+	using TCallBackPair = std::pair<Callback, std::function<void(void*)>>;
 
 public:
-	EventSystem()  = default;
+	inline static int s_callBackID = 0;
+
+	EventSystem() { m_logActivated = true; }
+	EventSystem(bool logActivated)
+	  : m_logActivated(logActivated)
+	{
+	}
 	~EventSystem() = default;
 
 	EventSystem(EventSystem&&)                 = delete;
@@ -114,51 +122,134 @@ public:
 	EventSystem& operator=(EventSystem&&)      = delete;
 	EventSystem& operator=(const EventSystem&) = delete;
 
-	int  AddAsyncListener(int eventID, std::function<void()> _func);
-	bool RemoveAsyncListener(int eventID, int _listenerID);
-	void QueueEvent(int eventID);
-	void ProcessEvents();
-
-	template<typename TEvent, typename TListener>
-	void AddListener(TListener* listener, std::function<void(const TEvent&)>&& func)
+	template<typename TCallBackOwner>
+	void AddQueuedEventCallback(TCallBackOwner* pCallBackOwner, int eventID, std::function<void()> func)
 	{
-		CallBack cb = {(void*)listener, TEvent::ID};
+		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 
-		CallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
+		m_queuedEventsCallbacks[eventID].AddCallback(pCallBackOwner, func);
 
-		m_listeners.push_back(std::move(pair));
-	}
-
-	template<typename TEvent, typename TListener>
-	void RemoveListener(TListener* pListener)
-	{
-		m_listeners.erase(std::remove_if(m_listeners.begin(),
-		                    m_listeners.end(),
-		                    [pListener](CallBackPair& pair) {
-			                    bool tmp = (pair.first.eventID == TEvent::ID && pair.first.listenerAdress == pListener);
-			                    std::cout << tmp;
-			                    return tmp;
-		                    }),
-		  m_listeners.end());
-	}
-
-	template<typename TEvent>
-	void SendEvent(const TEvent& typeEvent)
-	{
-		for (auto& cb : m_listeners)
+		if (m_logActivated)
 		{
-			if (cb.first.eventID == TEvent::ID)
+			Logger::Get().Log(Logger::eInfo,
+			  "[EventSystem] Queued event callback added in the " + std::to_string(eventID) + " eventID by " + typeid(TCallBackOwner).name());
+		}
+	}
+
+	template<typename TCallBackOwner>
+	void RemoveQueuedEventCallback(TCallBackOwner* pCallBackOwner, int eventID)
+	{
+		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
+
+		auto it = m_queuedEventsCallbacks.find(eventID);
+		if (it != m_queuedEventsCallbacks.end())
+		{
+			if (m_queuedEventsCallbacks[eventID].RemoveCallback(pCallBackOwner) && m_logActivated)
 			{
-				cb.second((void*)&typeEvent);
+				Logger::Get().Log(Logger::eInfo,
+				  "[EventSystem] Queued event callback remove in the " + std::to_string(eventID) + " eventID by" + typeid(TCallBackOwner).name());
+			}
+			else if (m_logActivated)
+			{
+				Logger::Get().Log(Logger::eError,
+				  std::string("[EventSystem] No event callback found from ") + typeid(TCallBackOwner).name() + " in the " + std::to_string(eventID)
+				    + " eventID");
 			}
 		}
 	}
 
-private:
-	std::vector<CallBackPair> m_listeners;
+	// Push an event to the queue that will be processed later
+	void QueueEvent(int eventID);
 
-	std::unordered_map<int, Event> m_asyncListeners; // TODO avec l'adresse du listener
-	std::queue<int>                m_queuedEvents;
-	std::mutex                     m_mutex;
+	// Process events in queue
+	void ProcessEvents();
+
+	// To add a call back in the event system using the adress of the call back owner and a function with args
+	template<typename TEvent, typename TCallBackOwner>
+	void AddCallback(TCallBackOwner* pCallBackOwner, std::function<void(const TEvent&)>&& func)
+	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexEventsCallback);
+
+		Callback cb = {(void*)pCallBackOwner, TEvent::ID};
+
+		TCallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
+
+		m_eventsCallback.push_back(std::move(pair));
+		if (m_logActivated)
+		{
+			Logger::Get().Log(Logger::eInfo,
+			  std::string("[EventSystem] Callback added by ") + typeid(TCallBackOwner).name() + " with ID " + std::to_string(TEvent::ID));
+		}
+	}
+
+	// To remove a call back in the event system using the adress of the call back owner
+	template<typename TEvent, typename TCallBackOwner>
+	void RemoveCallback(TCallBackOwner* pCallBackOwner)
+	{
+		std::lock_guard<std::shared_mutex> lock(m_mutexEventsCallback);
+
+		size_t initialSize = m_eventsCallback.size();
+		int    eventID     = 0;
+
+		m_eventsCallback.erase(std::remove_if(m_eventsCallback.begin(),
+		                         m_eventsCallback.end(),
+		                         [pCallBackOwner, &eventID](TCallBackPair& pair) {
+			                         if (pair.first.eventID == TEvent::ID && pair.first.pOwnerAdress == pCallBackOwner)
+			                         {
+				                         eventID = pair.first.eventID;
+				                         return true;
+			                         }
+			                         else
+				                         return false;
+		                         }),
+		  m_eventsCallback.end());
+
+		if (m_logActivated)
+		{
+			if (m_eventsCallback.size() < initialSize)
+			{
+				Logger::Get().Log(Logger::eInfo,
+				  std::string("[EventSystem] Callback removed by ") + typeid(TCallBackOwner).name() + " with ID " + std::to_string(eventID));
+			}
+			else
+			{
+				Logger::Get().Log(Logger::eError, std::string("[EventSystem] No callback found with ") + typeid(TCallBackOwner).name() + " owner");
+			}
+		}
+	}
+
+	// To call an event
+	template<typename TEvent>
+	void SendEvent(const TEvent& typeEvent)
+	{
+		std::shared_lock<std::shared_mutex> lock(m_mutexEventsCallback);
+
+		for (auto& cb : m_eventsCallback)
+		{
+			if (cb.first.eventID == TEvent::ID)
+			{
+				cb.second((void*)&typeEvent);
+				if (m_logActivated)
+				{
+					Logger::Get().Log(Logger::eInfo,
+					  std::string("[EventSystem] Event invoked by ") + typeid(typeEvent).name() + " with ID " + std::to_string(TEvent::ID));
+				}
+			}
+		}
+	}
+
+	// To active log
+	void ActivateLog(bool value);
+
+private:
+	std::vector<TCallBackPair>     m_eventsCallback;
+	std::unordered_map<int, Event> m_queuedEventsCallbacks;
+	std::deque<int>                m_queuedEvents;
+
+	std::shared_mutex m_mutexEventsCallback;
+	std::shared_mutex m_mutexQueuedEventsCallbacks;
+	std::shared_mutex m_mutexQueuedEvents;
+
+	bool m_logActivated;
 };
 } // namespace Logicraft

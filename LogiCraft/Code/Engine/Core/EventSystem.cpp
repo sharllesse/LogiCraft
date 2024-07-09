@@ -37,80 +37,59 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-Event::Event()
-{
-	m_listenerID = 0;
-}
-
-Event::~Event() {}
-
-int Event::AddListener(std::function<void()> _func)
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-	m_listeners[m_listenerID] = _func;
-	return m_listenerID++;
-}
-
-bool Event::RemoveListener(int _id)
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_listeners.erase(_id);
-}
-
 void Event::Invoke()
 {
-	std::unordered_map<int, std::function<void()>> listeners;
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		listeners = m_listeners;
-	}
-	for (auto& func : listeners)
+	std::shared_lock<std::shared_mutex> lock(m_mutex);
+	for (auto& func : m_callbacks)
 	{
 		func.second();
 	}
 }
 
-int EventSystem::AddAsyncListener(int eventID, std::function<void()> _func)
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-	return m_asyncListeners[eventID].AddListener(_func);
-}
-
-bool EventSystem::RemoveAsyncListener(int eventID, int _listenerID)
-{
-	std::lock_guard<std::mutex> lock(m_mutex);
-
-	auto it = m_asyncListeners.find(eventID);
-	if (it != m_asyncListeners.end())
-	{
-		return it->second.RemoveListener(_listenerID);
-	}
-
-	return false;
-}
-
 void EventSystem::ProcessEvents()
 {
+	std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEvents);
 	while (!m_queuedEvents.empty())
 	{
-		int eventID;
-		{
-			std::lock_guard<std::mutex> lock(m_mutex);
+		int eventID = m_queuedEvents.front();
+		m_queuedEvents.erase(m_queuedEvents.begin());
 
-			eventID = m_queuedEvents.front();
-			m_queuedEvents.pop();
+		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
+		m_queuedEventsCallbacks[eventID].Invoke();
+
+		if (m_logActivated)
+		{
+			Logger::Get().Log(Logger::eInfo,
+			  "[EventSystem] Event ID = " + std::to_string(eventID) + " invoked (" + std::to_string(m_queuedEventsCallbacks[eventID].m_callbacks.size())
+			    + " callbacks invoked)");
 		}
-		m_asyncListeners[eventID].Invoke();
 	}
 }
 
 void EventSystem::QueueEvent(int eventID)
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 
-	auto it = m_asyncListeners.find(eventID);
-	if (it != m_asyncListeners.end())
+	auto it = m_queuedEventsCallbacks.find(eventID);
+
+	if (it != m_queuedEventsCallbacks.end())
 	{
-		m_queuedEvents.emplace(it->first);
+		std::lock_guard<std::shared_mutex> lock(m_mutexQueuedEvents);
+		for (int i : m_queuedEvents)
+		{
+			if (i == eventID)
+				return;
+		}
+		m_queuedEvents.push_back(it->first);
+
+		if (m_logActivated)
+		{
+			Logger::Get().Log(Logger::eInfo, "[EventSystem] Event ID = " + std::to_string(eventID) + " added in queue");
+		}
 	}
+}
+
+void EventSystem::ActivateLog(bool value)
+{
+	m_logActivated = value;
 }
