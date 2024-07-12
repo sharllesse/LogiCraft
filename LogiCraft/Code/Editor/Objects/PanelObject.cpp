@@ -35,7 +35,12 @@ SOFTWARE.
 #include "PanelObject.h"
 
 #include "Core/ActionManager.h"
+#include "Core/Editor.h"
+
 #include "EditorObjectManager.h"
+
+#include "SelectionManager.h"
+
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
 
@@ -61,13 +66,27 @@ Logicraft::PanelObject::PanelObject()
 		});
 		pItemNew->SetAction(pAction);
 	}
+
+	Editor::Get().GetEventSystem().AddListener<SelectionManager::EventObjectSelected>(this, [this](const SelectionManager::EventObjectSelected& event) {
+		if (!event.selected)
+		{
+			if (m_pSelectedObject == event.pObject)
+			{
+				m_pSelectedObject = nullptr;
+			}
+		}
+		else
+		{
+			m_pSelectedObject = event.pObject;
+		}
+	});
 }
 
-void Logicraft::PanelObject::Update()
+void Logicraft::PanelObject::Update() {}
+
+void Logicraft::PanelObject::Release()
 {
-	auto objects = EditorObjectManager::Get().GetObjects();
-	if (objects.size() > 0)
-		m_pSelectedObject = objects[objects.size() - 1];
+	Editor::Get().GetEventSystem().RemoveListener<SelectionManager::EventObjectSelected>(this);
 }
 
 void Logicraft::PanelObject::Draw()

@@ -47,10 +47,12 @@ public:
 
 	void Update() override;
 
+	void Release() override;
 protected:
 	void Draw() override;
 
 private:
+	bool m_refreshSelectedObject {false};
 	// TODO remove and replace by direct access to SelectionManager
 	EditorObjectPtr m_pSelectedObject;
 };

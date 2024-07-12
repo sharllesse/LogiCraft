@@ -33,15 +33,19 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 #include "PanelOutliner.h"
 
+#include "Core/Editor.h"
+
 #include "EditorComponent.h"
 #include "EditorObjectManager.h"
+
+#include "SelectionManager.h"
+
 #include "Widgets/Menu.h"
 #include "Widgets/MenuItem.h"
 
 #include <Engine/Core/Action.h>
 #include <Engine/Core/ActionManager.h>
 #include <Engine/Core/SmartPtr.h>
-
 #include <imgui/imgui.h>
 
 using namespace Logicraft;
@@ -51,13 +55,47 @@ Logicraft::PanelOutliner::PanelOutliner()
 	MenuPtr pMenuNew = make_shared(Menu, "New Object");
 	m_menuBar.AddChild(pMenuNew);
 	pMenuNew->SetAction(EditorObjectManager::Get().GetActionCreateObject());
+
+	Editor::Get().GetEventSystem().AddListener<SelectionManager::EventObjectSelected>(this, [this](const SelectionManager::EventObjectSelected& event) {
+
+	});
+
+	Editor::Get().GetEventSystem().AddListener<EditorObjectManager::EventObjectCreated>(this,
+	  [this](const EditorObjectManager::EventObjectCreated& event) {
+		  WidgetSelectableTextPtr             pSelectable     = make_shared(WidgetSelectableText, event.pObject->GetName().c_str());
+		  std::weak_ptr<WidgetSelectableText> pSelectableWeak = pSelectable;
+		  EditorObjectPtr                     pEditorObject   = event.pObject;
+		  m_objects.emplace_back(std::make_pair(pSelectable, pEditorObject));
+		  pSelectable->GetEventSystem().AddAsyncListener(Editor::eSelectable, [this, pSelectableWeak, pEditorObject]() {
+			  if (!pSelectableWeak.expired())
+			  {
+				  if (pSelectableWeak.lock()->IsSelected())
+				  {
+					  SelectionManager::Get().SelectObject(pEditorObject);
+				  }
+				  else
+				  {
+					  SelectionManager::Get().UnSelectObject(pEditorObject);
+				  }
+			  }
+		  });
+	  });
+}
+
+Logicraft::PanelOutliner::~PanelOutliner() {}
+
+void Logicraft::PanelOutliner::Update() {}	//Need to the Multi Select and fix the selectable that are not unselected when another one is selected.
+
+void Logicraft::PanelOutliner::Release()
+{
+	Editor::Get().GetEventSystem().RemoveListener<SelectionManager::EventObjectSelected>(this);
+	Editor::Get().GetEventSystem().RemoveListener<EditorObjectManager::EventObjectCreated>(this);
 }
 
 void Logicraft::PanelOutliner::Draw()
 {
-	auto& objects = EditorObjectManager::Get().GetObjects();
-	for (auto& pObject : objects)
+	for (auto& selectable : m_objects)
 	{
-		ImGui::Text(pObject->GetName().c_str());
+		selectable.first->Draw();
 	}
 }
