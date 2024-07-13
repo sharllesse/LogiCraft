@@ -46,6 +46,7 @@ class LOGI_ENGINE_API GameObject : public Serializable
 {
 public:
 	GameObject();
+	void Release();
 
 	void Update();
 	void Render(sf::RenderWindow& target);
@@ -62,6 +63,7 @@ protected:
 
 private:
 	GUID                          m_GUID{0};
+	std::mutex                    m_mutex;
 	std::vector<GameComponentPtr> m_components;
 };
 using GameObjectPtr = std::shared_ptr<GameObject>;

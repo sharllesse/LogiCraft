@@ -34,6 +34,10 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "EventSystem.h"
+#include "Action.h"
+#include "ActionManager.h"
+
+#include <string>
 
 using namespace Logicraft;
 
@@ -57,11 +61,11 @@ void EventSystem::ProcessEvents()
 		std::shared_lock<std::shared_mutex> lock(m_mutexQueuedEventsCallbacks);
 		m_queuedEventsCallbacks[eventID].Invoke();
 
-		if (m_logEnabled)
+		if (s_logEnabled)
 		{
-			Logger::Get().Log(Logger::eInfo,
-			  "[EventSystem] Event ID = " + std::to_string(eventID) + " invoked (" + std::to_string(m_queuedEventsCallbacks[eventID].m_callbacks.size())
-			    + " callbacks invoked)");
+			std::string message = "[EventSystem] Event ID = " + std::to_string(eventID) + " invoked ("
+			                    + std::to_string(m_queuedEventsCallbacks[eventID].m_callbacks.size()) + " callbacks).";
+			Logger::Get().Log(Logger::eInfo, message);
 		}
 	}
 }
@@ -82,14 +86,14 @@ void EventSystem::QueueEvent(int eventID)
 		}
 		m_queuedEvents.push_back(it->first);
 
-		if (m_logEnabled)
+		if (s_logEnabled)
 		{
-			Logger::Get().Log(Logger::eInfo, "[EventSystem] Event ID = " + std::to_string(eventID) + " added in queue");
+			Logger::Get().Log(Logger::eInfo, "[EventSystem] Event ID = " + std::to_string(eventID) + " queued.");
 		}
 	}
 }
 
 void EventSystem::EnableLog(bool value)
 {
-	m_logEnabled = value;
+	s_logEnabled = value;
 }

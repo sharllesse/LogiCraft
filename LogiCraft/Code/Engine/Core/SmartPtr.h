@@ -35,9 +35,9 @@ SOFTWARE.
 #include "DLLExport.h"
 
 #include <iostream>
-#include <unordered_map>
 #include <memory>
-#include <mutex>
+#include <shared_mutex>
+#include <unordered_map>
 
 // Macro to create a tracked shared_ptr
 #ifdef _DEBUG
@@ -62,14 +62,14 @@ struct AllocationInfo
 
 // Global map to store allocation information
 inline std::unordered_map<void*, AllocationInfo> allocations;
-inline std::mutex                       allocationsMutex;
-inline size_t                           totalAllocated = 0;
-inline size_t                           totalFreed     = 0;
+inline std::shared_mutex                         allocationsMutex;
+inline size_t                                    totalAllocated = 0;
+inline size_t                                    totalFreed     = 0;
 
 // Track an allocation
 inline void trackAllocation(void* ptr, size_t size, const char* file, int line)
 {
-	std::lock_guard<std::mutex> lock(allocationsMutex);
+	std::lock_guard<std::shared_mutex> lock(allocationsMutex);
 	allocations[ptr] = {size, file, line};
 	totalAllocated += size;
 }
@@ -77,8 +77,9 @@ inline void trackAllocation(void* ptr, size_t size, const char* file, int line)
 // Track a deallocation
 inline void trackDeallocation(void* ptr)
 {
-	std::lock_guard<std::mutex> lock(allocationsMutex);
-	auto                        it = allocations.find(ptr);
+	std::lock_guard<std::shared_mutex> lock(allocationsMutex);
+
+	auto it = allocations.find(ptr);
 	if (it != allocations.end())
 	{
 		totalFreed += it->second.size;
@@ -97,9 +98,17 @@ struct TrackingDeleter
 };
 } // namespace priv
 
-inline void reportLeaks()
+inline void Report()
 {
-	std::lock_guard<std::mutex> lock(priv::allocationsMutex);
+	std::shared_lock<std::shared_mutex> lock(priv::allocationsMutex);
+	std::cout << "Currently allocated: " << priv::totalAllocated - priv::totalFreed << " bytes\n";
+}
+
+inline void ReportLeaks()
+{
+	std::shared_lock<std::shared_mutex> lock(priv::allocationsMutex);
+	std::cout << "Total allocated: " << priv::totalAllocated << " bytes\n";
+	std::cout << "Total freed: " << priv::totalFreed << " bytes\n";
 	if (!priv::allocations.empty())
 	{
 		std::cout << "Memory leaks detected:\n";
@@ -109,10 +118,7 @@ inline void reportLeaks()
 			          << ")\n";
 		}
 	}
-	std::cout << "Total allocated: " << priv::totalAllocated << " bytes\n";
-	std::cout << "Total freed: " << priv::totalFreed << " bytes\n";
 }
-
 
 // Function to create a tracked shared_ptr
 template<typename T, typename... Args>

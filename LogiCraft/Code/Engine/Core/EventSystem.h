@@ -49,8 +49,6 @@ namespace Logicraft
 {
 class Event
 {
-	using TCallBackPair = std::pair<void*, std::function<void()>>;
-
 public:
 	Event()  = default;
 	~Event() = default;
@@ -60,6 +58,9 @@ public:
 	Event& operator=(Event&&)      = delete;
 	Event& operator=(const Event&) = delete;
 
+private:
+	friend class EventSystem;
+	using TCallBackPair = std::pair<void*, std::function<void()>>;
 	template<typename TCallBackOwner>
 	void AddCallback(TCallBackOwner* pCallBackOwner, std::function<void()> func)
 	{
@@ -110,11 +111,7 @@ class LOGI_ENGINE_API EventSystem
 public:
 	inline static int s_callBackID = 0;
 
-	EventSystem() { m_logEnabled = true; }
-	EventSystem(bool logActivated)
-	  : m_logEnabled(logActivated)
-	{
-	}
+	EventSystem()  = default;
 	~EventSystem() = default;
 
 	EventSystem(EventSystem&&)                 = delete;
@@ -129,10 +126,10 @@ public:
 
 		m_queuedEventsCallbacks[eventID].AddCallback(pCallBackOwner, func);
 
-		if (m_logEnabled)
+		if (s_logEnabled)
 		{
 			Logger::Get().Log(Logger::eInfo,
-			  "[EventSystem] Queued event callback added in the " + std::to_string(eventID) + " eventID by " + typeid(TCallBackOwner).name());
+			  "[EventSystem] Event ID = " + std::to_string(eventID) + ": callback added by " + typeid(TCallBackOwner).name());
 		}
 	}
 
@@ -144,16 +141,19 @@ public:
 		auto it = m_queuedEventsCallbacks.find(eventID);
 		if (it != m_queuedEventsCallbacks.end())
 		{
-			if (m_queuedEventsCallbacks[eventID].RemoveCallback(pCallBackOwner) && m_logEnabled)
+			if (m_queuedEventsCallbacks[eventID].RemoveCallback(pCallBackOwner))
 			{
-				Logger::Get().Log(Logger::eInfo,
-				  "[EventSystem] Queued event callback remove in the " + std::to_string(eventID) + " eventID by" + typeid(TCallBackOwner).name());
+				if (s_logEnabled)
+				{
+					Logger::Get().Log(Logger::eInfo,
+					  "[EventSystem] Event ID = " + std::to_string(eventID) + ": callback removed by " + typeid(TCallBackOwner).name());
+				}
 			}
-			else if (m_logEnabled)
+			else
 			{
-				Logger::Get().Log(Logger::eError,
-				  std::string("[EventSystem] No event callback found from ") + typeid(TCallBackOwner).name() + " in the " + std::to_string(eventID)
-				    + " eventID");
+				Logger::Get().Log(Logger::eWarning,
+				  "[EventSystem] Event ID = " + std::to_string(eventID) + ": callback asked for removing by " + typeid(TCallBackOwner).name()
+				    + " but was not found!");
 			}
 		}
 	}
@@ -175,10 +175,10 @@ public:
 		TCallBackPair pair(std::move(cb), [func](void* pEventObject) { func(*(const TEvent*)pEventObject); });
 
 		m_eventsCallback.push_back(std::move(pair));
-		if (m_logEnabled)
+		if (s_logEnabled)
 		{
 			Logger::Get().Log(Logger::eInfo,
-			  std::string("[EventSystem] Callback added by ") + typeid(TCallBackOwner).name() + " with ID " + std::to_string(TEvent::ID));
+			  "[EventSystem] Event ID = " + std::to_string(TEvent::ID) + ": callback added by " + typeid(TCallBackOwner).name());
 		}
 	}
 
@@ -188,33 +188,33 @@ public:
 	{
 		std::lock_guard<std::shared_mutex> lock(m_mutexEventsCallback);
 
-		size_t initialSize = m_eventsCallback.size();
-		int    eventID     = 0;
+		int        eventID = 0;
+		auto       it      = std::remove_if(m_eventsCallback.begin(), m_eventsCallback.end(), [pCallBackOwner, &eventID](TCallBackPair& pair) {
+      if (pair.first.eventID == TEvent::ID && pair.first.pOwnerAdress == pCallBackOwner)
+      {
+        eventID = pair.first.eventID;
+        return true;
+      }
+      else
+        return false;
+    });
+		const bool found   = it != m_eventsCallback.end();
 
-		m_eventsCallback.erase(std::remove_if(m_eventsCallback.begin(),
-		                         m_eventsCallback.end(),
-		                         [pCallBackOwner, &eventID](TCallBackPair& pair) {
-			                         if (pair.first.eventID == TEvent::ID && pair.first.pOwnerAdress == pCallBackOwner)
-			                         {
-				                         eventID = pair.first.eventID;
-				                         return true;
-			                         }
-			                         else
-				                         return false;
-		                         }),
-		  m_eventsCallback.end());
-
-		if (m_logEnabled)
+		if (found)
 		{
-			if (m_eventsCallback.size() < initialSize)
+			m_eventsCallback.erase(it);
+			if (s_logEnabled)
 			{
 				Logger::Get().Log(Logger::eInfo,
-				  std::string("[EventSystem] Callback removed by ") + typeid(TCallBackOwner).name() + " with ID " + std::to_string(eventID));
+				  "[EventSystem] Event ID = " + std::to_string(eventID) + ": callback removed by " + typeid(TCallBackOwner).name());
 			}
-			else
-			{
-				Logger::Get().Log(Logger::eError, std::string("[EventSystem] No callback found with ") + typeid(TCallBackOwner).name() + " owner");
-			}
+		}
+
+		else
+		{
+			Logger::Get().Log(Logger::eWarning,
+			  "[EventSystem] Event ID = " + std::to_string(eventID) + ": callback asked for removing by " + typeid(TCallBackOwner).name()
+			    + " but was not found!");
 		}
 	}
 
@@ -229,12 +229,13 @@ public:
 			if (cb.first.eventID == TEvent::ID)
 			{
 				cb.second((void*)&typeEvent);
-				if (m_logEnabled)
-				{
-					Logger::Get().Log(Logger::eInfo,
-					  std::string("[EventSystem] Event invoked by ") + typeid(typeEvent).name() + " with ID " + std::to_string(TEvent::ID));
-				}
 			}
+		}
+		if (s_logEnabled)
+		{
+			std::string message =
+			  "[EventSystem] Event ID = " + std::to_string(TEvent::ID) + " invoked (" + std::to_string(m_eventsCallback.size()) + " callbacks).";
+			Logger::Get().Log(Logger::eInfo, message);
 		}
 	}
 
@@ -250,6 +251,7 @@ private:
 	std::shared_mutex m_mutexQueuedEventsCallbacks;
 	std::shared_mutex m_mutexQueuedEvents;
 
-	bool m_logEnabled;
+public:
+	inline static std::atomic_bool s_logEnabled{false};
 };
 } // namespace Logicraft

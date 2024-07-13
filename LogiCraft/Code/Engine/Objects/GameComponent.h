@@ -45,14 +45,17 @@ namespace Logicraft
 class LOGI_ENGINE_API GameComponent : public Serializable
 {
 	LOGI_TYPEDEF_BASE_TYPE(GameComponent)
+	friend class GameObject;
 
 public:
 	GameComponent();
+	virtual void Release();
 
 	virtual void Update() {}
 	virtual void Render(sf::RenderWindow& target) {}
 
-	GUID GetGUID() const { return m_GUID; }
+	GUID        GetGUID() const { return m_GUID; }
+	GameObject* GetObject() { return m_pGameObject; }
 
 	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
@@ -61,6 +64,8 @@ protected:
 
 private:
 	GUID m_GUID{0};
+
+	GameObject* m_pGameObject{nullptr};
 };
 using GameComponentPtr = std::shared_ptr<GameComponent>;
 } // namespace Logicraft

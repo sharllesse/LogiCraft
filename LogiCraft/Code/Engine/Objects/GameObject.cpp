@@ -33,6 +33,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "GameObject.h"
+#include "GameObjectManager.h"
 
 #include <assert.h>
 #include <combaseapi.h>
@@ -45,38 +46,50 @@ Logicraft::GameObject::GameObject()
 	assert(res == S_OK);
 }
 
+void Logicraft::GameObject::Release()
+{
+	for (GameComponentPtr pComponent : m_components)
+	{
+		GameObjectManager::Get().RemoveComponent(pComponent->GetGUID());
+	}
+	m_components.clear();
+}
+
 void GameObject::Update()
 {
-	for (GameComponentPtr component : m_components)
+	for (GameComponentPtr pComponent : m_components)
 	{
-		component->Update();
+		pComponent->Update();
 	}
 }
 
 void Logicraft::GameObject::Render(sf::RenderWindow& target)
 {
-	for (GameComponentPtr component : m_components)
+	for (GameComponentPtr pComponent : m_components)
 	{
-		component->Render(target);
+		pComponent->Render(target);
 	}
 }
 
 void GameObject::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
-	for (GameComponentPtr component : m_components)
+	for (GameComponentPtr pComponent : m_components)
 	{
 		// TODO
 	}
 }
 
-void Logicraft::GameObject::AddComponent(GameComponentPtr component)
+void Logicraft::GameObject::AddComponent(GameComponentPtr pComponent)
 {
-	m_components.push_back(component);
+	std::lock_guard<std::mutex> lock(m_mutex);
+	m_components.push_back(pComponent);
+	pComponent->m_pGameObject = this;
 }
 
-void Logicraft::GameObject::RemoveComponent(GameComponentPtr component)
+void Logicraft::GameObject::RemoveComponent(GameComponentPtr pComponent)
 {
-	std::erase(m_components, component);
+	std::lock_guard<std::mutex> lock(m_mutex);
+	std::erase(m_components, pComponent);
 }
 
 void GameObject::Load() {}

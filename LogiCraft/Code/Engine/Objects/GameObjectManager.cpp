@@ -33,10 +33,13 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "GameObjectManager.h"
+#include "Engine/Core/Action.h"
 #include "Engine/Core/Engine.h"
+#include "Engine/Core/Logger.h"
 #include "Engine/Core/SmartPtr.h"
 
 #include <assert.h>
+#include <string>
 
 using namespace Logicraft;
 
@@ -48,6 +51,18 @@ struct ObjectGUIDCompare
 	}
 
 	bool operator()(const GameObjectPtr& object) const { return object->GetGUID() == m_guid; }
+
+	REFGUID m_guid;
+};
+
+struct ComponentGUIDCompare
+{
+	ComponentGUIDCompare(REFGUID guid)
+	  : m_guid(guid)
+	{
+	}
+
+	bool operator()(const GameComponentPtr& cpnt) const { return cpnt->GetGUID() == m_guid; }
 
 	REFGUID m_guid;
 };
@@ -71,11 +86,64 @@ GameObjectManager::~GameObjectManager()
 	s_pGameObjectManager = nullptr;
 }
 
+void Logicraft::GameObjectManager::Init()
+{
+	ActionPtr pAction = ActionManager::Get().AddAction("GameObjectManager_enable_log");
+	pAction->SetCallback([this] { m_infoLogEnabled = true; });
+
+	pAction = ActionManager::Get().AddAction("GameObjectManager_disable_log");
+	pAction->SetCallback([this] { m_infoLogEnabled = false; });
+
+	pAction = ActionManager::Get().AddAction("create_object");
+	pAction->SetCallback([this] { CreateObject(); });
+}
+
 GameObjectPtr GameObjectManager::CreateObject()
 {
 	GameObjectPtr pNewObject = make_shared(GameObject);
+	if (m_infoLogEnabled)
+	{
+		std::string message = "Object created. " + std::to_string(m_components.size()) + " in total.";
+		Logger::Get().Log(Logger::eInfo, message);
+	}
+	std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
 	m_objects.push_back(pNewObject);
 	return pNewObject;
+}
+
+void GameObjectManager::RemoveObject(REFGUID objectGUID)
+{
+	std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	{
+		(*it)->Release();
+		m_objects.erase(it);
+		if (m_infoLogEnabled)
+		{
+			std::string message = "Object " + GuidUtils::GuidToString(objectGUID) + " removed.";
+			Logger::Get().Log(Logger::eInfo, message);
+		}
+	}
+	else
+	{
+		std::string message = "Object " + GuidUtils::GuidToString(objectGUID) + " asked to be removed but was not found!";
+		Logger::Get().Log(Logger::eWarning, message);
+	}
+}
+
+GameObjectPtr GameObjectManager::GetObject(REFGUID objectGUID) const
+{
+	std::shared_lock<std::shared_mutex> lock(m_objectsMutex);
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	{
+		return *it;
+	}
+	else
+	{
+		std::string message = "Object " + GuidUtils::GuidToString(objectGUID) + " asked but was not found!";
+		Logger::Get().Log(Logger::eWarning, message);
+	}
+	return GameObjectPtr();
 }
 
 GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
@@ -85,32 +153,61 @@ GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
 		if (pComponentType->GetName().compare(componentType) == 0)
 		{
 			GameComponentPtr pComponent = pComponentType->Create();
+
+			std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
 			m_components.push_back(pComponent);
 
-			std::string message = "Component type " + std::string(componentType) + " created.";
-			Logger::Get().Log(Logger::eInfo, message);
-
+			if (m_infoLogEnabled)
+			{
+				std::string message = "Component type " + std::string(componentType) + " created. " + std::to_string(m_components.size()) + " in total.";
+				Logger::Get().Log(Logger::eInfo, message);
+			}
 			return pComponent;
 		}
 	}
+
 	std::string message = "Component type " + std::string(componentType) + " does not exist!";
-	Logger::Get().Log(Logger::eError, message);
+	Logger::Get().Log(Logger::eWarning, message);
 	return nullptr;
 }
 
-void GameObjectManager::RemoveObject(REFGUID objectGUID)
+void Logicraft::GameObjectManager::RemoveComponent(REFGUID componentGUID)
 {
-	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
+	if (auto it = std::find_if(m_components.begin(), m_components.end(), ComponentGUIDCompare(componentGUID)); it != m_components.end())
 	{
-		m_objects.erase(it);
+		GameComponentPtr pComponent = (*it);
+		if (GameObject* pObject = pComponent->GetObject())
+		{
+			pObject->RemoveComponent(pComponent);
+		}
+		pComponent->Release();
+		m_components.erase(it);
+
+		if (m_infoLogEnabled)
+		{
+			std::string message = "Component " + GuidUtils::GuidToString(componentGUID) + " removed.";
+			Logger::Get().Log(Logger::eInfo, message);
+		}
+	}
+	else
+	{
+		std::string message = "Component " + GuidUtils::GuidToString(componentGUID) + " asked to be removed but was not found!";
+		Logger::Get().Log(Logger::eWarning, message);
 	}
 }
 
-GameObjectPtr GameObjectManager::GetObject(REFGUID objectGUID)
+GameComponentPtr Logicraft::GameObjectManager::GetComponent(REFGUID componentGUID) const
 {
-	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	std::shared_lock<std::shared_mutex> lock(m_componentsMutex);
+	if (auto it = std::find_if(m_components.begin(), m_components.end(), ComponentGUIDCompare(componentGUID)); it != m_components.end())
 	{
 		return *it;
 	}
-	return GameObjectPtr();
+	else
+	{
+		std::string message = "Component " + GuidUtils::GuidToString(componentGUID) + " asked but was not found!";
+		Logger::Get().Log(Logger::eWarning, message);
+	}
+	return GameComponentPtr();
 }

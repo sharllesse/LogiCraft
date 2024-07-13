@@ -72,6 +72,7 @@ private:
 	std::string           m_description;
 	EventSystem           m_eventSystem;
 
+	inline static bool                     s_logEnabled{false};
 	inline static std::vector<std::string> s_actionsToExecute;
 };
 using ActionPtr = std::shared_ptr<Action>;

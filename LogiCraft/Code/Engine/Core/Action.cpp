@@ -47,7 +47,6 @@ using namespace Logicraft;
 Action::Action(const char* name)
   : m_name(name)
 {
-	std::for_each(m_name.begin(), m_name.end(), ::tolower);
 	SfmlUtils::ClearKeyEvent(m_shortcut);
 	Engine::Get().GetEventSystem().AddQueuedEventCallback(this, Engine::eProcessedEvents, [this] { m_eventSystem.ProcessEvents(); });
 	m_eventSystem.AddQueuedEventCallback(this, Engine::eActionExecuteRequested, [this] { Execute(); });
@@ -57,10 +56,12 @@ void Action::Execute()
 {
 	if (m_callback)
 	{
-		Logger::Get().Log(Logger::eInfo, "Action executed: " + m_name);
+		if (s_logEnabled)
+			Logger::Get().Log(Logger::eInfo, "Action will be executed: " + m_name);
+
 		m_callback();
 	}
-	else
+	else if (s_logEnabled)
 	{
 		Logger::Get().Log(Logger::eError, "Action has no callback: " + m_name);
 	}

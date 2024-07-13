@@ -37,6 +37,7 @@ SOFTWARE.
 
 #include <guiddef.h>
 #include <memory>
+#include <shared_mutex>
 #include <vector>
 
 namespace Logicraft
@@ -49,15 +50,24 @@ public:
 	GameObjectManager();
 	~GameObjectManager();
 
-	GameObjectPtr    CreateObject();
-	GameComponentPtr CreateComponent(const char* componentType);
-	void             RemoveObject(REFGUID objectGUID);
-	GameObjectPtr    GetObject(REFGUID objectGUID);
+	void Init();
 
-	const std::vector<GameObjectPtr>& GetObjects() const { return m_objects; }
+	GameObjectPtr CreateObject();
+	void          RemoveObject(REFGUID objectGUID);
+	GameObjectPtr GetObject(REFGUID objectGUID) const;
+
+	GameComponentPtr CreateComponent(const char* componentType);
+	void             RemoveComponent(REFGUID componentGUID);
+	GameComponentPtr GetComponent(REFGUID componentGUID) const;
+
+	const std::vector<GameObjectPtr>&    GetObjects() const { return m_objects; }
+	const std::vector<GameComponentPtr>& GetComponents() const { return m_components; }
 
 protected:
+	bool                          m_infoLogEnabled = false;
+	mutable std::shared_mutex     m_objectsMutex;
 	std::vector<GameObjectPtr>    m_objects;
+	mutable std::shared_mutex     m_componentsMutex;
 	std::vector<GameComponentPtr> m_components;
 };
 } // namespace Logicraft

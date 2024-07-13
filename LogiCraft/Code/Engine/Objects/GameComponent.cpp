@@ -43,6 +43,11 @@ Logicraft::GameComponent::GameComponent()
 	assert(res == S_OK);
 }
 
+void Logicraft::GameComponent::Release()
+{
+	m_pGameObject = nullptr;
+}
+
 void Logicraft::GameComponent::Serialize(bool load, JsonObjectPtr pJsonObject) {}
 
 void Logicraft::GameComponent::Load() {}

@@ -58,6 +58,7 @@ Engine::Engine()
 	m_pLogger            = std::make_unique<Logger>();
 	m_pResourceManager   = std::make_unique<ResourceManager>();
 	m_pTaskManager       = std::make_unique<TaskManager>();
+	m_pUnitTest          = std::make_unique<UnitTest>();
 }
 
 Engine::~Engine()
@@ -67,10 +68,17 @@ Engine::~Engine()
 
 void Engine::Init()
 {
+	m_pGameObjectManager->Init();
 	m_pResourceManager->StartLoading();
 
-	ActionPtr pAction = ActionManager::Get().AddAction("start_unit_tests");
-	pAction->SetCallback([this] { m_pUnitTest->Start(); });
+	ActionPtr pAction = ActionManager::Get().AddAction("EventSystem_enable_log");
+	pAction->SetCallback([] { EventSystem::s_logEnabled = true; });
+
+	pAction = ActionManager::Get().AddAction("EventSystem_disable_log");
+	pAction->SetCallback([] { EventSystem::s_logEnabled = false; });
+
+	pAction = ActionManager::Get().AddAction("run_tests");
+	pAction->SetCallback([this] { m_pUnitTest->Run(); });
 }
 
 void Logicraft::Engine::ProcessEvents()
