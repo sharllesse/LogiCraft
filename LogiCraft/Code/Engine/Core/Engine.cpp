@@ -72,10 +72,10 @@ void Engine::Init()
 	m_pResourceManager->StartLoading();
 
 	ActionPtr pAction = ActionManager::Get().AddAction("EventSystem_enable_log");
-	pAction->SetCallback([] { EventSystem::s_logEnabled = true; });
+	pAction->SetCallback([] { EventSystem::EnableLog(true); });
 
 	pAction = ActionManager::Get().AddAction("EventSystem_disable_log");
-	pAction->SetCallback([] { EventSystem::s_logEnabled = false; });
+	pAction->SetCallback([] { EventSystem::EnableLog(false); });
 
 	pAction = ActionManager::Get().AddAction("run_tests");
 	pAction->SetCallback([this] { m_pUnitTest->Run(); });

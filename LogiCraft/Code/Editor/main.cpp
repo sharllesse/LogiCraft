@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 		{
 			actionsToExecute.emplace_back(argv[i]);
 		}
-		actionsToExecute.emplace_back("run_tests");
+		// actionsToExecute.emplace_back("run_tests");
 		Logicraft::Action::SetActionsToExecute(actionsToExecute);
 
 		editor.Run();

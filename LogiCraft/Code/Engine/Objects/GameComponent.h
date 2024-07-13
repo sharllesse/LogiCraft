@@ -42,12 +42,27 @@ SOFTWARE.
 
 namespace Logicraft
 {
+class GameComponent;
+using GameComponentPtr = std::shared_ptr<GameComponent>;
+
 class LOGI_ENGINE_API GameComponent : public Serializable
 {
 	LOGI_TYPEDEF_BASE_TYPE(GameComponent)
 	friend class GameObject;
 
 public:
+	struct GUIDCompare
+	{
+		GUIDCompare(REFGUID guid)
+		  : m_guid(guid)
+		{
+		}
+
+		bool operator()(const GameComponentPtr& cpnt) const { return cpnt->GetGUID() == m_guid; }
+
+		REFGUID m_guid;
+	};
+
 	GameComponent();
 	virtual void Release();
 
@@ -67,5 +82,4 @@ private:
 
 	GameObject* m_pGameObject{nullptr};
 };
-using GameComponentPtr = std::shared_ptr<GameComponent>;
 } // namespace Logicraft

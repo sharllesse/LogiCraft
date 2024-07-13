@@ -48,10 +48,6 @@ Logicraft::GameObject::GameObject()
 
 void Logicraft::GameObject::Release()
 {
-	for (GameComponentPtr pComponent : m_components)
-	{
-		GameObjectManager::Get().RemoveComponent(pComponent->GetGUID());
-	}
 	m_components.clear();
 }
 
@@ -89,7 +85,11 @@ void Logicraft::GameObject::AddComponent(GameComponentPtr pComponent)
 void Logicraft::GameObject::RemoveComponent(GameComponentPtr pComponent)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	std::erase(m_components, pComponent);
+	if (auto it = std::find_if(m_components.begin(), m_components.end(), GameComponent::GUIDCompare(pComponent->GetGUID())); it != m_components.end())
+	{
+		(*it)->m_pGameObject = nullptr;
+		m_components.erase(it);
+	}
 }
 
 void GameObject::Load() {}

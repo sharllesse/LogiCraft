@@ -49,7 +49,7 @@ namespace Logicraft
 class LOGI_ENGINE_API TaskManager
 {
 public:
-	static const int NumThreads = 16;
+	static const int NumThreads = 50;
 
 	static TaskManager& Get();
 

@@ -158,7 +158,6 @@ public:
 		ObjectsManagerTests(9999).Run();
 
 		// EventSystem
-		if (false)
 		{
 			std::srand((unsigned int)std::time(NULL));
 

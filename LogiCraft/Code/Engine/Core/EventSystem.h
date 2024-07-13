@@ -239,8 +239,7 @@ public:
 		}
 	}
 
-	// To active log
-	void EnableLog(bool value);
+	static void EnableLog(bool value);
 
 private:
 	std::vector<TCallBackPair>     m_eventsCallback;
@@ -251,7 +250,6 @@ private:
 	std::shared_mutex m_mutexQueuedEventsCallbacks;
 	std::shared_mutex m_mutexQueuedEvents;
 
-public:
 	inline static std::atomic_bool s_logEnabled{false};
 };
 } // namespace Logicraft

@@ -43,30 +43,6 @@ SOFTWARE.
 
 using namespace Logicraft;
 
-struct ObjectGUIDCompare
-{
-	ObjectGUIDCompare(REFGUID guid)
-	  : m_guid(guid)
-	{
-	}
-
-	bool operator()(const GameObjectPtr& object) const { return object->GetGUID() == m_guid; }
-
-	REFGUID m_guid;
-};
-
-struct ComponentGUIDCompare
-{
-	ComponentGUIDCompare(REFGUID guid)
-	  : m_guid(guid)
-	{
-	}
-
-	bool operator()(const GameComponentPtr& cpnt) const { return cpnt->GetGUID() == m_guid; }
-
-	REFGUID m_guid;
-};
-
 GameObjectManager* s_pGameObjectManager = nullptr;
 
 GameObjectManager& GameObjectManager::Get()
@@ -114,9 +90,15 @@ GameObjectPtr GameObjectManager::CreateObject()
 void GameObjectManager::RemoveObject(REFGUID objectGUID)
 {
 	std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
-	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), GameObject::GUIDCompare(objectGUID)); it != m_objects.end())
 	{
-		(*it)->Release();
+		GameObjectPtr                 pObject       = (*it);
+		std::vector<GameComponentPtr> tmpComponents = pObject->GetComponents();
+		for (GameComponentPtr pComponent : tmpComponents)
+		{
+			GameObjectManager::Get().RemoveComponent(pComponent->GetGUID());
+		}
+		pObject->Release();
 		m_objects.erase(it);
 		if (m_infoLogEnabled)
 		{
@@ -134,7 +116,7 @@ void GameObjectManager::RemoveObject(REFGUID objectGUID)
 GameObjectPtr GameObjectManager::GetObject(REFGUID objectGUID) const
 {
 	std::shared_lock<std::shared_mutex> lock(m_objectsMutex);
-	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), ObjectGUIDCompare(objectGUID)); it != m_objects.end())
+	if (auto it = std::find_if(m_objects.begin(), m_objects.end(), GameObject::GUIDCompare(objectGUID)); it != m_objects.end())
 	{
 		return *it;
 	}
@@ -174,7 +156,7 @@ GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
 void Logicraft::GameObjectManager::RemoveComponent(REFGUID componentGUID)
 {
 	std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
-	if (auto it = std::find_if(m_components.begin(), m_components.end(), ComponentGUIDCompare(componentGUID)); it != m_components.end())
+	if (auto it = std::find_if(m_components.begin(), m_components.end(), GameComponent::GUIDCompare(componentGUID)); it != m_components.end())
 	{
 		GameComponentPtr pComponent = (*it);
 		if (GameObject* pObject = pComponent->GetObject())
@@ -200,7 +182,7 @@ void Logicraft::GameObjectManager::RemoveComponent(REFGUID componentGUID)
 GameComponentPtr Logicraft::GameObjectManager::GetComponent(REFGUID componentGUID) const
 {
 	std::shared_lock<std::shared_mutex> lock(m_componentsMutex);
-	if (auto it = std::find_if(m_components.begin(), m_components.end(), ComponentGUIDCompare(componentGUID)); it != m_components.end())
+	if (auto it = std::find_if(m_components.begin(), m_components.end(), GameComponent::GUIDCompare(componentGUID)); it != m_components.end())
 	{
 		return *it;
 	}
