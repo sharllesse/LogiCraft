@@ -58,6 +58,8 @@ Engine::Engine()
 	m_pLogger            = std::make_unique<Logger>();
 	m_pResourceManager   = std::make_unique<ResourceManager>();
 	m_pTaskManager       = std::make_unique<TaskManager>();
+
+	m_pEventSystem->EnableLog(false);
 }
 
 Engine::~Engine()

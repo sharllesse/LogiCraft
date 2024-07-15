@@ -50,6 +50,22 @@ public:
 	void Update() override;
 	void DrawUI() override;
 
+	void SetBoxCollider();
+	void SetSphereCollider();
+
+	void SetEnable();
+	void SetTypeOfCollider();
+
+	int         intNames = 0;
+	const char* names[3] = {"Box", "Sphere", "Mesh"};
+
+	bool enable = true;
+
+	float size[2]{200.f, 200.f};
+	float offset[2]{0.f, 0.f};
+	float radius{50.f};
+
 private:
+	ComponentColliderPtr m_pCollider;
 };
 } // namespace Logicraft

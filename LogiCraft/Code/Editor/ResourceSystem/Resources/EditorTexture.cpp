@@ -50,8 +50,8 @@ void Logicraft::EditorTexture::DrawUI()
 	{
 		if (ImGui::Button(pTexture->GetFilePath().empty() ? "<Select A File>" : pTexture->GetFilePath().c_str()))
 		{
-			pTexture->SetFilePath("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
-			pTexture->GetTexture().loadFromFile("C:/Users/rciron/Documents/GitHub/LogiCraft/Sample_Resources/200x200D.png");
+			pTexture->SetFilePath("C:/Users/TO/Desktop/texture200x200.png");
+			pTexture->GetTexture().loadFromFile("C:/Users/TO/Desktop/texture200x200.png");
 		}
 	}
 }

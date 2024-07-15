@@ -37,11 +37,19 @@ SOFTWARE.
 #include "Objects/GameComponent.h"
 #include "Utils/TypeDefinition.h"
 
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
 namespace Logicraft
 {
+enum ECollider
+{
+	eBoxCollider = 0,
+	eSphereCollider,
+	eSpriteCollider
+};
 class LOGI_ENGINE_API ComponentCollider : public GameComponent
 {
 	LOGI_TYPEDEF_DERIVED_TYPE(GameComponent, ComponentCollider, "Collider")
@@ -51,7 +59,22 @@ public:
 
 	void Render(sf::RenderWindow& target) override;
 
+	void SetBoxCollider(sf::Vector2f size, sf::Vector2f offset);
+	void SetSphereCollider(float radius, sf::Vector2f offset);
+	void SetTypeOfCollider(int value);
+	void SetEnable(bool enable);
+
 private:
+	ECollider m_colliderType;
+
+	sf::Vector2f m_offset;
+	sf::Vector2f m_size;
+	float        m_radius;
+	sf::Color    m_color;
+	bool         m_enable;
+
+	sf::RectangleShape m_rectangleShape;
+	sf::CircleShape    m_circleShape;
 };
 using ComponentColliderPtr = std::shared_ptr<ComponentCollider>;
 } // namespace Logicraft
