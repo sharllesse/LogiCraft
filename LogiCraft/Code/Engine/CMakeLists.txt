@@ -20,3 +20,6 @@ target_link_libraries(Logi_Engine PUBLIC ImGui-SFML)
 
 # Link Json
 target_link_libraries(Logi_Engine PUBLIC Json)
+
+#Link Box2D
+target_link_libraries(Logi_Engine PUBLIC box2d::box2d)

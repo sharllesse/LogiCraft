@@ -9,6 +9,10 @@ find_package(SFML 2.6.1 COMPONENTS system window graphics network audio REQUIRED
 #ImGui
 set(IMGUI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Code/imgui")
 
+#Box2D
+set(BOX2D_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Code/Box2D/lib/cmake/box2d")
+find_package(box2d REQUIRED)
+
 add_subdirectory(Code/imgui-sfml/)
 add_subdirectory(Code/Engine/)
 add_subdirectory(Code/Editor/)

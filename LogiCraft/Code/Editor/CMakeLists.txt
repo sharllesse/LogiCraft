@@ -18,6 +18,9 @@ target_link_libraries(Logi_Editor PRIVATE Logi_Engine)
 # Link ImGui
 target_link_libraries(Logi_Editor PUBLIC ImGui-SFML)
 
+#Link Box2D
+target_link_libraries(Logi_Editor PUBLIC box2d::box2d)
+
 if(MSVC)
   target_compile_options(Logi_Editor PUBLIC "/Zi")
   target_link_options(Logi_Editor PUBLIC "/INCREMENTAL")

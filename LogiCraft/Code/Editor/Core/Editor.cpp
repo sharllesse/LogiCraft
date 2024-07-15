@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "Editor.h"
 
+#include <Box2D/box2d.h>
 #include <Engine/Core/Action.h>
 #include <Engine/Core/SmartPtr.h>
 #include <SFML/Graphics.hpp>
@@ -41,7 +42,6 @@ SOFTWARE.
 #include <assert.h>
 #include <imgui-SFML/imgui-SFML.h>
 #include <imgui/imgui.h>
-
 using namespace Logicraft;
 
 Editor* s_pEditor = nullptr;
