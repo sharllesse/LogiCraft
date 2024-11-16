@@ -77,13 +77,15 @@ void Logicraft::GameObjectManager::Init()
 GameObjectPtr GameObjectManager::CreateObject()
 {
 	GameObjectPtr pNewObject = make_shared(GameObject);
+	{
+		std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
+		m_objects.push_back(pNewObject);
+	}
 	if (m_infoLogEnabled)
 	{
-		std::string message = "Object created. " + std::to_string(m_components.size()) + " in total.";
+		std::string message = "Object created. " + std::to_string(m_objects.size()) + " in total.";
 		Logger::Get().Log(Logger::eInfo, message);
 	}
-	std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
-	m_objects.push_back(pNewObject);
 	return pNewObject;
 }
 
@@ -136,9 +138,10 @@ GameComponentPtr GameObjectManager::CreateComponent(const char* componentType)
 		{
 			GameComponentPtr pComponent = pComponentType->Create();
 
-			std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
-			m_components.push_back(pComponent);
-
+			{
+				std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
+				m_components.push_back(pComponent);
+			}
 			if (m_infoLogEnabled)
 			{
 				std::string message = "Component type " + std::string(componentType) + " created. " + std::to_string(m_components.size()) + " in total.";
@@ -192,4 +195,22 @@ GameComponentPtr Logicraft::GameObjectManager::GetComponent(REFGUID componentGUI
 		Logger::Get().Log(Logger::eWarning, message);
 	}
 	return GameComponentPtr();
+}
+
+void Logicraft::GameObjectManager::ForEachObject(const std::function<void(GameObjectPtr)>& func) const
+{
+	std::shared_lock<std::shared_mutex> lock(m_objectsMutex);
+	for (GameObjectPtr pObject : m_objects)
+	{
+		func(pObject);
+	}
+}
+
+void Logicraft::GameObjectManager::ForEachComponent(const std::function<void(GameComponentPtr)>& func) const
+{
+	std::shared_lock<std::shared_mutex> lock(m_componentsMutex);
+	for (GameComponentPtr pComponent : m_components)
+	{
+		func(pComponent);
+	}
 }

@@ -90,18 +90,12 @@ void Logicraft::Engine::ProcessEvents()
 void Engine::Update()
 {
 	// PROFILE_FUNCTION
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Update();
-	}
+	m_pGameObjectManager->ForEachObject([](GameObjectPtr pObject) { pObject->Update(); });
 }
 
 void Engine::Render(sf::RenderWindow& target)
 {
-	for (GameObjectPtr pObject : m_pGameObjectManager->GetObjects())
-	{
-		pObject->Render(target);
-	}
+	m_pGameObjectManager->ForEachObject([&target](GameObjectPtr pObject) { pObject->Render(target); });
 }
 
 void Engine::Release()

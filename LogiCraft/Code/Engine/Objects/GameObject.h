@@ -37,7 +37,9 @@ SOFTWARE.
 #include "GameComponent.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <memory>
+#include <shared_mutex>
 #include <vector>
 
 namespace Logicraft
@@ -79,7 +81,8 @@ protected:
 
 private:
 	GUID                          m_GUID{0};
-	std::mutex                    m_mutex;
+	sf::Vector2f                  m_position;
+	std::shared_mutex             m_componentsMutex;
 	std::vector<GameComponentPtr> m_components;
 };
 } // namespace Logicraft

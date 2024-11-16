@@ -60,8 +60,8 @@ public:
 	void             RemoveComponent(REFGUID componentGUID);
 	GameComponentPtr GetComponent(REFGUID componentGUID) const;
 
-	const std::vector<GameObjectPtr>&    GetObjects() const { return m_objects; }
-	const std::vector<GameComponentPtr>& GetComponents() const { return m_components; }
+	void ForEachObject(const std::function<void(GameObjectPtr)>& func) const;
+	void ForEachComponent(const std::function<void(GameComponentPtr)>& func) const;
 
 protected:
 	bool                          m_infoLogEnabled = false;

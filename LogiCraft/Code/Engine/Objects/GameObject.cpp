@@ -48,11 +48,13 @@ Logicraft::GameObject::GameObject()
 
 void Logicraft::GameObject::Release()
 {
+	std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
 	m_components.clear();
 }
 
 void GameObject::Update()
 {
+	std::shared_lock<std::shared_mutex> lock(m_componentsMutex);
 	for (GameComponentPtr pComponent : m_components)
 	{
 		pComponent->Update();
@@ -61,6 +63,7 @@ void GameObject::Update()
 
 void Logicraft::GameObject::Render(sf::RenderWindow& target)
 {
+	std::shared_lock<std::shared_mutex> lock(m_componentsMutex);
 	for (GameComponentPtr pComponent : m_components)
 	{
 		pComponent->Render(target);
@@ -69,6 +72,7 @@ void Logicraft::GameObject::Render(sf::RenderWindow& target)
 
 void GameObject::Serialize(bool load, JsonObjectPtr pJsonObject)
 {
+	std::shared_lock<std::shared_mutex> lock(m_componentsMutex);
 	for (GameComponentPtr pComponent : m_components)
 	{
 		// TODO
@@ -77,14 +81,14 @@ void GameObject::Serialize(bool load, JsonObjectPtr pJsonObject)
 
 void Logicraft::GameObject::AddComponent(GameComponentPtr pComponent)
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
 	m_components.push_back(pComponent);
 	pComponent->m_pGameObject = this;
 }
 
 void Logicraft::GameObject::RemoveComponent(GameComponentPtr pComponent)
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
 	if (auto it = std::find_if(m_components.begin(), m_components.end(), GameComponent::GUIDCompare(pComponent->GetGUID())); it != m_components.end())
 	{
 		(*it)->m_pGameObject = nullptr;

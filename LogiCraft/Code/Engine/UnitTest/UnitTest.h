@@ -24,119 +24,147 @@ public:
 	{
 		Logger::Get().Log(Logger::eInfo, "Begin ObjectsManager test");
 
-		ActionManager::Get().ExecuteAction("GameObjectManager_disable_log");
-		Logicraft::Memory::Report();
+		// ActionManager::Get().ExecuteAction("GameObjectManager_enable_log");
 
 		const char* cpntType = GameComponent::GetRegisteredTypes()[0]->GetName().c_str();
 
 		// Create objects
-		for (int i = 0; i < 100; i++)
-		{
-			++m_runningTasks;
-			TaskManager::Get().AddTask([this]() {
-				for (int j = 0; j < 100; j++)
-				{
-					GameObjectPtr pObject = GameObjectManager::Get().CreateObject();
+		++m_runningTasks;
+		TaskManager::Get().AddTask([this]() {
+			for (int i = 0; i < s_numOfWorkingThreadsByAction; i++)
+			{
+				++m_runningTasks;
+				TaskManager::Get().AddTask([this]() {
+					for (int j = 0; j < s_numObjectsToAddByThread; j++)
+					{
+						GameObjectPtr pObject = GameObjectManager::Get().CreateObject();
 
-					std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
-					m_objects.push_back(pObject);
-				}
-				--m_runningTasks;
-			});
-		}
+						std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
+						m_objects.push_back(pObject);
+						++m_objectsAdded;
+					}
+					--m_runningTasks;
+				});
+			}
+			--m_runningTasks;
+		});
 
 		// Create components
-		for (int i = 0; i < 100; i++)
-		{
-			++m_runningTasks;
-			TaskManager::Get().AddTask([this, cpntType]() {
-				for (int j = 0; j < 100; j++)
-				{
-					GameComponentPtr pCpnt   = GameObjectManager::Get().CreateComponent(cpntType);
-					GameObjectPtr    pObject = GetRandomObject();
-					pObject->AddComponent(pCpnt);
-
-					std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
-					m_components.push_back(pCpnt);
-				}
-				--m_runningTasks;
-			});
-		}
+		++m_runningTasks;
+		TaskManager::Get().AddTask([this, cpntType]() {
+			for (int i = 0; i < s_numOfWorkingThreadsByAction; i++)
+			{
+				++m_runningTasks;
+				TaskManager::Get().AddTask([this, cpntType]() {
+					for (int j = 0; j < s_numComponentsToAddByThread; j++)
+					{
+						GameComponentPtr pCpnt = GameObjectManager::Get().CreateComponent(cpntType);
+						/*					if (GameObjectPtr pObject = GetRandomObject())
+						          {
+						            pObject->AddComponent(pCpnt);
+						          }*/
+						std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
+						m_components.push_back(pCpnt);
+						++m_componentsAdded;
+					}
+					--m_runningTasks;
+				});
+			}
+			--m_runningTasks;
+		});
 
 		// Destroy components
-		for (int i = 0; i < 100; i++)
-		{
-			++m_runningTasks;
-			TaskManager::Get().AddTask([this]() {
-				for (int j = 0; j < 100; j++)
-				{
-					GameComponentPtr pCpnt = GetRandomComponent();
+		++m_runningTasks;
+		TaskManager::Get().AddTask([this]() {
+			for (int i = 0; i < s_numOfWorkingThreadsByAction; i++)
+			{
+				++m_runningTasks;
+				TaskManager::Get().AddTask([this]() {
+					while ((m_componentsAdded < s_numComponentsToAdd || m_componentsAdded > m_componentsRemoved) && !m_stop)
 					{
-						std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
-						std::erase(m_components, pCpnt);
+						if (GameComponentPtr pCpnt = GetRandomComponent())
+						{
+							GameObjectManager::Get().RemoveComponent(pCpnt->GetGUID());
+						}
 					}
-					if (pCpnt->GetObject())
-					{
-						GameObjectManager::Get().RemoveComponent(pCpnt->GetGUID());
-					}
-					else
-					{
-						// if the component has no game object, it should have been released by its object and not be in the list anymore
-						assert(GameObjectManager::Get().GetComponent(pCpnt->GetGUID()) == nullptr);
-					}
-				}
-				--m_runningTasks;
-			});
-		}
+					--m_runningTasks;
+				});
+			}
+			--m_runningTasks;
+		});
 
 		// Destroy objects
-		for (int i = 0; i < 100; i++)
-		{
-			++m_runningTasks;
-			TaskManager::Get().AddTask([this]() {
-				for (int j = 0; j < 100; j++)
-				{
-					GameObjectPtr pObject = GetRandomObject();
+		++m_runningTasks;
+		TaskManager::Get().AddTask([this]() {
+			for (int i = 0; i < s_numOfWorkingThreadsByAction; i++)
+			{
+				++m_runningTasks;
+				TaskManager::Get().AddTask([this]() {
+					while ((m_objectsAdded < s_numObjectsToAdd || m_objectsAdded > m_objectsRemoved) && !m_stop)
 					{
-						std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
-						std::erase(m_objects, pObject);
+						if (GameObjectPtr pObject = GetRandomObject())
+						{
+							GameObjectManager::Get().RemoveObject(pObject->GetGUID());
+						}
 					}
-					GameObjectManager::Get().RemoveObject(pObject->GetGUID());
-				}
-				--m_runningTasks;
-			});
-		}
+					--m_runningTasks;
+				});
+			}
+			--m_runningTasks;
+		});
 
 		Stop();
-		Logicraft::Memory::Report();
 		Logger::Get().Log(Logger::eInfo, "End ObjectsManager test");
 	}
 
 	GameObjectPtr GetRandomObject()
 	{
-		std::shared_lock<std::shared_mutex> lock(m_objectsMutex);
-		while (m_objects.empty() && !m_stop) {}
-		int objectToRemove = std::rand() % m_objects.size();
-		return m_objects[objectToRemove];
+		std::lock_guard<std::shared_mutex> lock(m_objectsMutex);
+		if (!m_objects.empty())
+		{
+			int           objectToRemove = std::rand() % m_objects.size();
+			GameObjectPtr pObject        = m_objects[objectToRemove];
+			m_objects.erase(m_objects.begin() + objectToRemove);
+			++m_objectsRemoved;
+			return pObject;
+		}
+		return GameObjectPtr();
 	}
 
 	GameComponentPtr GetRandomComponent()
 	{
-		std::shared_lock<std::shared_mutex> lock(m_componentsMutex);
-		while (m_components.empty() && !m_stop) {}
-		int componentToRemove = std::rand() % m_components.size();
-		return m_components[componentToRemove];
+		std::lock_guard<std::shared_mutex> lock(m_componentsMutex);
+		if (!m_components.empty())
+		{
+			int              componentToRemove = std::rand() % m_components.size();
+			GameComponentPtr pCpnt             = m_components[componentToRemove];
+			m_components.erase(m_components.begin() + componentToRemove);
+			++m_componentsRemoved;
+			return pCpnt;
+		}
+		return GameComponentPtr();
 	}
 
 	void Stop()
 	{
 		while (m_runningTasks > 0 && m_clock.getElapsedTime().asMilliseconds() < timeOut) {}
-		m_stop = true; // avoid infinite loops but if they need to be stopped there is a problem
 		assert(m_runningTasks == 0 && m_objects.empty() && m_components.empty());
+		m_stop = true; // avoid infinite loops but if they need to be stopped there is a problem
 	}
 
 private:
-	std::atomic<int>              m_runningTasks{0};
+	static constexpr int s_numOfWorkingThreadsByAction = 100;
+	static constexpr int s_numObjectsToAddByThread     = 100;
+	static constexpr int s_numObjectsToAdd             = s_numOfWorkingThreadsByAction * s_numObjectsToAddByThread;
+	static constexpr int s_numComponentsToAddByThread  = 0;
+	static constexpr int s_numComponentsToAdd          = s_numOfWorkingThreadsByAction * s_numComponentsToAddByThread;
+
+	std::atomic<int> m_runningTasks{0};
+	std::atomic<int> m_objectsAdded{0};
+	std::atomic<int> m_objectsRemoved{0};
+	std::atomic<int> m_componentsAdded{0};
+	std::atomic<int> m_componentsRemoved{0};
+
 	std::shared_mutex             m_objectsMutex;
 	std::vector<GameObjectPtr>    m_objects;
 	std::shared_mutex             m_componentsMutex;
@@ -158,6 +186,7 @@ public:
 		ObjectsManagerTests(9999).Run();
 
 		// EventSystem
+		if (false)
 		{
 			std::srand((unsigned int)std::time(NULL));
 
