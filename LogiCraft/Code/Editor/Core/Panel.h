@@ -56,6 +56,8 @@ public:
 
 	void Serialize(bool load, JsonObjectPtr pJsonObject) override;
 
+	virtual void Release() {}
+
 protected:
 	virtual void Draw() = 0;
 

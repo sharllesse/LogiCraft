@@ -33,6 +33,9 @@ SOFTWARE.
 ---------------------------------------------------------------------------------*/
 
 #include "EditorObjectManager.h"
+#include "SelectionManager.h"
+
+#include "Core/Editor.h"
 
 #include <Engine/Core/ActionManager.h>
 #include <Engine/Core/Engine.h>
@@ -93,6 +96,8 @@ void EditorObjectManager::CreateObject()
 
 	GameObjectPtr pGameObject = GameObjectManager::Get().CreateObject();
 	pNewObject->SetGameObject(pGameObject);
+
+	Editor::Get().GetEventSystem().SendEvent(EventObjectCreated(pNewObject));
 }
 
 void EditorObjectManager::RemoveObject(REFGUID objectGUID)
